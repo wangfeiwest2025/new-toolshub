@@ -256,13 +256,14 @@
         });
         
         async function startScreenCapture() {
-            showLoading('请在弹出的窗口中选择要截屏的区域...');
+            showLoading('正在启动截屏，请在系统选择器中选择要截屏的区域...');
             
             try {
                 // 调用浏览器原生屏幕共享API
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
-                        cursor: 'always'
+                        cursor: 'always',
+                        displaySurface: 'monitor'
                     },
                     audio: false
                 });
