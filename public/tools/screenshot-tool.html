@@ -14,39 +14,33 @@
         .tool-header { text-align: center; margin-bottom: 30px; }
         .tool-header h1 { color: #28a745; margin-bottom: 10px; }
         
-        .mode-selector { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px; }
-        .mode-btn {
-            padding: 15px 25px;
-            border: 3px solid #dee2e6;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .shortcut-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
         }
-        .mode-btn:hover { border-color: #28a745; }
-        .mode-btn.active { border-color: #28a745; background: #d4efdf; color: #1e7e34; }
-        .mode-btn i { font-size: 20px; }
-        
-        .settings-panel { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        .setting-row { margin-bottom: 15px; }
-        .setting-row:last-child { margin-bottom: 0; }
-        .setting-label { font-weight: 600; margin-bottom: 10px; display: block; color: #333; }
-        
-        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; }
-        .checkbox-item { display: flex; align-items: center; gap: 8px; padding: 8px 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer; }
+        .shortcut-banner h3 { margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .shortcut-key {
+            background: rgba(255,255,255,0.25);
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .shortcut-desc { margin-top: 15px; opacity: 0.9; }
         
         .capture-btn {
             width: 100%;
-            padding: 20px;
-            font-size: 20px;
+            padding: 25px;
+            font-size: 22px;
             font-weight: 700;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             cursor: pointer;
             background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
             color: white;
@@ -55,25 +49,19 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
+            margin-bottom: 25px;
         }
-        .capture-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
-        .capture-btn i { font-size: 28px; }
-        .shortcut-hint {
-            font-size: 12px;
-            opacity: 0.8;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
-            border-radius: 4px;
-        }
+        .capture-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4); }
+        .capture-btn i { font-size: 32px; }
         
         .result-panel { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 25px; display: none; }
         .result-panel.show { display: block; }
         
         .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .result-title { font-size: 20px; font-weight: 700; color: #333; display: flex; align-items: center; gap: 10px; }
+        .result-title { font-size: 20px; font-weight: 700; color: #333; }
         
         .action-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .action-btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .action-btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         .action-btn.download { background: #28a745; color: white; }
         .action-btn.copy { background: #17a2b8; color: white; }
         .action-btn.new { background: #6c757d; color: white; }
@@ -86,69 +74,147 @@
         .info-card-label { font-size: 12px; color: #666; margin-bottom: 5px; }
         .info-card-value { font-size: 16px; font-weight: 700; color: #28a745; }
         
-        .shortcut-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* 选择区域模式 */
+        .selection-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+        }
+        .selection-mode.show { display: flex; }
+        
+        .selection-toolbar {
+            background: rgba(40, 40, 40, 0.95);
             color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .selection-toolbar .info { font-size: 14px; }
+        .selection-toolbar .info span { color: #28a745; font-weight: 700; }
+        .selection-toolbar .btns { display: flex; gap: 10px; }
+        .selection-toolbar .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .selection-toolbar .btn.confirm { background: #28a745; color: white; }
+        .selection-toolbar .btn.cancel { background: #dc3545; color: white; }
+        
+        .video-container {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            overflow: hidden;
+            position: relative;
         }
-        .shortcut-info .key {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 18px;
-            font-weight: 700;
+        .video-container video {
+            max-width: 100%;
+            max-height: 100%;
+            cursor: crosshair;
         }
         
+        .selection-box {
+            position: absolute;
+            border: 3px solid #28a745;
+            background: rgba(40, 167, 69, 0.15);
+            pointer-events: none;
+            display: none;
+        }
+        .selection-box.show { display: block; }
+        
+        .selection-corner {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+        }
+        .selection-corner.tl { top: -6px; left: -6px; }
+        .selection-corner.tr { top: -6px; right: -6px; }
+        .selection-corner.bl { bottom: -6px; left: -6px; }
+        .selection-corner.br { bottom: -6px; right: -6px; }
+        
         .loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 10001;
-            display: none; justify-content: center; align-items: center; flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 10001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
         .loading-overlay.show { display: flex; }
         .spinner {
-            width: 60px; height: 60px; border: 5px solid #f3f3f3;
-            border-top: 5px solid #28a745; border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #28a745;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        .loading-text { margin-top: 20px; font-size: 18px; font-weight: 600; color: #333; text-align: center; }
+        .loading-text { margin-top: 20px; font-size: 18px; font-weight: 600; color: #333; }
         
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .toast {
-            position: fixed; top: 20px; right: 20px; padding: 15px 25px;
-            border-radius: 8px; color: white; font-weight: 600; z-index: 10002;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 10002;
             animation: slideIn 0.3s ease;
-            max-width: 350px;
+            max-width: 400px;
         }
         .toast.success { background: #28a745; }
         .toast.error { background: #dc3545; }
         .toast.warning { background: #ffc107; color: #333; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
-        .feature-grid {
+        .feature-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            margin-top: 20px;
+            margin-bottom: 25px;
         }
         .feature-item {
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .feature-item i { font-size: 32px; color: #28a745; margin-bottom: 10px; }
+        .feature-item i { font-size: 28px; color: #28a745; margin-bottom: 10px; }
         .feature-item h4 { margin-bottom: 8px; color: #333; }
         .feature-item p { font-size: 13px; color: #666; margin: 0; }
+        
+        .settings-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .settings-panel select {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        .settings-panel label { font-weight: 600; color: #333; margin-right: 15px; }
     </style>
 </head>
 <body>
@@ -170,52 +236,45 @@
     <div class="capture-container">
         <div class="tool-header">
             <h1><i class="fas fa-camera"></i> 网页截屏工具</h1>
-            <p class="text-muted">支持截屏整个屏幕、浏览器窗口或特定区域</p>
+            <p class="text-muted">选择窗口后，手动拖动截取任意区域</p>
         </div>
         
-        <div class="shortcut-info">
-            <span><i class="fas fa-keyboard"></i> 快捷键触发截屏</span>
-            <span class="key">Ctrl + Alt + A</span>
+        <div class="shortcut-banner">
+            <h3><i class="fas fa-keyboard"></i> 按快捷键触发截屏</h3>
+            <div class="shortcut-key">Ctrl + Alt + A</div>
+            <p class="shortcut-desc">先选择窗口，再手动拖动选择区域</p>
         </div>
         
-        <div class="feature-grid">
+        <div class="feature-list">
             <div class="feature-item">
-                <i class="fas fa-desktop"></i>
-                <h4>全屏截屏</h4>
-                <p>截屏整个显示器内容</p>
+                <i class="fas fa-mouse-pointer"></i>
+                <h4>选择窗口</h4>
+                <p>从系统选择器中选择要截屏的窗口</p>
             </div>
             <div class="feature-item">
-                <i class="fas fa-window-maximize"></i>
-                <h4>窗口截屏</h4>
-                <p>选择特定应用窗口</p>
+                <i class="fas fa-vector-square"></i>
+                <h4>拖动选择</h4>
+                <p>在窗口中手动拖动选择截屏区域</p>
             </div>
             <div class="feature-item">
-                <i class="fas fa-columns"></i>
-                <h4>浏览器标签</h4>
-                <p>截屏当前或其他标签页</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-crop-alt"></i>
-                <h4>区域选择</h4>
-                <p>手动拖动选择区域</p>
+                <i class="fas fa-download"></i>
+                <h4>保存结果</h4>
+                <p>支持下载和复制到剪贴板</p>
             </div>
         </div>
         
-        <div class="settings-panel" style="margin-top: 25px;">
-            <div class="setting-row">
-                <label class="setting-label">图片格式</label>
-                <select id="imageFormat" style="padding: 10px 15px; border-radius: 6px; border: 1px solid #dee2e6; font-size: 14px;">
-                    <option value="png">PNG (无损质量)</option>
-                    <option value="jpeg">JPEG (压缩)</option>
-                    <option value="webp">WebP (现代格式)</option>
-                </select>
-            </div>
+        <div class="settings-panel">
+            <label>图片格式：</label>
+            <select id="imageFormat">
+                <option value="png">PNG (无损质量)</option>
+                <option value="jpeg">JPEG (压缩)</option>
+                <option value="webp">WebP (现代格式)</option>
+            </select>
         </div>
         
-        <button class="capture-btn" id="captureBtn" onclick="startScreenCapture()">
+        <button class="capture-btn" onclick="startCapture()">
             <i class="fas fa-desktop"></i>
             <span>开始截屏</span>
-            <span class="shortcut-hint">Ctrl + Alt + A</span>
         </button>
         
         <div class="result-panel" id="resultPanel">
@@ -234,11 +293,34 @@
                 <div class="info-card"><div class="info-card-label">宽度</div><div class="info-card-value" id="infoWidth">-</div></div>
                 <div class="info-card"><div class="info-card-label">高度</div><div class="info-card-value" id="infoHeight">-</div></div>
                 <div class="info-card"><div class="info-card-label">文件大小</div><div class="info-card-value" id="infoSize">-</div></div>
-                <div class="info-card"><div class="info-card-label">图片格式</div><div class="info-card-value" id="infoFormat">-</div></div>
+                <div class="info-card"><div class="info-card-label">格式</div><div class="info-card-value" id="infoFormat">-</div></div>
             </div>
         </div>
     </div>
     
+    <!-- 选择区域模式 -->
+    <div class="selection-mode" id="selectionMode">
+        <div class="selection-toolbar">
+            <div class="info">
+                拖动鼠标选择区域: <span id="selectionInfo">0 × 0</span>
+            </div>
+            <div class="btns">
+                <button class="btn confirm" onclick="confirmSelection()">确认截屏</button>
+                <button class="btn cancel" onclick="cancelSelection()">取消</button>
+            </div>
+        </div>
+        <div class="video-container" id="videoContainer">
+            <video id="captureVideo" playsinline></video>
+            <div class="selection-box" id="selectionBox">
+                <div class="selection-corner tl"></div>
+                <div class="selection-corner tr"></div>
+                <div class="selection-corner bl"></div>
+                <div class="selection-corner br"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载遮罩 -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loading-text" id="loadingText">正在截取屏幕...</div>
@@ -246,45 +328,166 @@
     
     <script>
         let resultDataUrl = null;
+        let videoStream = null;
+        let captureVideo = null;
+        let selectionMode = null;
+        let isSelecting = false;
+        let startX = 0, startY = 0;
+        let selectionRect = null;
+        let scaleFactor = 1;
         
-        // 快捷键: Ctrl+Alt+A 触发截屏
+        // 快捷键
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.altKey && e.key === 'a') {
                 e.preventDefault();
-                startScreenCapture();
+                startCapture();
+            }
+            if (e.key === 'Escape' && selectionMode && selectionMode.classList.contains('show')) {
+                cancelSelection();
             }
         });
         
-        async function startScreenCapture() {
-            showLoading('正在启动截屏，请在系统选择器中选择要截屏的区域...');
-            
+        async function startCapture() {
             try {
-                // 调用浏览器原生屏幕共享API
-                const stream = await navigator.mediaDevices.getDisplayMedia({
+                showLoading('请在系统选择器中选择要截屏的窗口...');
+                
+                // 获取屏幕共享
+                videoStream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
                         cursor: 'always',
-                        displaySurface: 'monitor'
+                        displaySurface: 'window'
                     },
                     audio: false
                 });
                 
-                // 创建视频元素来捕获帧
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.playsInline = true;
-                await video.play();
+                hideLoading();
                 
-                // 创建画布并捕获当前帧
+                // 进入选择模式
+                selectionMode = document.getElementById('selectionMode');
+                selectionMode.classList.add('show');
+                
+                captureVideo = document.getElementById('captureVideo');
+                captureVideo.srcObject = videoStream;
+                await captureVideo.play();
+                
+                // 计算缩放比例（显示尺寸 vs 实际尺寸）
+                const videoWidth = captureVideo.videoWidth;
+                const videoHeight = captureVideo.videoHeight;
+                const displayWidth = captureVideo.clientWidth;
+                const displayHeight = captureVideo.clientHeight;
+                scaleFactor = videoWidth / displayWidth;
+                
+                // 重置选择框
+                resetSelectionBox();
+                
+                showToast('请拖动鼠标选择要截屏的区域', 'success');
+                
+            } catch (error) {
+                hideLoading();
+                if (error.name === 'AbortError') {
+                    showToast('已取消截屏', 'warning');
+                } else {
+                    showToast('截屏失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        function resetSelectionBox() {
+            const box = document.getElementById('selectionBox');
+            box.style.left = '0px';
+            box.style.top = '0px';
+            box.style.width = '0px';
+            box.style.height = '0px';
+            box.classList.remove('show');
+            selectionRect = null;
+            document.getElementById('selectionInfo').textContent = '0 × 0';
+        }
+        
+        // 视频容器事件
+        const videoContainer = document.getElementById('videoContainer');
+        
+        videoContainer.addEventListener('mousedown', function(e) {
+            isSelecting = true;
+            const rect = captureVideo.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            
+            const box = document.getElementById('selectionBox');
+            box.style.left = startX + 'px';
+            box.style.top = startY + 'px';
+            box.style.width = '0px';
+            box.style.height = '0px';
+            box.classList.add('show');
+        });
+        
+        videoContainer.addEventListener('mousemove', function(e) {
+            if (!isSelecting) return;
+            
+            const rect = captureVideo.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            const left = Math.max(0, Math.min(startX, currentX));
+            const top = Math.max(0, Math.min(startY, currentY));
+            const width = Math.abs(currentX - startX);
+            const height = Math.abs(currentY - startY);
+            
+            const box = document.getElementById('selectionBox');
+            box.style.left = left + 'px';
+            box.style.top = top + 'px';
+            box.style.width = width + 'px';
+            box.style.height = height + 'px';
+            
+            // 更新信息
+            const actualWidth = Math.round(width * scaleFactor);
+            const actualHeight = Math.round(height * scaleFactor);
+            document.getElementById('selectionInfo').textContent = `${actualWidth} × ${actualHeight}`;
+            
+            selectionRect = { left: left * scaleFactor, top: top * scaleFactor, width: actualWidth, height: actualHeight };
+        });
+        
+        videoContainer.addEventListener('mouseup', function() {
+            isSelecting = false;
+        });
+        
+        videoContainer.addEventListener('mouseleave', function() {
+            isSelecting = false;
+        });
+        
+        function confirmSelection() {
+            if (!selectionRect || selectionRect.width < 10 || selectionRect.height < 10) {
+                showToast('请选择至少 10×10 像素的区域', 'warning');
+                return;
+            }
+            
+            // 关闭选择模式
+            selectionMode.classList.remove('show');
+            
+            // 截取选定区域
+            captureSelection();
+        }
+        
+        function captureSelection() {
+            showLoading('正在截取屏幕...');
+            
+            try {
+                // 创建画布
                 const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                canvas.width = selectionRect.width;
+                canvas.height = selectionRect.height;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
-                // 停止屏幕共享
-                stream.getTracks().forEach(track => track.stop());
+                // 从视频中截取选定区域
+                ctx.drawImage(
+                    captureVideo,
+                    selectionRect.left, selectionRect.top, selectionRect.width, selectionRect.height,  // 源区域
+                    0, 0, selectionRect.width, selectionRect.height                                 // 目标区域
+                );
                 
-                // 获取图片格式
+                // 停止视频流
+                videoStream.getTracks().forEach(track => track.stop());
+                
+                // 生成图片
                 const format = document.getElementById('imageFormat').value;
                 let mimeType = 'image/png';
                 let quality = 1.0;
@@ -297,22 +500,23 @@
                     quality = 0.92;
                 }
                 
-                // 生成图片数据URL
                 resultDataUrl = canvas.toDataURL(mimeType, quality);
                 
                 // 显示结果
-                displayResult(canvas.width, canvas.height, format);
+                displayResult(selectionRect.width, selectionRect.height, format);
                 
             } catch (error) {
-                console.error('截屏失败:', error);
                 hideLoading();
-                
-                if (error.name === 'AbortError') {
-                    showToast('已取消截屏', 'warning');
-                } else {
-                    showToast('截屏失败: ' + error.message, 'error');
-                }
+                showToast('截屏失败: ' + error.message, 'error');
             }
+        }
+        
+        function cancelSelection() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            selectionMode.classList.remove('show');
+            resetSelectionBox();
         }
         
         function displayResult(width, height, format) {
@@ -321,7 +525,6 @@
             document.getElementById('infoHeight').textContent = height + 'px';
             document.getElementById('infoFormat').textContent = format.toUpperCase();
             
-            // 计算文件大小
             const base64Length = resultDataUrl.split(',')[1].length;
             const size = Math.round(base64Length * 0.75);
             document.getElementById('infoSize').textContent = formatFileSize(size);
@@ -330,7 +533,6 @@
             hideLoading();
             showToast('截屏成功!', 'success');
             
-            // 滚动到结果区域
             document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth' });
         }
         
@@ -341,44 +543,23 @@
         }
         
         function downloadImage() {
-            if (!resultDataUrl) {
-                showToast('没有可下载的截图', 'error');
-                return;
-            }
-            
+            if (!resultDataUrl) return;
             const format = document.getElementById('imageFormat').value;
-            const timestamp = new Date().getTime();
-            const filename = `screenshot-${timestamp}.${format}`;
-            
             const a = document.createElement('a');
             a.href = resultDataUrl;
-            a.download = filename;
+            a.download = `screenshot-${Date.now()}.${format}`;
             a.click();
-            
-            showToast('已开始下载: ' + filename, 'success');
+            showToast('已开始下载', 'success');
         }
         
         async function copyImage() {
-            if (!resultDataUrl) {
-                showToast('没有可复制的截图', 'error');
-                return;
-            }
-            
+            if (!resultDataUrl) return;
             try {
-                const response = await fetch(resultDataUrl);
-                const blob = await response.blob();
-                const mimeType = blob.type;
-                
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        [mimeType]: blob
-                    })
-                ]);
-                
+                const blob = await fetch(resultDataUrl).then(r => r.blob());
+                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
                 showToast('已复制到剪贴板', 'success');
-            } catch (error) {
-                console.error('复制失败:', error);
-                showToast('复制失败: ' + error.message, 'error');
+            } catch (e) {
+                showToast('复制失败: ' + e.message, 'error');
             }
         }
         
@@ -400,12 +581,10 @@
         function showToast(message, type) {
             const toast = document.createElement('div');
             toast.className = 'toast ' + type;
-            toast.innerHTML = '<i class="fas ' + 
-                (type === 'success' ? 'fa-check-circle' : 
-                 type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle') + 
-                '"></i> ' + message;
+            const icon = type === 'success' ? 'fa-check-circle' : 
+                         type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
             document.body.appendChild(toast);
-            
             setTimeout(function() {
                 toast.style.animation = 'slideIn 0.3s ease reverse';
                 setTimeout(function() { toast.remove(); }, 300);
