@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>坐标转换工具 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#28a745">
+    <style>
+        .coord-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .coord-input-group label {
+            min-width: 60px;
+            margin: 0;
+        }
+        
+        .coord-input {
+            flex: 1;
+        }
+        
+        .coord-separator {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        
+        .coord-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .coord-card h5 {
+            margin-bottom: 15px;
+            color: #28a745;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .arrow-container {
+            text-align: center;
+            padding: 10px 0;
+        }
+        
+        .arrow-container i {
+            font-size: 24px;
+            color: #28a745;
+        }
+        
+        .preset-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            font-size: 12px;
+            border-radius: 15px;
+        }
+        
+        .map-preview {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #28a745;
+            font-size: 14px;
+        }
+        
+        .coord-value {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .coord-value:hover {
+            background: #e9ecef;
+        }
+        
+        .coord-value.copied {
+            background: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #28a745, #1e7e34); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-map-marker-alt"></i> 坐标转换工具</h1>
+                <p class="tool-description">支持 WGS84、GCJ02、BD09 坐标系之间的相互转换。适用于百度地图、高德地图、GPS定位等坐标系统。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="coord-card">
+                            <h5><i class="fas fa-map-pin"></i> 输入坐标</h5>
+                            
+                            <div class="coord-input-group">
+                                <label>经度:</label>
+                                <input type="number" id="inputLng" class="form-control coord-input" step="0.000001" placeholder="例如: 116.397428">
+                            </div>
+                            
+                            <div class="coord-input-group">
+                                <label>纬度:</label>
+                                <input type="number" id="inputLat" class="form-control coord-input" step="0.000001" placeholder="例如: 39.90923">
+                            </div>
+                            
+                            <div class="coord-input-group">
+                                <label>类型:</label>
+                                <select id="inputType" class="form-select">
+                                    <option value="wgs84">WGS84 (GPS原始坐标)</option>
+                                    <option value="gcj02" selected>GCJ02 (高德/腾讯坐标)</option>
+                                    <option value="bd09">BD09 (百度坐标)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <label class="form-label">快速定位:</label>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-success preset-btn" data-city="北京">北京天安门</button>
+                                    <button class="btn btn-sm btn-outline-success preset-btn" data-city="上海">上海东方明珠</button>
+                                    <button class="btn btn-sm btn-outline-success preset-btn" data-city="广州">广州塔</button>
+                                    <button class="btn btn-sm btn-outline-success preset-btn" data-city="深圳">深圳华强北</button>
+                                    <button class="btn btn-sm btn-outline-success preset-btn" data-city="杭州">杭州西湖</button>
+                                    <button class="btn btn-sm btn-outline-success preset-btn" data-city="成都">成都春熙路</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="coord-card">
+                            <h5><i class="fas fa-globe-asia"></i> 转换结果</h5>
+                            
+                            <div class="coord-result" id="coordResults">
+                                <div class="text-muted text-center py-4">
+                                    输入坐标后点击"转换"按钮
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons text-center">
+                    <button id="convertBtn" class="btn btn-success btn-lg">
+                        <i class="fas fa-sync-alt"></i> 转换坐标
+                    </button>
+                    <button id="swapBtn" class="btn btn-outline-primary">
+                        <i class="fas fa-exchange-alt"></i> 交换
+                    </button>
+                    <button id="clearBtn" class="btn btn-outline-secondary">
+                        <i class="fas fa-trash-alt"></i> 清空
+                    </button>
+                </div>
+                
+                <div class="coord-card mt-4">
+                    <h5><i class="fas fa-info-circle"></i> 坐标系说明</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary">WGS84</h6>
+                                    <p class="card-text small">GPS原始坐标系统，全球通用。Google Earth、GPS设备使用的坐标系。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-success">GCJ02</h6>
+                                    <p class="card-text small">中国境内加密坐标系。高德地图、腾讯地图使用的坐标系。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-danger">BD09</h6>
+                                    <p class="card-text small">百度地图专用坐标系。在GCJ02基础上再次加密。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const inputLng = document.getElementById('inputLng');
+        const inputLat = document.getElementById('inputLat');
+        const inputType = document.getElementById('inputType');
+        const convertBtn = document.getElementById('convertBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const coordResults = document.getElementById('coordResults');
+        const presetBtns = document.querySelectorAll('.preset-btn');
+        
+        // Preset locations (GCJ02 coordinates)
+        const locations = {
+            '北京': { lng: 116.397428, lat: 39.90923 },
+            '上海': { lng: 121.473701, lat: 31.230416 },
+            '广州': { lng: 113.264534, lat: 23.129163 },
+            '深圳': { lng: 114.055036, lat: 22.542529 },
+            '杭州': { lng: 120.15507, lat: 30.274085 },
+            '成都': { lng: 104.066541, lat: 30.572269 }
+        };
+        
+        // PI constant
+        const PI = Math.PI;
+        const xPi = PI * 3000.0 / 180.0;
+        
+        // Delta function
+        function delta(lat, lng) {
+            const a = 6378245.0; // Semi-major axis
+            const ee = 0.00669342162296594323; // Eccentricity squared
+            
+            let dLat = transformLat(lng - 105.0, lat - 35.0);
+            let dLng = transformLng(lng - 105.0, lat - 35.0);
+            const radLat = lat / 180.0 * PI;
+            let magic = Math.sin(radLat);
+            magic = 1 - ee * magic * magic;
+            const sqrtMagic = Math.sqrt(magic);
+            
+            dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * PI);
+            dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * PI);
+            
+            return { lat: dLat, lng: dLng };
+        }
+        
+        function transformLat(lng, lat) {
+            let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat;
+            ret += (0.2 * lng) * (0.2 * lng);
+            ret += 0.1 * lng * lat;
+            ret += (2.0 * Math.sin(lng * 0.001)) * (2.0 * Math.sin(lng * 0.001));
+            ret += 0.2 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * PI)) * (20.0 * Math.sin(6.0 * lng * PI));
+            ret += (20.0 * Math.sin(2.0 * lng * PI)) * (20.0 * Math.sin(2.0 * lng * PI));
+            ret += (40.0 * Math.sin(lat / 3.0 * 30.0)) * (40.0 * Math.sin(lat / 3.0 * 30.0));
+            ret += (160.0 * Math.sin(lat / 12.0 * PI)) * (160.0 * Math.sin(lat / 12.0 * PI));
+            ret += (320.0 * Math.sin(lat * PI / 30.0)) * (320.0 * Math.sin(lat * PI / 30.0));
+            return ret;
+        }
+        
+        function transformLng(lng, lat) {
+            let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng;
+            ret += (0.1 * lng) * (0.1 * lng);
+            ret += 0.48 * Math.sin(6.0 * lng * PI);
+            ret += (20.0 * Math.sin(lng * PI)) * (20.0 * Math.sin(lng * PI));
+            ret += 0.1 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(3.0 * lng * PI)) * (20.0 * Math.sin(3.0 * lng * PI));
+            ret += (40.0 * Math.sqrt(Math.abs(lng))) * (40.0 * Math.sqrt(Math.abs(lng)));
+            ret += (50.0 * Math.sin(lat / 3.0 * PI)) * (50.0 * Math.sin(lat / 3.0 * PI));
+            ret += 0.1 * Math.sin(lat * PI);
+            ret += 0.1 * Math.sin(lng / 4.0 * PI);
+            return ret;
+        }
+        
+        // WGS84 to GCJ02
+        function wgs84ToGcj02(lat, lng) {
+            if (outOfChina(lat, lng)) {
+                return { lat, lng };
+            }
+            const d = delta(lat, lng);
+            return {
+                lat: lat + d.lat,
+                lng: lng + d.lng
+            };
+        }
+        
+        // GCJ02 to WGS84
+        function gcj02ToWgs84(lat, lng) {
+            if (outOfChina(lat, lng)) {
+                return { lat, lng };
+            }
+            const d = delta(lat, lng);
+            return {
+                lat: lat - d.lat,
+                lng: lng - d.lng
+            };
+        }
+        
+        // GCJ02 to BD09
+        function gcj02ToBd09(lat, lng) {
+            const z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * xPi);
+            const theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * xPi);
+            const bdLng = z * Math.cos(theta) + 0.0065;
+            const bdLat = z * Math.sin(theta) + 0.006;
+            return { lat: bdLat, lng: bdLng };
+        }
+        
+        // BD09 to GCJ02
+        function bd09ToGcj02(lat, lng) {
+            const x = lng - 0.0065;
+            const y = lat - 0.006;
+            const z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * xPi);
+            const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * xPi);
+            const gcjLng = z * Math.cos(theta);
+            const gcjLat = z * Math.sin(theta);
+            return { lat: gcjLat, lng: gcjLng };
+        }
+        
+        // WGS84 to BD09
+        function wgs84ToBd09(lat, lng) {
+            const gcj = wgs84ToGcj02(lat, lng);
+            return gcj02ToBd09(gcj.lat, gcj.lng);
+        }
+        
+        // BD09 to WGS84
+        function bd09ToWgs84(lat, lng) {
+            const gcj = bd09ToGcj02(lat, lng);
+            return gcj02ToWgs84(gcj.lat, gcj.lng);
+        }
+        
+        // Check if out of China
+        function outOfChina(lat, lng) {
+            if (lng < 72.004 || lng > 137.8347) return true;
+            if (lat < 0.8293 || lat > 55.8271) return true;
+            return false;
+        }
+        
+        // Format coordinate
+        function formatCoord(num) {
+            return num.toFixed(6);
+        }
+        
+        // Preset button click
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const city = this.getAttribute('data-city');
+                const loc = locations[city];
+                if (loc) {
+                    inputLng.value = formatCoord(loc.lng);
+                    inputLat.value = formatCoord(loc.lat);
+                    inputType.value = 'gcj02';
+                }
+            });
+        });
+        
+        // Convert coordinates
+        convertBtn.addEventListener('click', function() {
+            const lng = parseFloat(inputLng.value);
+            const lat = parseFloat(inputLat.value);
+            const type = inputType.value;
+            
+            if (isNaN(lng) || isNaN(lat)) {
+                alert('请输入有效的经纬度坐标');
+                return;
+            }
+            
+            if (lng < -180 || lng > 180) {
+                alert('经度应在 -180 到 180 之间');
+                return;
+            }
+            
+            if (lat < -90 || lat > 90) {
+                alert('纬度应在 -90 到 90 之间');
+                return;
+            }
+            
+            const resetButton = ToolsHub.showLoading(convertBtn);
+            
+            // Convert to all formats
+            let wgs84, gcj02, bd09;
+            
+            switch (type) {
+                case 'wgs84':
+                    wgs84 = { lat, lng };
+                    gcj02 = wgs84ToGcj02(lat, lng);
+                    bd09 = gcj02ToBd09(gcj02.lat, gcj02.lng);
+                    break;
+                case 'gcj02':
+                    gcj02 = { lat, lng };
+                    wgs84 = gcj02ToWgs84(lat, lng);
+                    bd09 = gcj02ToBd09(lat, lng);
+                    break;
+                case 'bd09':
+                    bd09 = { lat, lng };
+                    gcj02 = bd09ToGcj02(lat, lng);
+                    wgs84 = gcj02ToWgs84(gcj02.lat, gcj02.lng);
+                    break;
+            }
+            
+            coordResults.innerHTML = `
+                <div class="coord-value" data-copy="${formatCoord(wgs84.lng)}, ${formatCoord(wgs84.lat)}">
+                    <strong>WGS84:</strong> ${formatCoord(wgs84.lng)}, ${formatCoord(wgs84.lat)}
+                    <span class="text-muted small">(GPS原始坐标)</span>
+                </div>
+                <div class="coord-value" data-copy="${formatCoord(gcj02.lng)}, ${formatCoord(gcj02.lat)}">
+                    <strong>GCJ02:</strong> ${formatCoord(gcj02.lng)}, ${formatCoord(gcj02.lat)}
+                    <span class="text-muted small">(高德/腾讯坐标)</span>
+                </div>
+                <div class="coord-value" data-copy="${formatCoord(bd09.lng)}, ${formatCoord(bd09.lat)}">
+                    <strong>BD09:</strong> ${formatCoord(bd09.lng)}, ${formatCoord(bd09.lat)}
+                    <span class="text-muted small">(百度坐标)</span>
+                </div>
+            `;
+            
+            // Add click to copy
+            coordResults.querySelectorAll('.coord-value').forEach(el => {
+                el.addEventListener('click', function() {
+                    const text = this.getAttribute('data-copy');
+                    ToolsHub.copyToClipboard(text);
+                    this.classList.add('copied');
+                    setTimeout(() => this.classList.remove('copied'), 1000);
+                    ToolsHub.showToast('坐标已复制');
+                });
+            });
+            
+            resetButton();
+        });
+        
+        // Swap button
+        swapBtn.addEventListener('click', function() {
+            const temp = inputLng.value;
+            inputLng.value = inputLat.value;
+            inputLat.value = temp;
+        });
+        
+        // Clear button
+        clearBtn.addEventListener('click', function() {
+            inputLng.value = '';
+            inputLat.value = '';
+            coordResults.innerHTML = `
+                <div class="text-muted text-center py-4">
+                    输入坐标后点击"转换"按钮
+                </div>
+            `;
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

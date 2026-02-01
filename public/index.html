@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New ToolsHub - Comprehensive Developer Tools</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --text-color: #212529;
+            --text-light: #6c757d;
+            --favorite-color: #ffc107;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* Search Box */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .category-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            background: white;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .category-tab:hover,
+        .category-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--success-color);
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-color);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .tool-card.favorite {
+            border: 2px solid var(--favorite-color);
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ddd;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .favorite-btn.active,
+        .favorite-btn:hover {
+            color: var(--favorite-color);
+        }
+        
+        .tool-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+        
+        .tool-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .tool-description {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+            font-size: 0.9rem;
+        }
+        
+        .tool-link {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        .tool-link:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .tool-category {
+            display: inline-block;
+            background: #e9ecef;
+            color: var(--text-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer {
+            background: var(--dark-bg);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .features {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 1rem;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Settings Panel */
+        .settings-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        .settings-panel {
+            display: none;
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            padding: 1rem;
+            z-index: 1000;
+            min-width: 250px;
+        }
+        
+        .settings-panel.show {
+            display: block;
+        }
+        
+        .settings-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+            grid-column: 1 / -1;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hero {
+                padding: 2rem 0;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-tabs {
+                gap: 0.3rem;
+            }
+            
+            .category-tab {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .tool-card {
+            background: #16213e;
+            border-color: #0f3460;
+        }
+        
+        body.dark-mode .tool-title {
+            color: #4cc9f0;
+        }
+        
+        body.dark-mode .tool-description {
+            color: #a0a0a0;
+        }
+        
+        body.dark-mode .tool-category {
+            background: #0f3460;
+            color: #a0a0a0;
+        }
+        
+        body.dark-mode .settings-panel {
+            background: #16213e;
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .settings-item {
+            border-color: #0f3460;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-tools"></i> New ToolsHub</a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-nav ml-auto d-flex align-items-center">
+                <a class="nav-link" href="#" style="color: white;">Home</a>
+                <a class="nav-link" href="/tools/all" style="color: white;">All Tools</a>
+                <button class="settings-btn" id="settingsBtn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <h5><i class="fas fa-cog"></i> Settings</h5>
+        <div class="settings-item">
+            <label class="settings-label">Theme</label>
+            <select id="themeSelect" class="form-select form-select-sm">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+        </div>
+        <div class="settings-item">
+            <label class="settings-label">Background</label>
+            <select id="bgSelect" class="form-select form-select-sm">
+                <option value="default">Default</option>
+                <option value="bing">Bing Daily</option>
+                <option value="anime">Random Anime</option>
+            </select>
+        </div>
+        <div class="settings-item">
+            <label class="settings-label">Data Management</label>
+            <div class="btn-group btn-group-sm mt-2">
+                <button class="btn btn-outline-primary" id="exportBtn">Export</button>
+                <button class="btn btn-outline-secondary" id="importBtn">Import</button>
+                <button class="btn btn-outline-danger" id="clearBtn">Clear</button>
+            </div>
+        </div>
+        <div class="settings-item">
+            <small class="text-muted">Click outside to close</small>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <h1><i class="fas fa-rocket"></i> Comprehensive Developer Tools</h1>
+            <p>Inspired by xJavaFxTool, built for the web. A collection of powerful utilities to boost your productivity.</p>
+            
+            <!-- Search Box -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="toolSearch" placeholder="Search tools... (e.g., JSON, Base64, UUID, Timestamp, Case)">
+            </div>
+            
+            <!-- Category Tabs -->
+            <div class="category-tabs" id="categoryTabs">
+                <button class="category-tab active" data-category="all">All Tools</button>
+                <button class="category-tab" data-category="convert">Conversion</button>
+                <button class="category-tab" data-category="encode">Encoding</button>
+                <button class="category-tab" data-category="generate">Generate</button>
+                <button class="category-tab" data-category="dev">Developer</button>
+                <button class="category-tab" data-category="favorite">★ Favorites</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="features">
+            <div class="feature">
+                <i class="fas fa-bolt"></i>
+                <h3>Fast & Efficient</h3>
+                <p>Optimized tools for maximum performance</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-sync-alt"></i>
+                <h3>Always Updated</h3>
+                <p>Regular updates with new features</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Secure</h3>
+                <p>All processing happens in your browser</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Responsive</h3>
+                <p>Works on all devices</p>
+            </div>
+        </section>
+
+        <section id="tools">
+            <h2 class="section-title">Available Tools</h2>
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Encryption & Decryption Tools -->
+                <div class="tool-card" data-category="encode" data-name="encryption decryption aes base64 md5 sha">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-lock"></i></div>
+                    <span class="tool-category">Encoding</span>
+                    <h3 class="tool-title">Encryption & Decryption</h3>
+                    <p class="tool-description">Various encryption algorithms including AES, DES, MD5, SHA, Base64, and more.</p>
+                    <a href="/tools/encrypt-decrypt" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- QR Code Generator -->
+                <div class="tool-card" data-category="generate" data-name="qr code barcode">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+                    <span class="tool-category">Generate</span>
+                    <h3 class="tool-title">QR Code Generator</h3>
+                    <p class="tool-description">Create custom QR codes with various options for size, color, and error correction.</p>
+                    <a href="/tools/qr-generator" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- Time Converter -->
+                <div class="tool-card" data-category="convert" data-name="time timestamp date converter">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-clock"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Time Converter</h3>
+                    <p class="tool-description">Convert between timestamps and readable dates, calculate time differences.</p>
+                    <a href="/tools/time-converter" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- Character Converter -->
+                <div class="tool-card" data-category="convert" data-name="character encoding charset ascii unicode">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Character Converter</h3>
+                    <p class="tool-description">Convert between different character encodings and numeral systems.</p>
+                    <a href="/tools/character-converter" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- URL Shortener -->
+                <div class="tool-card" data-category="dev" data-name="url short link">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-link"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">URL Shortener</h3>
+                    <p class="tool-description">Quickly shorten long URLs with custom options.</p>
+                    <a href="/tools/url-shortener" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- JSON Formatter -->
+                <div class="tool-card" data-category="dev" data-name="json format validate editor">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-code"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">JSON Formatter</h3>
+                    <p class="tool-description">Format, validate, and manipulate JSON data easily.</p>
+                    <a href="/tools/json-formatter" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- Regex Tester -->
+                <div class="tool-card" data-category="dev" data-name="regex regular expression test">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-search"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">Regex Tester</h3>
+                    <p class="tool-description">Test and debug regular expressions with real-time feedback.</p>
+                    <a href="/tools/regex-tester" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- Color Converter -->
+                <div class="tool-card" data-category="convert" data-name="color hex rgb hsl converter">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-palette"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Color Converter</h3>
+                    <p class="tool-description">Convert between different color formats (HEX, RGB, HSL) and find complementary colors.</p>
+                    <a href="/tools/color-converter" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- Cron Expression Builder -->
+                <div class="tool-card" data-category="dev" data-name="cron scheduler job">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">Cron Builder</h3>
+                    <p class="tool-description">Build and validate cron expressions for scheduling tasks.</p>
+                    <a href="/tools/cron-builder" class="tool-link">Use Tool</a>
+                </div>
+                
+                <!-- Password Generator -->
+                <div class="tool-card" data-category="generate" data-name="password secure random">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-key"></i></div>
+                    <span class="tool-category">Generate</span>
+                    <h3 class="tool-title">Password Generator</h3>
+                    <p class="tool-description">Generate secure, random passwords with customizable options and strength analysis.</p>
+                    <a href="/tools/password-generator" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- ID Generator -->
+                <div class="tool-card" data-category="generate" data-name="id generator identity card ssn">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-id-card"></i></div>
+                    <span class="tool-category">Generate</span>
+                    <h3 class="tool-title">ID Generator</h3>
+                    <p class="tool-description">Generate identity document numbers for testing (Chinese ID, Credit Card, SSN, etc.)</p>
+                    <a href="/tools/id-generator" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Morse Code -->
+                <div class="tool-card" data-category="convert" data-name="morse code audio sound">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-wave-square"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Morse Code Converter</h3>
+                    <p class="tool-description">Convert text to Morse code and vice versa with audio playback.</p>
+                    <a href="/tools/morse-code" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- UUID Generator -->
+                <div class="tool-card" data-category="generate" data-name="uuid guid identifier">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-fingerprint"></i></div>
+                    <span class="tool-category">Generate</span>
+                    <h3 class="tool-title">UUID Generator</h3>
+                    <p class="tool-description">Generate UUID v1, v4, and v5 identifiers for your applications.</p>
+                    <a href="/tools/uuid-generator" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Hash Generator -->
+                <div class="tool-card" data-category="encode" data-name="hash sha256 md5 crypto">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-hashtag"></i></div>
+                    <span class="tool-category">Encoding</span>
+                    <h3 class="tool-title">Hash Generator</h3>
+                    <p class="tool-description">Generate cryptographic hashes (SHA-256, SHA-512, MD5) for text and files.</p>
+                    <a href="/tools/hash-generator" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Escape Character -->
+                <div class="tool-card" data-category="encode" data-name="escape html xml url base64 js sql">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-code"></i></div>
+                    <span class="tool-category">Encoding</span>
+                    <h3 class="tool-title">Escape Character</h3>
+                    <p class="tool-description">Convert special characters for HTML, XML, URL, Base64, JavaScript, SQL and more.</p>
+                    <a href="/tools/escape-character" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Chinese Converter -->
+                <div class="tool-card" data-category="convert" data-name="chinese simplified traditional pinyin">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-font"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Chinese Converter</h3>
+                    <p class="tool-description">Simplified/Traditional Chinese conversion, Pinyin, number to Chinese uppercase.</p>
+                    <a href="/tools/chinese-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Coordinate Converter -->
+                <div class="tool-card" data-category="convert" data-name="coordinate gps wgs84 gcj02 bd09 map">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Coordinate Converter</h3>
+                    <p class="tool-description">Convert between WGS84, GCJ02, and BD09 coordinate systems.</p>
+                    <a href="/tools/coordinate-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Base Converter -->
+                <div class="tool-card" data-category="convert" data-name="base binary octal decimal hex converter">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calculator"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Base Converter</h3>
+                    <p class="tool-description">Convert between binary, octal, decimal, hex, and Base36 number systems.</p>
+                    <a href="/tools/base-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Data Format Converter -->
+                <div class="tool-card" data-category="convert" data-name="data format json yaml xml csv properties">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Data Format Converter</h3>
+                    <p class="tool-description">Convert between JSON, YAML, Properties, CSV, and XML data formats.</p>
+                    <a href="/tools/data-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Relationship Calculator -->
+                <div class="tool-card" data-category="dev" data-name="relationship chinese kinship family">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-users"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">Chinese Relationship Calculator</h3>
+                    <p class="tool-description">Calculate correct Chinese kinship terms for family relationships.</p>
+                    <a href="/tools/relationship-calculator" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Timestamp Converter (NEW) -->
+                <div class="tool-card" data-category="dev" data-name="timestamp date time converter unix">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-clock"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">Timestamp Converter</h3>
+                    <p class="tool-description">Convert between timestamps and dates, calculate time differences.</p>
+                    <a href="/tools/timestamp-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Case Converter (NEW) -->
+                <div class="tool-card" data-category="dev" data-name="case converter camel snake kebab pascal">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-code"></i></div>
+                    <span class="tool-category">Developer</span>
+                    <h3 class="tool-title">Case Converter</h3>
+                    <p class="tool-description">Convert between camelCase, snake_case, kebab-case, PascalCase.</p>
+                    <a href="/tools/case-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Base64 Converter (NEW) -->
+                <div class="tool-card" data-category="encode" data-name="base64 encode decode">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-code"></i></div>
+                    <span class="tool-category">Encoding</span>
+                    <h3 class="tool-title">Base64 Converter</h3>
+                    <p class="tool-description">Encode and decode Base64 strings, support text and image files.</p>
+                    <a href="/tools/base64-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- URL Converter (NEW) -->
+                <div class="tool-card" data-category="encode" data-name="url encode decode uri percent">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-link"></i></div>
+                    <span class="tool-category">Encoding</span>
+                    <h3 class="tool-title">URL Converter</h3>
+                    <p class="tool-description">Encode and decode URL components with multiple encoding standards.</p>
+                    <a href="/tools/url-converter" class="tool-link">Use Tool</a>
+                </div>
+
+                <!-- Number to Chinese (NEW) -->
+                <div class="tool-card" data-category="convert" data-name="number chinese uppercase rmb money">
+                    <button class="favorite-btn" title="Add to favorites"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-coins"></i></div>
+                    <span class="tool-category">Conversion</span>
+                    <h3 class="tool-title">Number to Chinese</h3>
+                    <p class="tool-description">Convert numbers to Chinese uppercase for financial documents.</p>
+                    <a href="/tools/number-to-chinese" class="tool-link">Use Tool</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Built for Modern Developers</p>
+            <p>A comprehensive collection of utilities to boost your productivity</p>
+        </div>
+    </footer>
+
+    <script>
+        // State
+        let favorites = JSON.parse(localStorage.getItem('toolhub_favorites') || '[]');
+        let currentCategory = 'all';
+        let searchQuery = '';
+        
+        // DOM Elements
+        const toolSearch = document.getElementById('toolSearch');
+        const categoryTabs = document.getElementById('categoryTabs');
+        const toolsGrid = document.getElementById('toolsGrid');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const themeSelect = document.getElementById('themeSelect');
+        const bgSelect = document.getElementById('bgSelect');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        
+        // Initialize
+        function init() {
+            loadSettings();
+            updateFavoritesUI();
+            setupEventListeners();
+        }
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('toolhub_settings') || '{}');
+            themeSelect.value = settings.theme || 'light';
+            bgSelect.value = settings.bg || 'default';
+            
+            if (settings.theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            const settings = {
+                theme: themeSelect.value,
+                bg: bgSelect.value
+            };
+            localStorage.setItem('toolhub_settings', JSON.stringify(settings));
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                const nav = document.querySelector('.navbar-nav');
+                nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Responsive handling
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    document.querySelector('.navbar-nav').style.display = 'flex';
+                }
+            });
+            
+            // Search functionality
+            toolSearch.addEventListener('input', function(e) {
+                searchQuery = e.target.value.toLowerCase();
+                filterTools();
+            });
+            
+            // Category tabs
+            categoryTabs.addEventListener('click', function(e) {
+                if (e.target.classList.contains('category-tab')) {
+                    document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.getAttribute('data-category');
+                    filterTools();
+                }
+            });
+            
+            // Favorite buttons
+            toolsGrid.addEventListener('click', function(e) {
+                if (e.target.classList.contains('favorite-btn') || e.target.parentElement.classList.contains('favorite-btn')) {
+                    const btn = e.target.classList.contains('favorite-btn') ? e.target : e.target.parentElement;
+                    toggleFavorite(btn);
+                }
+            });
+            
+            // Settings panel toggle
+            settingsBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                settingsPanel.classList.toggle('show');
+            });
+            
+            // Close settings panel when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+                    settingsPanel.classList.remove('show');
+                }
+            });
+            
+            // Theme change
+            themeSelect.addEventListener('change', function() {
+                if (this.value === 'dark') {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+                saveSettings();
+            });
+            
+            // Background change
+            bgSelect.addEventListener('change', function() {
+                saveSettings();
+                // Background change logic would go here
+            });
+            
+            // Export settings
+            exportBtn.addEventListener('click', function() {
+                const data = {
+                    favorites: favorites,
+                    settings: JSON.parse(localStorage.getItem('toolhub_settings') || '{}')
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'toolhub-settings.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                ToolsHub.showToast('Settings exported successfully!');
+            });
+            
+            // Import settings
+            importBtn.addEventListener('click', function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if (data.favorites) {
+                                favorites = data.favorites;
+                                localStorage.setItem('toolhub_favorites', JSON.stringify(favorites));
+                                updateFavoritesUI();
+                            }
+                            if (data.settings) {
+                                localStorage.setItem('toolhub_settings', JSON.stringify(data.settings));
+                                loadSettings();
+                            }
+                            ToolsHub.showToast('Settings imported successfully!');
+                        } catch (err) {
+                            ToolsHub.showToast('Invalid settings file');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            });
+            
+            // Clear all data
+            clearBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all settings and favorites?')) {
+                    localStorage.removeItem('toolhub_favorites');
+                    localStorage.removeItem('toolhub_settings');
+                    favorites = [];
+                    loadSettings();
+                    updateFavoritesUI();
+                    ToolsHub.showToast('All data cleared!');
+                }
+            });
+        }
+        
+        // Filter tools based on search and category
+        function filterTools() {
+            const cards = toolsGrid.querySelectorAll('.tool-card');
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const name = card.getAttribute('data-name') || '';
+                const title = card.querySelector('.tool-title').textContent.toLowerCase();
+                const desc = card.querySelector('.tool-description').textContent.toLowerCase();
+                
+                // Check category
+                let categoryMatch = false;
+                if (currentCategory === 'all') {
+                    categoryMatch = true;
+                } else if (currentCategory === 'favorite') {
+                    const title = card.querySelector('.tool-title').textContent;
+                    categoryMatch = favorites.includes(title);
+                } else {
+                    categoryMatch = category === currentCategory;
+                }
+                
+                // Check search query
+                const searchMatch = !searchQuery || 
+                    name.includes(searchQuery) || 
+                    title.includes(searchQuery) || 
+                    desc.includes(searchQuery);
+                
+                // Show/hide card
+                if (categoryMatch && searchMatch) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show no results message
+            const visibleCards = toolsGrid.querySelectorAll('.tool-card[style="display: flex;"]');
+            let noResults = toolsGrid.querySelector('.no-results');
+            
+            if (visibleCards.length === 0 && !noResults) {
+                noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.innerHTML = '<i class="fas fa-search"></i><p>No tools found matching your criteria</p>';
+                toolsGrid.appendChild(noResults);
+            } else if (visibleCards.length > 0 && noResults) {
+                noResults.remove();
+            }
+        }
+        
+        // Toggle favorite
+        function toggleFavorite(btn) {
+            const card = btn.closest('.tool-card');
+            const title = card.querySelector('.tool-title').textContent;
+            
+            if (favorites.includes(title)) {
+                favorites = favorites.filter(f => f !== title);
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="far fa-star"></i>';
+            } else {
+                favorites.push(title);
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fas fa-star"></i>';
+            }
+            
+            localStorage.setItem('toolhub_favorites', JSON.stringify(favorites));
+            
+            // If viewing favorites, re-filter
+            if (currentCategory === 'favorite') {
+                filterTools();
+            }
+        }
+        
+        // Update favorites UI
+        function updateFavoritesUI() {
+            const cards = toolsGrid.querySelectorAll('.tool-card');
+            cards.forEach(card => {
+                const title = card.querySelector('.tool-title').textContent;
+                const btn = card.querySelector('.favorite-btn');
+                
+                if (favorites.includes(title)) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-star"></i>';
+                    card.classList.add('favorite');
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="far fa-star"></i>';
+                    card.classList.remove('favorite');
+                }
+            });
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

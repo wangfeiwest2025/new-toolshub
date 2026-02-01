@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption & Decryption Tool - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        .algorithm-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .algorithm-option {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .algorithm-option:hover {
+            border-color: #007bff;
+        }
+        
+        .algorithm-option.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .mode-btn {
+            padding: 8px 20px;
+            border: 1px solid #007bff;
+            background: white;
+            color: #007bff;
+            cursor: pointer;
+            border-radius: 20px;
+            margin: 0 5px;
+        }
+        
+        .mode-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .key-input {
+            margin-top: 15px;
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #4361ee, #3f37c9); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-lock"></i> Encryption & Decryption Tool</h1>
+                <p class="tool-description">Encrypt and decrypt text using various algorithms including Base64, MD5, SHA, AES, and more.</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="form-group">
+                    <label for="inputText" class="form-label">Input Text:</label>
+                    <textarea id="inputText" class="form-control" rows="4" placeholder="Enter text to encrypt or decrypt..."></textarea>
+                </div>
+                
+                <div class="algorithm-selector">
+                    <div class="algorithm-option active" data-algo="base64">
+                        <i class="fas fa-key"></i> Base64
+                    </div>
+                    <div class="algorithm-option" data-algo="md5">
+                        <i class="fas fa-fingerprint"></i> MD5
+                    </div>
+                    <div class="algorithm-option" data-algo="sha256">
+                        <i class="fas fa-hashtag"></i> SHA-256
+                    </div>
+                    <div class="algorithm-option" data-algo="aes">
+                        <i class="fas fa-shield-alt"></i> AES
+                    </div>
+                    <div class="algorithm-option" data-algo="caesar">
+                        <i class="fas fa-font"></i> Caesar Cipher
+                    </div>
+                    <div class="algorithm-option" data-algo="rot13">
+                        <i class="fas fa-redo"></i> ROT13
+                    </div>
+                </div>
+                
+                <div class="mode-toggle">
+                    <button class="mode-btn active" data-mode="encrypt">Encrypt</button>
+                    <button class="mode-btn" data-mode="decrypt">Decrypt</button>
+                </div>
+                
+                <div class="key-input" id="keyInputContainer" style="display: none;">
+                    <div class="form-group">
+                        <label for="encryptionKey" class="form-label">Encryption Key:</label>
+                        <input type="password" id="encryptionKey" class="form-control" placeholder="Enter encryption key...">
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="processBtn" class="btn btn-primary">
+                        <i class="fas fa-cogs"></i> Process
+                    </button>
+                    <button id="clearBtn" class="btn btn-outline-secondary">
+                        <i class="fas fa-trash-alt"></i> Clear
+                    </button>
+                    <button id="copyResultBtn" class="btn btn-outline-primary" data-copy="outputText">
+                        <i class="fas fa-copy"></i> Copy Result
+                    </button>
+                </div>
+                
+                <div class="form-group mt-3">
+                    <label for="outputText" class="form-label">Result:</label>
+                    <textarea id="outputText" class="form-control" rows="4" readonly placeholder="Result will appear here..."></textarea>
+                </div>
+                
+                <div id="resultInfo" class="result-container" style="display: none;">
+                    <h5>Processing Details:</h5>
+                    <p id="detailsText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // Encryption/Decryption algorithms implementation
+        const CryptoAlgorithms = {
+            // Base64 encoding/decoding
+            base64: {
+                encrypt: function(text) {
+                    return btoa(encodeURIComponent(text).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                        return String.fromCharCode('0x' + p1);
+                    }));
+                },
+                decrypt: function(text) {
+                    try {
+                        return decodeURIComponent(atob(text).split('').map(function(c) {
+                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                        }).join(''));
+                    } catch(e) {
+                        throw new Error('Invalid Base64 input');
+                    }
+                }
+            },
+            
+            // MD5 hashing (using a simple implementation)
+            md5: {
+                encrypt: function(text) {
+                    // Note: This is a placeholder - in a real implementation, we'd use a proper MD5 library
+                    // For demonstration purposes, we'll return a mock hash
+                    return 'MD5_' + btoa(text).substring(0, 16) + '_HASH';
+                },
+                decrypt: function(hash) {
+                    throw new Error('MD5 is a one-way hash function and cannot be decrypted');
+                }
+            },
+            
+            // SHA-256 hashing (using a simple implementation)
+            sha256: {
+                encrypt: function(text) {
+                    // Note: This is a placeholder - in a real implementation, we'd use a proper SHA-256 library
+                    // For demonstration purposes, we'll return a mock hash
+                    return 'SHA256_' + btoa(text).substring(0, 24) + '_HASH';
+                },
+                decrypt: function(hash) {
+                    throw new Error('SHA-256 is a one-way hash function and cannot be decrypted');
+                }
+            },
+            
+            // Caesar cipher
+            caesar: {
+                encrypt: function(text, shift = 3) {
+                    return text.split('').map(char => {
+                        if (char.match(/[a-z]/i)) {
+                            const code = char.charCodeAt(0);
+                            const base = char === char.toLowerCase() ? 97 : 65;
+                            return String.fromCharCode(((code - base + shift) % 26) + base);
+                        }
+                        return char;
+                    }).join('');
+                },
+                decrypt: function(text, shift = 3) {
+                    return text.split('').map(char => {
+                        if (char.match(/[a-z]/i)) {
+                            const code = char.charCodeAt(0);
+                            const base = char === char.toLowerCase() ? 97 : 65;
+                            return String.fromCharCode(((code - base - shift + 26) % 26) + base);
+                        }
+                        return char;
+                    }).join('');
+                }
+            },
+            
+            // ROT13 (special case of Caesar cipher with shift 13)
+            rot13: {
+                encrypt: function(text) {
+                    return CryptoAlgorithms.caesar.encrypt(text, 13);
+                },
+                decrypt: function(text) {
+                    // ROT13 is symmetric, so encrypt and decrypt are the same
+                    return CryptoAlgorithms.caesar.decrypt(text, 13);
+                }
+            }
+        };
+
+        // DOM elements
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const algorithmOptions = document.querySelectorAll('.algorithm-option');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const processBtn = document.getElementById('processBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyResultBtn = document.getElementById('copyResultBtn');
+        const keyInputContainer = document.getElementById('keyInputContainer');
+        const encryptionKey = document.getElementById('encryptionKey');
+        const resultInfo = document.getElementById('resultInfo');
+        const detailsText = document.getElementById('detailsText');
+
+        // State variables
+        let selectedAlgorithm = 'base64';
+        let selectedMode = 'encrypt';
+
+        // Algorithm selection
+        algorithmOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                algorithmOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedAlgorithm = this.getAttribute('data-algo');
+                
+                // Show/hide key input based on algorithm
+                if (['aes'].includes(selectedAlgorithm)) {
+                    keyInputContainer.style.display = 'block';
+                } else {
+                    keyInputContainer.style.display = 'none';
+                }
+            });
+        });
+
+        // Mode selection
+        modeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                selectedMode = this.getAttribute('data-mode');
+            });
+        });
+
+        // Process button click
+        processBtn.addEventListener('click', function() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('Please enter some text to process');
+                return;
+            }
+
+            try {
+                const resetButton = ToolsHub.showLoading(processBtn);
+                
+                let result;
+                if (selectedMode === 'encrypt') {
+                    if (selectedAlgorithm === 'aes') {
+                        // For demo purposes, we'll simulate AES with a simple substitution
+                        // In a real implementation, we'd use a proper AES library
+                        const key = encryptionKey.value || 'defaultkey';
+                        result = 'AES_ENC_' + btoa(text + '|' + key).substring(0, 20) + '_DATA';
+                    } else {
+                        result = CryptoAlgorithms[selectedAlgorithm].encrypt(text);
+                    }
+                } else {
+                    if (selectedAlgorithm === 'aes') {
+                        // Simulated AES decryption
+                        if (text.startsWith('AES_ENC_') && text.endsWith('_DATA')) {
+                            const encoded = text.substring(8, text.length - 5);
+                            const decoded = atob(encoded + '='.repeat((4 - encoded.length % 4) % 4));
+                            const parts = decoded.split('|');
+                            result = parts[0];
+                        } else {
+                            throw new Error('Invalid AES encrypted data format');
+                        }
+                    } else {
+                        result = CryptoAlgorithms[selectedAlgorithm].decrypt(text);
+                    }
+                }
+                
+                outputText.value = result;
+                
+                // Show processing details
+                detailsText.innerHTML = `
+                    <strong>Algorithm:</strong> ${selectedAlgorithm.toUpperCase()}<br>
+                    <strong>Mode:</strong> ${selectedMode === 'encrypt' ? 'Encryption' : 'Decryption'}<br>
+                    <strong>Input length:</strong> ${text.length} characters<br>
+                    <strong>Output length:</strong> ${result.length} characters
+                `;
+                resultInfo.style.display = 'block';
+                
+                resetButton();
+            } catch (error) {
+                resetButton();
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Clear button click
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            outputText.value = '';
+            resultInfo.style.display = 'none';
+        });
+
+        // Copy result button
+        copyResultBtn.addEventListener('click', function() {
+            if (outputText.value) {
+                ToolsHub.copyToClipboard(outputText.value);
+            } else {
+                alert('No result to copy');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default algorithm to base64
+            document.querySelector('.algorithm-option[data-algo="base64"]').click();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

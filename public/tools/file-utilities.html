@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件工具 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        .file-tool-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .drop-zone:hover {
+            background: #e3f2fd;
+            border-color: #764ba2;
+        }
+        
+        .drop-zone.dragover {
+            background: #e3f2fd;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+        
+        .drop-zone-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .file-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        
+        .file-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .rename-pattern {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .preview-list {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .preview-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+        
+        .preview-arrow {
+            margin: 0 15px;
+            color: #667eea;
+        }
+        
+        .directory-tree {
+            font-family: 'Consolas', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        
+        .tree-line {
+            white-space: pre;
+            line-height: 1.6;
+        }
+        
+        .tree-dir {
+            color: #4ec9b0;
+        }
+        
+        .tree-file {
+            color: #dcdcaa;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #4361ee, #3f37c9); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-copy"></i> 文件工具</h1>
+                <p class="tool-description">文件批量重命名、目录结构生成、文件列表管理等实用工具。</p>
+            </div>
+            
+            <div class="tab-buttons">
+                <div class="tab-btn active" onclick="switchTab('rename')">
+                    <i class="fas fa-edit"></i> 批量重命名
+                </div>
+                <div class="tab-btn" onclick="switchTab('tree')">
+                    <i class="fas fa-sitemap"></i> 目录树生成
+                </div>
+                <div class="tab-btn" onclick="switchTab('list')">
+                    <i class="fas fa-list"></i> 文件列表
+                </div>
+            </div>
+            
+            <div class="tab-content active" id="renameTab">
+                <div class="file-tool-section">
+                    <h5 class="mb-3"><i class="fas fa-upload"></i> 选择文件</h5>
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h5>拖拽文件到这里</h5>
+                        <p class="text-muted">或点击选择文件</p>
+                        <input type="file" id="fileInput" multiple style="display: none;">
+                    </div>
+                    
+                    <div class="file-list" id="fileList"></div>
+                    
+                    <div class="rename-pattern mt-4">
+                        <h6 class="mb-3"><i class="fas fa-magic"></i> 重命名规则</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>前缀</label>
+                                <input type="text" id="prefix" class="form-control" placeholder="添加前缀">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>后缀</label>
+                                <input type="text" id="suffix" class="form-control" placeholder="添加后缀">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>查找</label>
+                                <input type="text" id="findText" class="form-control" placeholder="要替换的文本">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>替换为</label>
+                                <input type="text" id="replaceText" class="form-control" placeholder="替换后的文本">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>编号起始</label>
+                                <input type="number" id="startNumber" class="form-control" value="1" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>编号位数</label>
+                                <input type="number" id="numberDigits" class="form-control" value="2" min="1" max="10">
+                            </div>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="addNumber">
+                            <label class="form-check-label">添加编号</label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" onclick="generatePreview()">
+                        <i class="fas fa-eye"></i> 预览重命名结果
+                    </button>
+                    
+                    <div class="preview-list" id="previewList" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="treeTab">
+                <div class="file-tool-section">
+                    <h5 class="mb-3"><i class="fas fa-folder-tree"></i> 目录结构生成器</h5>
+                    <div class="mb-3">
+                        <label>输入目录结构（使用缩进表示层级）：</label>
+                        <textarea id="treeInput" class="form-control" rows="10" placeholder="project/
+  src/
+    main.js
+    utils.js
+  public/
+    index.html
+  README.md"></textarea>
+                    </div>
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-primary" onclick="generateTree()">
+                            <i class="fas fa-play"></i> 生成树形结构
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="clearTree()">
+                            <i class="fas fa-trash"></i> 清空
+                        </button>
+                        <button class="btn btn-success" onclick="copyTree()">
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                    </div>
+                    <div class="directory-tree" id="treeOutput" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="listTab">
+                <div class="file-tool-section">
+                    <h5 class="mb-3"><i class="fas fa-file-alt"></i> 文件列表生成</h5>
+                    <div class="drop-zone" id="listDropZone">
+                        <div class="drop-zone-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h5>拖拽文件夹到这里</h5>
+                        <p class="text-muted">生成文件清单</p>
+                    </div>
+                    <div id="fileListOutput" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        let files = [];
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.closest('.tab-btn').classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+        
+        // 文件拖拽处理
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(fileList) {
+            files = Array.from(fileList);
+            displayFiles();
+        }
+        
+        function displayFiles() {
+            const container = document.getElementById('fileList');
+            container.innerHTML = files.map((file, index) => `
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-file"></i>
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatSize(file.size)}</div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function removeFile(index) {
+            files.splice(index, 1);
+            displayFiles();
+        }
+        
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function generatePreview() {
+            if (files.length === 0) {
+                alert('请先选择文件');
+                return;
+            }
+            
+            const prefix = document.getElementById('prefix').value;
+            const suffix = document.getElementById('suffix').value;
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            const addNumber = document.getElementById('addNumber').checked;
+            const startNumber = parseInt(document.getElementById('startNumber').value) || 1;
+            const numberDigits = parseInt(document.getElementById('numberDigits').value) || 2;
+            
+            const previewList = document.getElementById('previewList');
+            previewList.style.display = 'block';
+            
+            previewList.innerHTML = '<h6 class="mb-3">重命名预览：</h6>' + 
+                files.map((file, index) => {
+                    let newName = file.name;
+                    const ext = newName.includes('.') ? '.' + newName.split('.').pop() : '';
+                    const baseName = newName.includes('.') ? newName.slice(0, -ext.length) : newName;
+                    
+                    // 查找替换
+                    if (findText) {
+                        newName = newName.replace(new RegExp(findText, 'g'), replaceText);
+                    }
+                    
+                    // 添加前缀后缀
+                    newName = prefix + (newName.includes('.') ? newName.slice(0, -ext.length) : newName) + suffix + ext;
+                    
+                    // 添加编号
+                    if (addNumber) {
+                        const num = (startNumber + index).toString().padStart(numberDigits, '0');
+                        const newBase = newName.includes('.') ? newName.slice(0, -ext.length) : newName;
+                        newName = `${num}_${newBase}${ext}`;
+                    }
+                    
+                    return `
+                        <div class="preview-item">
+                            <span>${file.name}</span>
+                            <i class="fas fa-arrow-right preview-arrow"></i>
+                            <span class="text-success">${newName}</span>
+                        </div>
+                    `;
+                }).join('');
+        }
+        
+        function generateTree() {
+            const input = document.getElementById('treeInput').value;
+            if (!input.trim()) return;
+            
+            const lines = input.split('\n');
+            let output = [];
+            
+            lines.forEach((line, index) => {
+                const trimmed = line.trimEnd();
+                const indent = line.length - trimmed.length;
+                const depth = Math.floor(indent / 2);
+                const isLast = index === lines.length - 1 || 
+                    (lines[index + 1] && (lines[index + 1].trimEnd().length - lines[index + 1].length) / 2 <= depth);
+                
+                let prefix = '';
+                for (let i = 0; i < depth; i++) {
+                    prefix += '│  ';
+                }
+                prefix += isLast ? '└── ' : '├── ';
+                
+                const isDir = trimmed.endsWith('/');
+                const name = isDir ? trimmed.slice(0, -1) : trimmed;
+                const className = isDir ? 'tree-dir' : 'tree-file';
+                
+                output.push(`<span class="tree-line"><span class="${className}">${prefix}${name}</span></span>`);
+            });
+            
+            const treeOutput = document.getElementById('treeOutput');
+            treeOutput.style.display = 'block';
+            treeOutput.innerHTML = output.join('\n');
+        }
+        
+        function clearTree() {
+            document.getElementById('treeInput').value = '';
+            document.getElementById('treeOutput').style.display = 'none';
+        }
+        
+        function copyTree() {
+            const treeOutput = document.getElementById('treeOutput');
+            if (treeOutput.style.display === 'none') return;
+            
+            const text = treeOutput.innerText;
+            ToolsHub.copyToClipboard(text);
+        }
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

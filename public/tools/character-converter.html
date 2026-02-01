@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Converter - New ToolsHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        .converter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .conversion-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .conversion-input {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .conversion-output {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .encoding-select {
+            width: 150px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .converter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .converter-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .converter-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .converter-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .converter-tab.active {
+            border-bottom: 3px solid #007bff;
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .converter-tab-content {
+            display: none;
+        }
+        
+        .converter-tab-content.active {
+            display: block;
+        }
+        
+        .character-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #4361ee, #3f37c9); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-exchange-alt"></i> Character Converter</h1>
+                <p class="tool-description">Convert between different character encodings, numeral systems, and text formats.</p>
+            </div>
+            
+            <div class="converter-tabs">
+                <div class="converter-tab active" data-tab="text">Text Conversion</div>
+                <div class="converter-tab" data-tab="numeral">Numeral Systems</div>
+                <div class="converter-tab" data-tab="encoding">Encodings</div>
+                <div class="converter-tab" data-tab="info">Character Info</div>
+            </div>
+            
+            <div class="tool-content">
+                <!-- Text Conversion Tab -->
+                <div id="textTab" class="converter-tab-content active">
+                    <div class="converter-section">
+                        <h4><i class="fas fa-text-height"></i> Text Case & Format Conversion</h4>
+                        
+                        <div class="form-group">
+                            <label for="textInput" class="form-label">Input Text:</label>
+                            <textarea id="textInput" class="form-control" rows="4" placeholder="Enter text to convert..."></textarea>
+                        </div>
+                        
+                        <div class="converter-grid">
+                            <div class="converter-card">
+                                <h5>Case Conversions</h5>
+                                <div class="form-group">
+                                    <label for="upperCaseOutput" class="form-label">UPPERCASE:</label>
+                                    <textarea id="upperCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lowerCaseOutput" class="form-label">lowercase:</label>
+                                    <textarea id="lowerCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="titleCaseOutput" class="form-label">Title Case:</label>
+                                    <textarea id="titleCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sentenceCaseOutput" class="form-label">Sentence case:</label>
+                                    <textarea id="sentenceCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="converter-card">
+                                <h5>Format Conversions</h5>
+                                <div class="form-group">
+                                    <label for="camelCaseOutput" class="form-label">camelCase:</label>
+                                    <textarea id="camelCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pascalCaseOutput" class="form-label">PascalCase:</label>
+                                    <textarea id="pascalCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="snakeCaseOutput" class="form-label">snake_case:</label>
+                                    <textarea id="snakeCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="kebabCaseOutput" class="form-label">kebab-case:</label>
+                                    <textarea id="kebabCaseOutput" class="form-control" rows="2" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button id="convertTextBtn" class="btn btn-primary">
+                                <i class="fas fa-cogs"></i> Convert Text
+                            </button>
+                            <button id="clearTextBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Numeral Systems Tab -->
+                <div id="numeralTab" class="converter-tab-content">
+                    <div class="converter-section">
+                        <h4><i class="fas fa-calculator"></i> Numeral System Conversion</h4>
+                        
+                        <div class="conversion-row">
+                            <div class="conversion-input">
+                                <label for="decimalInput" class="form-label">Decimal:</label>
+                                <input type="number" id="decimalInput" class="form-control" placeholder="Enter decimal number">
+                            </div>
+                            
+                            <div class="conversion-input">
+                                <label for="binaryInput" class="form-label">Binary:</label>
+                                <input type="text" id="binaryInput" class="form-control" placeholder="Enter binary number">
+                            </div>
+                            
+                            <div class="conversion-input">
+                                <label for="octalInput" class="form-label">Octal:</label>
+                                <input type="text" id="octalInput" class="form-control" placeholder="Enter octal number">
+                            </div>
+                            
+                            <div class="conversion-input">
+                                <label for="hexInput" class="form-label">Hexadecimal:</label>
+                                <input type="text" id="hexInput" class="form-control" placeholder="Enter hex number">
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button id="convertNumeralBtn" class="btn btn-success">
+                                <i class="fas fa-exchange-alt"></i> Convert All
+                            </button>
+                            <button id="clearNumeralBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Encodings Tab -->
+                <div id="encodingTab" class="converter-tab-content">
+                    <div class="converter-section">
+                        <h4><i class="fas fa-code"></i> Encoding Conversion</h4>
+                        
+                        <div class="conversion-row">
+                            <div class="conversion-input">
+                                <label for="encodingInput" class="form-label">Input Text:</label>
+                                <textarea id="encodingInput" class="form-control" rows="3" placeholder="Enter text to encode/decode..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="conversion-row">
+                            <div class="encoding-select">
+                                <label for="fromEncoding" class="form-label">From:</label>
+                                <select id="fromEncoding" class="form-control">
+                                    <option value="utf8">UTF-8</option>
+                                    <option value="ascii">ASCII</option>
+                                    <option value="base64">Base64</option>
+                                    <option value="hex">Hex</option>
+                                    <option value="url">URL Encoded</option>
+                                    <option value="html">HTML Entities</option>
+                                </select>
+                            </div>
+                            
+                            <button id="convertEncodingBtn" class="btn btn-primary" style="align-self: flex-end; margin-bottom: 10px;">→</button>
+                            
+                            <div class="encoding-select">
+                                <label for="toEncoding" class="form-label">To:</label>
+                                <select id="toEncoding" class="form-control">
+                                    <option value="utf8">UTF-8</option>
+                                    <option value="ascii">ASCII</option>
+                                    <option value="base64">Base64</option>
+                                    <option value="hex">Hex</option>
+                                    <option value="url">URL Encoded</option>
+                                    <option value="html">HTML Entities</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="conversion-row">
+                            <div class="conversion-output">
+                                <label for="encodingOutput" class="form-label">Result:</label>
+                                <textarea id="encodingOutput" class="form-control" rows="3" readonly placeholder="Converted result will appear here..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button id="convertEncodingBtn2" class="btn btn-success">
+                                <i class="fas fa-cogs"></i> Convert Encoding
+                            </button>
+                            <button id="clearEncodingBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> Clear
+                            </button>
+                            <button id="copyEncodingBtn" class="btn btn-outline-primary" data-copy="encodingOutput">
+                                <i class="fas fa-copy"></i> Copy Result
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Character Info Tab -->
+                <div id="infoTab" class="converter-tab-content">
+                    <div class="converter-section">
+                        <h4><i class="fas fa-info-circle"></i> Character Information</h4>
+                        
+                        <div class="form-group">
+                            <label for="charInfoInput" class="form-label">Enter text to analyze:</label>
+                            <textarea id="charInfoInput" class="form-control" rows="3" placeholder="Enter text to get character information..."></textarea>
+                        </div>
+                        
+                        <div id="charInfoResult" class="result-card">
+                            <h5>Character Analysis:</h5>
+                            <div id="charDetails">
+                                <p>Enter text above to see character analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // Text conversion functions
+        const TextConverter = {
+            toUpperCase: function(text) {
+                return text.toUpperCase();
+            },
+            
+            toLowerCase: function(text) {
+                return text.toLowerCase();
+            },
+            
+            toTitleCase: function(text) {
+                return text.replace(/\w\S*/g, function(txt) {
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                });
+            },
+            
+            toSentenceCase: function(text) {
+                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+            },
+            
+            toCamelCase: function(text) {
+                return text.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
+                    return index === 0 ? word.toLowerCase() : word.toUpperCase();
+                }).replace(/\s+/g, '');
+            },
+            
+            toPascalCase: function(text) {
+                return text.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word) {
+                    return word.toUpperCase();
+                }).replace(/\s+/g, '');
+            },
+            
+            toSnakeCase: function(text) {
+                return text.replace(/\s+/g, '_').toLowerCase();
+            },
+            
+            toKebabCase: function(text) {
+                return text.replace(/\s+/g, '-').toLowerCase();
+            }
+        };
+        
+        // Numeral conversion functions
+        const NumeralConverter = {
+            decimalToBinary: function(decimal) {
+                return parseInt(decimal).toString(2);
+            },
+            
+            decimalToOctal: function(decimal) {
+                return parseInt(decimal).toString(8);
+            },
+            
+            decimalToHex: function(decimal) {
+                return parseInt(decimal).toString(16).toUpperCase();
+            },
+            
+            binaryToDecimal: function(binary) {
+                return parseInt(binary, 2).toString();
+            },
+            
+            octalToDecimal: function(octal) {
+                return parseInt(octal, 8).toString();
+            },
+            
+            hexToDecimal: function(hex) {
+                return parseInt(hex, 16).toString();
+            }
+        };
+        
+        // Encoding conversion functions
+        const EncodingConverter = {
+            base64Encode: function(text) {
+                return btoa(encodeURIComponent(text).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+                }));
+            },
+            
+            base64Decode: function(encoded) {
+                try {
+                    return decodeURIComponent(atob(encoded).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                } catch(e) {
+                    throw new Error('Invalid Base64 input');
+                }
+            },
+            
+            hexEncode: function(text) {
+                return Array.from(text).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+            },
+            
+            hexDecode: function(hex) {
+                try {
+                    return hex.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
+                } catch(e) {
+                    throw new Error('Invalid hex input');
+                }
+            },
+            
+            urlEncode: function(text) {
+                return encodeURIComponent(text);
+            },
+            
+            urlDecode: function(encoded) {
+                return decodeURIComponent(encoded);
+            },
+            
+            htmlEncode: function(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+            
+            htmlDecode: function(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                return div.textContent || div.innerText || '';
+            }
+        };
+        
+        // DOM elements
+        const textInput = document.getElementById('textInput');
+        const upperCaseOutput = document.getElementById('upperCaseOutput');
+        const lowerCaseOutput = document.getElementById('lowerCaseOutput');
+        const titleCaseOutput = document.getElementById('titleCaseOutput');
+        const sentenceCaseOutput = document.getElementById('sentenceCaseOutput');
+        const camelCaseOutput = document.getElementById('camelCaseOutput');
+        const pascalCaseOutput = document.getElementById('pascalCaseOutput');
+        const snakeCaseOutput = document.getElementById('snakeCaseOutput');
+        const kebabCaseOutput = document.getElementById('kebabCaseOutput');
+        const convertTextBtn = document.getElementById('convertTextBtn');
+        const clearTextBtn = document.getElementById('clearTextBtn');
+        
+        const decimalInput = document.getElementById('decimalInput');
+        const binaryInput = document.getElementById('binaryInput');
+        const octalInput = document.getElementById('octalInput');
+        const hexInput = document.getElementById('hexInput');
+        const convertNumeralBtn = document.getElementById('convertNumeralBtn');
+        const clearNumeralBtn = document.getElementById('clearNumeralBtn');
+        
+        const encodingInput = document.getElementById('encodingInput');
+        const fromEncoding = document.getElementById('fromEncoding');
+        const toEncoding = document.getElementById('toEncoding');
+        const encodingOutput = document.getElementById('encodingOutput');
+        const convertEncodingBtn = document.getElementById('convertEncodingBtn');
+        const convertEncodingBtn2 = document.getElementById('convertEncodingBtn2');
+        const clearEncodingBtn = document.getElementById('clearEncodingBtn');
+        const copyEncodingBtn = document.getElementById('copyEncodingBtn');
+        
+        const charInfoInput = document.getElementById('charInfoInput');
+        const charDetails = document.getElementById('charDetails');
+        
+        // Tab switching
+        document.querySelectorAll('.converter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Update active tab
+                document.querySelectorAll('.converter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show active content
+                document.querySelectorAll('.converter-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}Tab`).classList.add('active');
+            });
+        });
+        
+        // Text conversion
+        convertTextBtn.addEventListener('click', function() {
+            const text = textInput.value;
+            if (!text) {
+                alert('Please enter text to convert');
+                return;
+            }
+            
+            upperCaseOutput.value = TextConverter.toUpperCase(text);
+            lowerCaseOutput.value = TextConverter.toLowerCase(text);
+            titleCaseOutput.value = TextConverter.toTitleCase(text);
+            sentenceCaseOutput.value = TextConverter.toSentenceCase(text);
+            camelCaseOutput.value = TextConverter.toCamelCase(text);
+            pascalCaseOutput.value = TextConverter.toPascalCase(text);
+            snakeCaseOutput.value = TextConverter.toSnakeCase(text);
+            kebabCaseOutput.value = TextConverter.toKebabCase(text);
+        });
+        
+        // Clear text inputs
+        clearTextBtn.addEventListener('click', function() {
+            textInput.value = '';
+            upperCaseOutput.value = '';
+            lowerCaseOutput.value = '';
+            titleCaseOutput.value = '';
+            sentenceCaseOutput.value = '';
+            camelCaseOutput.value = '';
+            pascalCaseOutput.value = '';
+            snakeCaseOutput.value = '';
+            kebabCaseOutput.value = '';
+        });
+        
+        // Numeral conversion
+        function updateNumeralConversions() {
+            let decimalVal = decimalInput.value;
+            let binaryVal = binaryInput.value;
+            let octalVal = octalInput.value;
+            let hexVal = hexInput.value;
+            
+            // If decimal changed, update others
+            if (decimalVal && decimalVal !== decimalInput.dataset.lastValue) {
+                decimalInput.dataset.lastValue = decimalVal;
+                try {
+                    binaryInput.value = NumeralConverter.decimalToBinary(decimalVal);
+                    octalInput.value = NumeralConverter.decimalToOctal(decimalVal);
+                    hexInput.value = NumeralConverter.decimalToHex(decimalVal);
+                } catch(e) {
+                    console.error('Decimal conversion error:', e);
+                }
+            }
+            // If binary changed, update others
+            else if (binaryVal && binaryVal !== binaryInput.dataset.lastValue) {
+                binaryInput.dataset.lastValue = binaryVal;
+                try {
+                    decimalInput.value = NumeralConverter.binaryToDecimal(binaryVal);
+                    octalInput.value = NumeralConverter.decimalToOctal(decimalInput.value);
+                    hexInput.value = NumeralConverter.decimalToHex(decimalInput.value);
+                } catch(e) {
+                    console.error('Binary conversion error:', e);
+                }
+            }
+            // If octal changed, update others
+            else if (octalVal && octalVal !== octalInput.dataset.lastValue) {
+                octalInput.dataset.lastValue = octalVal;
+                try {
+                    decimalInput.value = NumeralConverter.octalToDecimal(octalVal);
+                    binaryInput.value = NumeralConverter.decimalToBinary(decimalInput.value);
+                    hexInput.value = NumeralConverter.decimalToHex(decimalInput.value);
+                } catch(e) {
+                    console.error('Octal conversion error:', e);
+                }
+            }
+            // If hex changed, update others
+            else if (hexVal && hexVal !== hexInput.dataset.lastValue) {
+                hexInput.dataset.lastValue = hexVal;
+                try {
+                    decimalInput.value = NumeralConverter.hexToDecimal(hexVal);
+                    binaryInput.value = NumeralConverter.decimalToBinary(decimalInput.value);
+                    octalInput.value = NumeralConverter.decimalToOctal(decimalInput.value);
+                } catch(e) {
+                    console.error('Hex conversion error:', e);
+                }
+            }
+        }
+        
+        // Add event listeners to numeral inputs
+        decimalInput.addEventListener('input', updateNumeralConversions);
+        binaryInput.addEventListener('input', updateNumeralConversions);
+        octalInput.addEventListener('input', updateNumeralConversions);
+        hexInput.addEventListener('input', updateNumeralConversions);
+        
+        // Convert all numeral systems
+        convertNumeralBtn.addEventListener('click', updateNumeralConversions);
+        
+        // Clear numeral inputs
+        clearNumeralBtn.addEventListener('click', function() {
+            decimalInput.value = '';
+            binaryInput.value = '';
+            octalInput.value = '';
+            hexInput.value = '';
+        });
+        
+        // Encoding conversion
+        convertEncodingBtn.addEventListener('click', function() {
+            convertEncodingBtn2.click();
+        });
+        
+        convertEncodingBtn2.addEventListener('click', function() {
+            const text = encodingInput.value;
+            if (!text) {
+                alert('Please enter text to convert');
+                return;
+            }
+            
+            const from = fromEncoding.value;
+            const to = toEncoding.value;
+            
+            if (from === to) {
+                encodingOutput.value = text;
+                return;
+            }
+            
+            try {
+                let intermediate;
+                
+                // Decode from source encoding
+                switch(from) {
+                    case 'base64':
+                        intermediate = EncodingConverter.base64Decode(text);
+                        break;
+                    case 'hex':
+                        intermediate = EncodingConverter.hexDecode(text);
+                        break;
+                    case 'url':
+                        intermediate = EncodingConverter.urlDecode(text);
+                        break;
+                    case 'html':
+                        intermediate = EncodingConverter.htmlDecode(text);
+                        break;
+                    case 'ascii':
+                    case 'utf8':
+                    default:
+                        intermediate = text;
+                        break;
+                }
+                
+                // Encode to target encoding
+                switch(to) {
+                    case 'base64':
+                        encodingOutput.value = EncodingConverter.base64Encode(intermediate);
+                        break;
+                    case 'hex':
+                        encodingOutput.value = EncodingConverter.hexEncode(intermediate);
+                        break;
+                    case 'url':
+                        encodingOutput.value = EncodingConverter.urlEncode(intermediate);
+                        break;
+                    case 'html':
+                        encodingOutput.value = EncodingConverter.htmlEncode(intermediate);
+                        break;
+                    case 'ascii':
+                    case 'utf8':
+                    default:
+                        encodingOutput.value = intermediate;
+                        break;
+                }
+            } catch(e) {
+                alert('Conversion error: ' + e.message);
+            }
+        });
+        
+        // Clear encoding inputs
+        clearEncodingBtn.addEventListener('click', function() {
+            encodingInput.value = '';
+            encodingOutput.value = '';
+        });
+        
+        // Copy encoding result
+        copyEncodingBtn.addEventListener('click', function() {
+            if (encodingOutput.value) {
+                ToolsHub.copyToClipboard(encodingOutput.value);
+            }
+        });
+        
+        // Character info analysis
+        charInfoInput.addEventListener('input', function() {
+            const text = charInfoInput.value;
+            if (!text) {
+                charDetails.innerHTML = '<p>Enter text above to see character analysis</p>';
+                return;
+            }
+            
+            const charCount = text.length;
+            const byteCount = new Blob([text]).size;
+            const wordCount = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const lineCount = text.split('\n').length;
+            
+            // Count character types
+            let uppercase = 0, lowercase = 0, numbers = 0, spaces = 0, special = 0;
+            for (let char of text) {
+                if (char >= 'A' && char <= 'Z') uppercase++;
+                else if (char >= 'a' && char <= 'z') lowercase++;
+                else if (char >= '0' && char <= '9') numbers++;
+                else if (char === ' ' || char === '\t' || char === '\n' || char === '\r') spaces++;
+                else special++;
+            }
+            
+            // Get sample characters
+            const sampleChars = Array.from(text).slice(0, 10).map(char => {
+                return `"${char}" (U+${char.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')})`;
+            }).join(', ');
+            
+            charDetails.innerHTML = `
+                <div><strong>Character Count:</strong> ${charCount}</div>
+                <div><strong>Byte Count:</strong> ${byteCount}</div>
+                <div><strong>Word Count:</strong> ${wordCount}</div>
+                <div><strong>Line Count:</strong> ${lineCount}</div>
+                <div class="mt-2"><strong>Character Types:</strong></div>
+                <div>Uppercase: ${uppercase}, Lowercase: ${lowercase}, Numbers: ${numbers}, Spaces: ${spaces}, Special: ${special}</div>
+                <div class="mt-2"><strong>First 10 Characters:</strong></div>
+                <div class="character-info">${sampleChars}</div>
+            `;
+        });
+        
+        // Initialize with sample text
+        window.addEventListener('load', function() {
+            textInput.value = 'Hello World! This is a sample text for conversion.';
+            convertTextBtn.click();
+            
+            decimalInput.value = '255';
+            updateNumeralConversions();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

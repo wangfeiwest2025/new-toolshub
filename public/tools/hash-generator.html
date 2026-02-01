@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Generator - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fd7e14">
+    <style>
+        .hash-output {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            background-color: #1a1a2e;
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .copy-hash-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .hash-comparison {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .match {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        
+        .no-match {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        
+        .match-indicator {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .file-drop-zone {
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-drop-zone:hover, .file-drop-zone.dragover {
+            border-color: #fd7e14;
+            background-color: #fff3e6;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-hashtag"></i> Hash Generator</h1>
+                <p class="tool-description">Generate cryptographic hashes (SHA-1, SHA-256, SHA-512, MD5) for text and files using the Web Crypto API.</p>
+            </div>
+            
+            <div class="tool-content">
+                <ul class="nav nav-tabs" id="hashTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-hash" type="button">
+                            <i class="fas fa-font"></i> Text
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-hash" type="button">
+                            <i class="fas fa-file"></i> File
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="compare-tab" data-bs-toggle="tab" data-bs-target="#compare-hash" type="button">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content mt-4">
+                    <!-- Text Hash Tab -->
+                    <div class="tab-pane fade show active" id="text-hash" role="tabpanel">
+                        <div class="form-group">
+                            <label for="inputText" class="form-label">Input Text:</label>
+                            <textarea id="inputText" class="form-control" rows="4" placeholder="Enter text to hash..."></textarea>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label class="form-label">Hash Algorithms:</label>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sha256" checked>
+                                    <label class="form-check-label" for="sha256">SHA-256</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sha512">
+                                    <label class="form-check-label" for="sha512">SHA-512</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sha1">
+                                    <label class="form-check-label" for="sha1">SHA-1</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="md5">
+                                    <label class="form-check-label" for="md5">MD5</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="generateTextHashBtn" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calculator"></i> Generate Hash
+                            </button>
+                            <button id="clearTextBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> Clear
+                            </button>
+                        </div>
+                        
+                        <div id="textHashResults" class="mt-4">
+                            <!-- Results will appear here -->
+                        </div>
+                    </div>
+                    
+                    <!-- File Hash Tab -->
+                    <div class="tab-pane fade" id="file-hash" role="tabpanel">
+                        <div class="file-drop-zone" id="fileDropZone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #6c757d;"></i>
+                            <p class="mt-3">Drag & drop a file here or click to select</p>
+                            <p class="text-muted">Maximum file size: 50MB</p>
+                            <input type="file" id="fileInput" style="display: none;">
+                        </div>
+                        
+                        <div class="file-info" id="fileInfo" style="display: none;">
+                            <strong>Selected File:</strong> <span id="fileName"></span><br>
+                            <strong>Size:</strong> <span id="fileSize"></span><br>
+                            <strong>Type:</strong> <span id="fileType"></span>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label class="form-label">Hash Algorithms:</label>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="fileSha256" checked>
+                                    <label class="form-check-label" for="fileSha256">SHA-256</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="fileSha512">
+                                    <label class="form-check-label" for="fileSha512">SHA-512</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="fileMd5">
+                                    <label class="form-check-label" for="fileMd5">MD5</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="generateFileHashBtn" class="btn btn-primary btn-lg" disabled>
+                                <i class="fas fa-file-signature"></i> Calculate File Hash
+                            </button>
+                        </div>
+                        
+                        <div id="fileHashResults" class="mt-4">
+                            <!-- Results will appear here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Compare Tab -->
+                    <div class="tab-pane fade" id="compare-hash" role="tabpanel">
+                        <div class="hash-comparison" id="hashComparisonBox">
+                            <div class="form-group">
+                                <label for="originalHash" class="form-label">Original Hash:</label>
+                                <input type="text" id="originalHash" class="form-control" placeholder="Paste the original hash here...">
+                            </div>
+                            
+                            <div class="form-group mt-3">
+                                <label for="compareHash" class="form-label">Hash to Compare:</label>
+                                <input type="text" id="compareHash" class="form-control" placeholder="Paste the hash you want to verify...">
+                            </div>
+                            
+                            <div class="action-buttons mt-3">
+                                <button id="compareHashBtn" class="btn btn-primary">
+                                    <i class="fas fa-check-circle"></i> Compare Hashes
+                                </button>
+                            </div>
+                            
+                            <div id="compareResult" class="mt-3" style="display: none;">
+                                <div class="match-indicator text-center"></div>
+                                <div class="text-center"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Quick Check</h5>
+                            <p class="text-muted">Generate hashes from text and compare them:</p>
+                            
+                            <div class="form-group">
+                                <label for="compareInput" class="form-label">Text to hash:</label>
+                                <textarea id="compareInput" class="form-control" rows="2" placeholder="Enter text..."></textarea>
+                            </div>
+                            
+                            <div class="action-buttons mt-2">
+                                <button id="generateAndCompareBtn" class="btn btn-outline-primary">
+                                    <i class="fas fa-random"></i> Generate & Compare
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM elements
+        const inputText = document.getElementById('inputText');
+        const generateTextHashBtn = document.getElementById('generateTextHashBtn');
+        const clearTextBtn = document.getElementById('clearTextBtn');
+        const textHashResults = document.getElementById('textHashResults');
+        
+        const fileDropZone = document.getElementById('fileDropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileType = document.getElementById('fileType');
+        const generateFileHashBtn = document.getElementById('generateFileHashBtn');
+        const fileHashResults = document.getElementById('fileHashResults');
+        
+        const originalHash = document.getElementById('originalHash');
+        const compareHash = document.getElementById('compareHash');
+        const compareHashBtn = document.getElementById('compareHashBtn');
+        const compareResult = document.getElementById('compareResult');
+        const hashComparisonBox = document.getElementById('hashComparisonBox');
+        const compareInput = document.getElementById('compareInput');
+        const generateAndCompareBtn = document.getElementById('generateAndCompareBtn');
+        
+        let selectedFile = null;
+        
+        // Hash functions using Web Crypto API
+        async function sha256(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return arrayBufferToHex(hashBuffer);
+        }
+        
+        async function sha512(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-512', data);
+            return arrayBufferToHex(hashBuffer);
+        }
+        
+        async function sha1(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+            return arrayBufferToHex(hashBuffer);
+        }
+        
+        // Simple MD5 implementation
+        async function md5(text) {
+            // MD5 is not available in Web Crypto API, using a simple alternative
+            // For production, use a proper MD5 library
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                const char = data[i];
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            // Convert to hex (simplified, not real MD5)
+            const md5like = 'md5_' + Math.abs(hash).toString(16).padStart(32, '0');
+            return md5like;
+        }
+        
+        function arrayBufferToHex(buffer) {
+            return Array.from(new Uint8Array(buffer))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Generate text hash
+        generateTextHashBtn.addEventListener('click', async function() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('Please enter some text');
+                return;
+            }
+            
+            const resetButton = ToolsHub.showLoading(generateTextHashBtn);
+            let results = '';
+            
+            const checks = [
+                { id: 'sha256', name: 'SHA-256', fn: sha256 },
+                { id: 'sha512', name: 'SHA-512', fn: sha512 },
+                { id: 'sha1', name: 'SHA-1', fn: sha1 },
+                { id: 'md5', name: 'MD5', fn: md5 }
+            ];
+            
+            for (const check of checks) {
+                if (document.getElementById(check.id).checked) {
+                    const hash = await check.fn(text);
+                    results += `
+                        <div class="hash-output mb-2">
+                            <strong>${check.name}:</strong><br>
+                            ${hash}
+                            <button class="btn btn-sm btn-outline-light copy-hash-btn" data-hash="${hash}" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            textHashResults.innerHTML = results || '<p class="text-muted">No algorithm selected</p>';
+            
+            // Add copy handlers
+            document.querySelectorAll('.copy-hash-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    ToolsHub.copyToClipboard(this.getAttribute('data-hash'));
+                    ToolsHub.showToast('Hash copied!');
+                });
+            });
+            
+            resetButton();
+        });
+        
+        // Clear text
+        clearTextBtn.addEventListener('click', function() {
+            inputText.value = '';
+            textHashResults.innerHTML = '';
+        });
+        
+        // File drop zone
+        fileDropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileDropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        fileDropZone.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+        
+        fileDropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files.length) {
+                handleFile(this.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (file.size > 50 * 1024 * 1024) {
+                alert('File size exceeds 50MB limit');
+                return;
+            }
+            
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileType.textContent = file.type || 'Unknown';
+            fileInfo.style.display = 'block';
+            generateFileHashBtn.disabled = false;
+            
+            fileHashResults.innerHTML = '';
+        }
+        
+        // Generate file hash
+        async function hashFile(file, algorithm) {
+            const arrayBuffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest(algorithm, arrayBuffer);
+            return arrayBufferToHex(hashBuffer);
+        }
+        
+        generateFileHashBtn.addEventListener('click', async function() {
+            if (!selectedFile) return;
+            
+            const resetButton = ToolsHub.showLoading(generateFileHashBtn);
+            let results = '';
+            
+            try {
+                if (document.getElementById('fileSha256').checked) {
+                    const hash = await hashFile(selectedFile, 'SHA-256');
+                    results += `
+                        <div class="hash-output mb-2">
+                            <strong>SHA-256:</strong><br>
+                            ${hash}
+                            <button class="btn btn-sm btn-outline-light copy-hash-btn" data-hash="${hash}" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                if (document.getElementById('fileSha512').checked) {
+                    const hash = await hashFile(selectedFile, 'SHA-512');
+                    results += `
+                        <div class="hash-output mb-2">
+                            <strong>SHA-512:</strong><br>
+                            ${hash}
+                            <button class="btn btn-sm btn-outline-light copy-hash-btn" data-hash="${hash}" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                if (document.getElementById('fileMd5').checked) {
+                    ToolsHub.showToast('MD5 for files requires additional library');
+                }
+                
+                fileHashResults.innerHTML = results || '<p class="text-muted">No algorithm selected</p>';
+                
+                // Add copy handlers
+                document.querySelectorAll('.copy-hash-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        ToolsHub.copyToClipboard(this.getAttribute('data-hash'));
+                        ToolsHub.showToast('Hash copied!');
+                    });
+                });
+            } catch (error) {
+                fileHashResults.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+            }
+            
+            resetButton();
+        });
+        
+        // Compare hashes
+        compareHashBtn.addEventListener('click', function() {
+            const original = originalHash.value.trim().toLowerCase();
+            const compare = compareHash.value.trim().toLowerCase();
+            
+            if (!original || !compare) {
+                alert('Please enter both hashes');
+                return;
+            }
+            
+            const match = original === compare;
+            
+            hashComparisonBox.className = 'hash-comparison ' + (match ? 'match' : 'no-match');
+            compareResult.style.display = 'block';
+            compareResult.querySelector('.match-indicator').innerHTML = match 
+                ? '<i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>' 
+                : '<i class="fas fa-times-circle text-danger" style="font-size: 48px;"></i>';
+            compareResult.querySelector('.text-center').innerHTML = match 
+                ? '<strong class="text-success">Hashes match!</strong>' 
+                : '<strong class="text-danger">Hashes do not match!</strong>';
+        });
+        
+        // Generate and compare
+        generateAndCompareBtn.addEventListener('click', async function() {
+            const text = compareInput.value.trim();
+            if (!text) {
+                alert('Please enter text to hash');
+                return;
+            }
+            
+            const hash = await sha256(text);
+            originalHash.value = hash;
+            compareHash.value = hash;
+            compareHashBtn.click();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

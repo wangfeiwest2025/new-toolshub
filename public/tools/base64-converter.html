@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64编码解码器 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fd7e14">
+    <style>
+        .base64-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .base64-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .base64-stat:last-child {
+            border-bottom: none;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+        }
+        
+        .mode-btn:hover {
+            border-color: #fd7e14;
+        }
+        
+        .mode-btn.active {
+            background-color: #fd7e14;
+            color: white;
+            border-color: #fd7e14;
+        }
+        
+        .mode-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-code"></i> Base64 编码解码器</h1>
+                <p class="tool-description">在线 Base64 编码解码工具，支持文本和文件转换。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="mode-toggle">
+                    <div class="mode-btn active" data-mode="encode">
+                        <i class="fas fa-lock"></i>
+                        <strong>编码</strong>
+                        <div><small>Text → Base64</small></div>
+                    </div>
+                    <div class="mode-btn" data-mode="decode">
+                        <i class="fas fa-unlock"></i>
+                        <strong>解码</strong>
+                        <div><small>Base64 → Text</small></div>
+                    </div>
+                    <div class="mode-btn" data-mode="file">
+                        <i class="fas fa-file-image"></i>
+                        <strong>图片转换</strong>
+                        <div><small>Image ↔ Base64</small></div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputText" class="form-label" id="inputLabel">输入文本:</label>
+                            <textarea id="inputText" class="form-control" rows="8" placeholder="输入要转换的文本..."></textarea>
+                        </div>
+                        
+                        <!-- File upload for image mode -->
+                        <div class="form-group mt-3" id="fileInputGroup" style="display: none;">
+                            <label class="form-label">选择图片文件:</label>
+                            <div class="input-group">
+                                <input type="file" id="fileInput" class="form-control" accept="image/*">
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="convertBtn" class="btn btn-orange btn-lg" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); color: white; border: none;">
+                                <i class="fas fa-sync-alt"></i> <span id="convertBtnText">编码</span>
+                            </button>
+                            <button id="swapBtn" class="btn btn-outline-primary">
+                                <i class="fas fa-exchange-alt"></i> 交换
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> 清空
+                            </button>
+                            <button id="copyBtn" class="btn btn-outline-info">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="outputText" class="form-label" id="outputLabel">Base64 输出:</label>
+                            <textarea id="outputText" class="form-control" rows="8" readonly placeholder="转换结果..."></textarea>
+                        </div>
+                        
+                        <div class="base64-info">
+                            <h6><i class="fas fa-chart-bar"></i> 统计信息</h6>
+                            <div class="base64-stat">
+                                <span>输入长度:</span>
+                                <span id="inputLength">0 字符</span>
+                            </div>
+                            <div class="base64-stat">
+                                <span>输出长度:</span>
+                                <span id="outputLength">0 字符</span>
+                            </div>
+                            <div class="base64-stat">
+                                <span>扩展比例:</span>
+                                <span id="expandRatio">--</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Image preview for file mode -->
+                        <div class="mt-3" id="imagePreview" style="display: none;">
+                            <label class="form-label">图片预览:</label>
+                            <img id="previewImg" src="" alt="Preview" class="img-fluid" style="max-width: 100%; border-radius: 8px; border: 2px solid #dee2e6;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const convertBtn = document.getElementById('convertBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const fileInput = document.getElementById('fileInput');
+        const fileInputGroup = document.getElementById('fileInputGroup');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        
+        let currentMode = 'encode';
+        
+        // Mode selection
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMode = this.getAttribute('data-mode');
+                updateUI();
+            });
+        });
+        
+        function updateUI() {
+            const inputLabel = document.getElementById('inputLabel');
+            const outputLabel = document.getElementById('outputLabel');
+            const convertBtnText = document.getElementById('convertBtnText');
+            
+            if (currentMode === 'encode') {
+                inputLabel.textContent = '输入文本:';
+                outputLabel.textContent = 'Base64 输出:';
+                convertBtnText.textContent = '编码';
+                fileInputGroup.style.display = 'none';
+                inputText.style.display = 'block';
+                imagePreview.style.display = 'none';
+            } else if (currentMode === 'decode') {
+                inputLabel.textContent = 'Base64 输入:';
+                outputLabel.textContent = '解码文本:';
+                convertBtnText.textContent = '解码';
+                fileInputGroup.style.display = 'none';
+                inputText.style.display = 'block';
+                imagePreview.style.display = 'none';
+            } else {
+                inputLabel.textContent = '输入 (文本或Base64):';
+                outputLabel.textContent = '输出:';
+                convertBtnText.textContent = '转换';
+                fileInputGroup.style.display = 'block';
+                inputText.style.display = 'none';
+                imagePreview.style.display = 'block';
+            }
+        }
+        
+        // Convert functions
+        function encode() {
+            try {
+                const text = inputText.value;
+                const encoded = btoa(unescape(encodeURIComponent(text)));
+                outputText.value = encoded;
+                updateStats(text.length, encoded.length);
+            } catch (e) {
+                alert('编码失败: ' + e.message);
+            }
+        }
+        
+        function decode() {
+            try {
+                const text = inputText.value.trim();
+                const decoded = decodeURIComponent(escape(atob(text)));
+                outputText.value = decoded;
+                updateStats(text.length, decoded.length);
+            } catch (e) {
+                alert('解码失败: 请确保输入的是有效的 Base64 字符串');
+            }
+        }
+        
+        function handleFile() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('请选择图片文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                outputText.value = base64;
+                previewImg.src = base64;
+                updateStats(file.size, base64.length);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function updateStats(inputLen, outputLen) {
+            document.getElementById('inputLength').textContent = inputLen + ' 字符';
+            document.getElementById('outputLength').textContent = outputLen + ' 字符';
+            if (inputLen > 0) {
+                const ratio = ((outputLen / inputLen) * 100).toFixed(1);
+                document.getElementById('expandRatio').textContent = ratio + '%';
+            } else {
+                document.getElementById('expandRatio').textContent = '--';
+            }
+        }
+        
+        // Event listeners
+        convertBtn.addEventListener('click', function() {
+            if (currentMode === 'encode') {
+                encode();
+            } else if (currentMode === 'decode') {
+                decode();
+            } else {
+                handleFile();
+            }
+        });
+        
+        swapBtn.addEventListener('click', function() {
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+            
+            if (currentMode === 'encode') {
+                currentMode = 'decode';
+                modeBtns[1].click();
+            } else if (currentMode === 'decode') {
+                currentMode = 'encode';
+                modeBtns[0].click();
+            }
+        });
+        
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            outputText.value = '';
+            fileInput.value = '';
+            previewImg.src = '';
+            updateStats(0, 0);
+        });
+        
+        copyBtn.addEventListener('click', function() {
+            const text = outputText.value;
+            if (text) {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板!');
+            }
+        });
+        
+        // Update stats on input
+        inputText.addEventListener('input', function() {
+            updateStats(this.value.length, outputText.value.length);
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

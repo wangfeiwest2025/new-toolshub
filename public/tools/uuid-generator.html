@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UUID Generator - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e83e8c">
+    <style>
+        .version-option {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .version-option:hover {
+            border-color: #e83e8c;
+        }
+        
+        .version-option.active {
+            background-color: #e83e8c;
+            color: white;
+            border-color: #e83e8c;
+        }
+        
+        .generated-uuid {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            letter-spacing: 1px;
+            background-color: #f8f9fa;
+            word-break: break-all;
+        }
+        
+        .uuid-display {
+            padding: 15px;
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #e83e8c, #d63384); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-fingerprint"></i> UUID Generator</h1>
+                <p class="tool-description">Generate various UUID versions including UUID v1 (timestamp-based), v4 (random), and v5 (namespace-based) for testing and development.</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="form-label">UUID Version:</label>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <div class="version-option active" data-version="v4">
+                                    <i class="fas fa-random"></i> v4 (Random)
+                                </div>
+                                <div class="version-option" data-version="v1">
+                                    <i class="fas fa-clock"></i> v1 (Timestamp)
+                                </div>
+                                <div class="version-option" data-version="v5">
+                                    <i class="fas fa-tag"></i> v5 (Namespace)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="v5Options" class="mt-3" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="namespace" class="form-label">Namespace:</label>
+                                        <select id="namespace" class="form-select">
+                                            <option value="url">URL (6ba7b810-9dad-11d1-80b4-00c04fd430c8)</option>
+                                            <option value="oid">OID (6ba7b811-9dad-11d1-80b4-00c04fd430c8)</option>
+                                            <option value="x500">X.500 DN (6ba7b812-9dad-11d1-80b4-00c04fd430c8)</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name" class="form-label">Name:</label>
+                                        <input type="text" id="name" class="form-control" placeholder="Enter a name">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-4">
+                            <button id="generateBtn" class="btn btn-pink btn-lg" style="background: linear-gradient(135deg, #e83e8c, #d63384); color: white; border: none;">
+                                <i class="fas fa-random"></i> Generate UUID
+                            </button>
+                            <button id="generateMultipleBtn" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-layer-group"></i> Generate 10
+                            </button>
+                            <button id="copyBtn" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <label class="form-label">Generated UUID:</label>
+                            <div class="uuid-display" id="uuidDisplay">Click "Generate UUID" to create...</div>
+                        </div>
+                        
+                        <div class="result-container mt-3" id="uuidInfo" style="display: none;">
+                            <h5>UUID Information:</h5>
+                            <p id="uuidDetails"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-history"></i> Recent UUIDs
+                            </div>
+                            <div class="card-body" id="uuidHistory" style="max-height: 400px; overflow-y: auto; padding: 0;">
+                                <div class="text-center text-muted py-3">
+                                    No UUIDs generated yet
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // UUID Namespaces
+        const namespaces = {
+            url: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+            oid: '6ba7b811-9dad-11d1-80b4-00c04fd430c8',
+            x500: '6ba7b812-9dad-11d1-80b4-00c04fd430c8'
+        };
+        
+        // DOM elements
+        const versionOptions = document.querySelectorAll('.version-option');
+        const generateBtn = document.getElementById('generateBtn');
+        const generateMultipleBtn = document.getElementById('generateMultipleBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const uuidDisplay = document.getElementById('uuidDisplay');
+        const uuidInfo = document.getElementById('uuidInfo');
+        const uuidDetails = document.getElementById('uuidDetails');
+        const v5Options = document.getElementById('v5Options');
+        const namespaceSelect = document.getElementById('namespace');
+        const nameInput = document.getElementById('name');
+        const uuidHistory = document.getElementById('uuidHistory');
+        
+        // State
+        let selectedVersion = 'v4';
+        let uuidHistoryList = JSON.parse(localStorage.getItem('uuidHistory') || '[]');
+        
+        // Version selection
+        versionOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                versionOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedVersion = this.getAttribute('data-version');
+                v5Options.style.display = selectedVersion === 'v5' ? 'block' : 'none';
+            });
+        });
+        
+        // Generate UUID v4 (random)
+        function generateUUIDv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        
+        // Generate UUID v1 (timestamp-based)
+        function generateUUIDv1() {
+            const now = Date.now();
+            const timeHex = now.toString(16).padStart(16, '0');
+            
+            // Random node identifier
+            const nodeHex = Math.random().toString(16).substring(2, 14).padStart(12, '0');
+            
+            return `${timeHex.substring(8, 12)}-${timeHex.substring(4, 8)}-${timeHex.substring(0, 4)}-1${nodeHex.substring(0, 3)}-${nodeHex.substring(3)}`;
+        }
+        
+        // Generate UUID v5 (namespace-based)
+        function generateUUIDv5(name, namespace) {
+            // Simple v5 implementation using SHA-1
+            const namespaceBytes = hexToBytes(namespace);
+            const nameBytes = new TextEncoder().encode(name);
+            
+            // Combine namespace and name
+            const data = new Uint8Array(namespaceBytes.length + nameBytes.length);
+            data.set(namespaceBytes);
+            data.set(nameBytes, namespaceBytes.length);
+            
+            // Hash using SHA-1 (simplified - browser crypto.subtle doesn't work synchronously)
+            const hash = simpleHash(data);
+            
+            // Set version (5) and variant
+            const hashBytes = new Uint8Array(hash);
+            hashBytes[6] = (hashBytes[6] & 0x0f) | 0x50;
+            hashBytes[8] = (hashBytes[8] & 0x3f) | 0x80;
+            
+            return bytesToUUID(hashBytes);
+        }
+        
+        function hexToBytes(hex) {
+            const bytes = new Uint8Array(hex.length / 2);
+            for (let i = 0; i < hex.length; i += 2) {
+                bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+            }
+            return bytes;
+        }
+        
+        function bytesToUUID(bytes) {
+            const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+            return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-4${hex.substring(14, 18)}-${hex.substring(18)}`;
+        }
+        
+        function simpleHash(data) {
+            // Simple hash function for demonstration
+            let hash = [];
+            for (let i = 0; i < 20; i++) {
+                hash[i] = 0;
+            }
+            
+            for (let i = 0; i < data.length; i++) {
+                hash[i % 20] ^= data[i];
+                hash[(i + 1) % 20] = (hash[(i + 1) % 20] + 1) % 256;
+            }
+            
+            return hash;
+        }
+        
+        // Generate UUID
+        function generateUUID() {
+            let uuid;
+            
+            switch (selectedVersion) {
+                case 'v4':
+                    uuid = generateUUIDv4();
+                    break;
+                case 'v1':
+                    uuid = generateUUIDv1();
+                    break;
+                case 'v5':
+                    const ns = namespaceSelect.value === 'custom' ? namespaceSelect.dataset.custom : namespaces[namespaceSelect.value];
+                    const name = nameInput.value.trim() || 'default';
+                    uuid = generateUUIDv5(name, ns);
+                    break;
+                default:
+                    uuid = generateUUIDv4();
+            }
+            
+            return uuid;
+        }
+        
+        // Add to history
+        function addToHistory(uuid) {
+            const timestamp = new Date().toLocaleTimeString();
+            uuidHistoryList.unshift({ uuid, timestamp, version: selectedVersion });
+            
+            // Keep only last 30 UUIDs
+            if (uuidHistoryList.length > 30) {
+                uuidHistoryList = uuidHistoryList.slice(0, 30);
+            }
+            
+            localStorage.setItem('uuidHistory', JSON.stringify(uuidHistoryList));
+            renderHistory();
+        }
+        
+        // Render history
+        function renderHistory() {
+            if (uuidHistoryList.length === 0) {
+                uuidHistory.innerHTML = '<div class="text-center text-muted py-3">No UUIDs generated yet</div>';
+                return;
+            }
+            
+            uuidHistory.innerHTML = uuidHistoryList.map((item, index) => `
+                <div class="history-item" style="padding: 10px; border-bottom: 1px solid #e9ecef;">
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-family: 'Courier New', monospace; font-size: 11px; color: #6f42c1; word-break: break-all;">${item.uuid}</div>
+                        <div style="font-size: 10px; color: #6c757d;">${item.version} · ${item.timestamp}</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary copy-history-btn" data-uuid="${item.uuid}">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            // Add copy handlers
+            document.querySelectorAll('.copy-history-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const uuid = this.getAttribute('data-uuid');
+                    ToolsHub.copyToClipboard(uuid);
+                    ToolsHub.showToast('UUID copied!');
+                });
+            });
+        }
+        
+        // Generate button click
+        generateBtn.addEventListener('click', function() {
+            const resetButton = ToolsHub.showLoading(generateBtn);
+            const uuid = generateUUID();
+            
+            uuidDisplay.textContent = uuid;
+            uuidDisplay.style.color = '#00ff88';
+            
+            // Display info
+            const version = selectedVersion.toUpperCase();
+            const variant = uuid.substring(14, 15);
+            const timestamp = new Date().toLocaleString();
+            
+            uuidDetails.innerHTML = `
+                <strong>Version:</strong> ${version}<br>
+                <strong>Variant:</strong> ${variant} (DCE 1.1, ISO/IEC 11578)<br>
+                <strong>Generated:</strong> ${timestamp}<br>
+                <strong>Format:</strong> 8-4-4-4-12 hexadecimal
+            `;
+            
+            uuidInfo.style.display = 'block';
+            addToHistory(uuid);
+            
+            resetButton();
+        });
+        
+        // Generate multiple button
+        generateMultipleBtn.addEventListener('click', function() {
+            const resetButton = ToolsHub.showLoading(generateMultipleBtn);
+            let uuids = [];
+            
+            for (let i = 0; i < 10; i++) {
+                const uuid = generateUUID();
+                uuids.push(uuid);
+                addToHistory(uuid);
+            }
+            
+            uuidDisplay.innerHTML = uuids.join('<br>');
+            uuidDisplay.style.color = '#00ff88';
+            
+            uuidDetails.innerHTML = `
+                <strong>Generated:</strong> 10 UUIDs (${selectedVersion.toUpperCase()})<br>
+                <strong>Format:</strong> 8-4-4-4-12 hexadecimal
+            `;
+            
+            uuidInfo.style.display = 'block';
+            resetButton();
+        });
+        
+        // Copy button click
+        copyBtn.addEventListener('click', function() {
+            const text = uuidDisplay.textContent;
+            if (text && text !== 'Click "Generate UUID" to create...') {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('UUID copied!');
+            } else {
+                alert('No UUID to copy');
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderHistory();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

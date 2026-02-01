@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Converter - New ToolsHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        .converter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .conversion-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .conversion-input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .conversion-output {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .timezone-select {
+            width: 150px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .current-time-display {
+            text-align: center;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .time-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .time-info-item {
+            background: #f1f3f5;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #4361ee, #3f37c9); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-clock"></i> Time Converter</h1>
+                <p class="tool-description">Convert between timestamps and readable dates, calculate time differences, and work with different timezones.</p>
+            </div>
+            
+            <div class="current-time-display">
+                <h4>Current Time</h4>
+                <div id="currentTime" style="font-size: 1.2em; font-weight: bold; margin: 10px 0;"></div>
+                <div id="currentTimestamp" style="color: #6c757d;"></div>
+                <button id="refreshTimeBtn" class="btn btn-outline-primary mt-2">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            
+            <div class="tool-content">
+                <div class="converter-section">
+                    <h4><i class="fas fa-exchange-alt"></i> Timestamp ↔ Date Conversion</h4>
+                    
+                    <div class="conversion-row">
+                        <div class="conversion-input">
+                            <label for="timestampInput" class="form-label">Timestamp:</label>
+                            <input type="text" id="timestampInput" class="form-control" placeholder="Enter timestamp (seconds or milliseconds)">
+                        </div>
+                        
+                        <button id="timestampToDateTime" class="btn btn-primary">→</button>
+                        
+                        <div class="conversion-output">
+                            <label for="dateTimeOutput" class="form-label">Date & Time:</label>
+                            <input type="text" id="dateTimeOutput" class="form-control" readonly placeholder="Converted date will appear here">
+                        </div>
+                    </div>
+                    
+                    <div class="conversion-row">
+                        <div class="conversion-input">
+                            <label for="dateInput" class="form-label">Date & Time:</label>
+                            <input type="datetime-local" id="dateInput" class="form-control">
+                        </div>
+                        
+                        <button id="dateTimeToTimestamp" class="btn btn-primary">←</button>
+                        
+                        <div class="conversion-output">
+                            <label for="timestampOutput" class="form-label">Timestamp:</label>
+                            <input type="text" id="timestampOutput" class="form-control" readonly placeholder="Converted timestamp will appear here">
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="convertBothBtn" class="btn btn-success">
+                            <i class="fas fa-cogs"></i> Convert Both Ways
+                        </button>
+                        <button id="clearBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-trash-alt"></i> Clear
+                        </button>
+                        <button id="copyTimestampBtn" class="btn btn-outline-primary" data-copy="timestampOutput">
+                            <i class="fas fa-copy"></i> Copy Timestamp
+                        </button>
+                        <button id="copyDateTimeBtn" class="btn btn-outline-primary" data-copy="dateTimeOutput">
+                            <i class="fas fa-copy"></i> Copy Date
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="converter-section">
+                    <h4><i class="fas fa-globe-americas"></i> Timezone Conversion</h4>
+                    
+                    <div class="conversion-row">
+                        <div class="conversion-input">
+                            <label for="sourceDate" class="form-label">Source Date & Time:</label>
+                            <input type="datetime-local" id="sourceDate" class="form-control">
+                        </div>
+                        
+                        <div class="timezone-select">
+                            <label for="sourceTimezone" class="form-label">From:</label>
+                            <select id="sourceTimezone" class="form-control">
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York">New York</option>
+                                <option value="America/Los_Angeles">Los Angeles</option>
+                                <option value="Europe/London">London</option>
+                                <option value="Europe/Paris">Paris</option>
+                                <option value="Asia/Tokyo">Tokyo</option>
+                                <option value="Asia/Shanghai">Shanghai</option>
+                                <option value="Australia/Sydney">Sydney</option>
+                            </select>
+                        </div>
+                        
+                        <div class="timezone-select">
+                            <label for="targetTimezone" class="form-label">To:</label>
+                            <select id="targetTimezone" class="form-control">
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York">New York</option>
+                                <option value="America/Los_Angeles" selected>Los Angeles</option>
+                                <option value="Europe/London">London</option>
+                                <option value="Europe/Paris">Paris</option>
+                                <option value="Asia/Tokyo">Tokyo</option>
+                                <option value="Asia/Shanghai">Shanghai</option>
+                                <option value="Australia/Sydney">Sydney</option>
+                            </select>
+                        </div>
+                        
+                        <div class="conversion-output">
+                            <label for="convertedDate" class="form-label">Converted:</label>
+                            <input type="text" id="convertedDate" class="form-control" readonly placeholder="Converted time will appear here">
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="convertTimezoneBtn" class="btn btn-success">
+                            <i class="fas fa-globe-americas"></i> Convert Timezone
+                        </button>
+                        <button id="swapTimezonesBtn" class="btn btn-outline-primary">
+                            <i class="fas fa-exchange-alt"></i> Swap Timezones
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="converter-section">
+                    <h4><i class="fas fa-calculator"></i> Time Calculations</h4>
+                    
+                    <div class="conversion-row">
+                        <div class="conversion-input">
+                            <label for="startDate" class="form-label">Start Date:</label>
+                            <input type="datetime-local" id="startDate" class="form-control">
+                        </div>
+                        
+                        <div class="conversion-input">
+                            <label for="endDate" class="form-label">End Date:</label>
+                            <input type="datetime-local" id="endDate" class="form-control">
+                        </div>
+                        
+                        <button id="calculateDiffBtn" class="btn btn-primary">Calculate Difference</button>
+                    </div>
+                    
+                    <div id="timeDifferenceResult" class="result-card" style="display: none;">
+                        <h5>Time Difference:</h5>
+                        <div id="diffDetails"></div>
+                    </div>
+                </div>
+                
+                <div id="additionalTimeInfo" class="result-card">
+                    <h5>Additional Time Information:</h5>
+                    <div class="time-info">
+                        <div class="time-info-item">
+                            <div>Unix Timestamp</div>
+                            <div id="unixTimestamp">--</div>
+                        </div>
+                        <div class="time-info-item">
+                            <div>ISO Format</div>
+                            <div id="isoFormat">--</div>
+                        </div>
+                        <div class="time-info-item">
+                            <div>RFC2822 Format</div>
+                            <div id="rfc2822Format">--</div>
+                        </div>
+                        <div class="time-info-item">
+                            <div>Human Readable</div>
+                            <div id="humanReadable">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM elements
+        const currentTimeEl = document.getElementById('currentTime');
+        const currentTimestampEl = document.getElementById('currentTimestamp');
+        const refreshTimeBtn = document.getElementById('refreshTimeBtn');
+        
+        const timestampInput = document.getElementById('timestampInput');
+        const dateTimeOutput = document.getElementById('dateTimeOutput');
+        const dateInput = document.getElementById('dateInput');
+        const timestampOutput = document.getElementById('timestampOutput');
+        const convertBothBtn = document.getElementById('convertBothBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyTimestampBtn = document.getElementById('copyTimestampBtn');
+        const copyDateTimeBtn = document.getElementById('copyDateTimeBtn');
+        
+        const sourceDate = document.getElementById('sourceDate');
+        const sourceTimezone = document.getElementById('sourceTimezone');
+        const targetTimezone = document.getElementById('targetTimezone');
+        const convertedDate = document.getElementById('convertedDate');
+        const convertTimezoneBtn = document.getElementById('convertTimezoneBtn');
+        const swapTimezonesBtn = document.getElementById('swapTimezonesBtn');
+        
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const calculateDiffBtn = document.getElementById('calculateDiffBtn');
+        const timeDifferenceResult = document.getElementById('timeDifferenceResult');
+        const diffDetails = document.getElementById('diffDetails');
+        
+        const unixTimestamp = document.getElementById('unixTimestamp');
+        const isoFormat = document.getElementById('isoFormat');
+        const rfc2822Format = document.getElementById('rfc2822Format');
+        const humanReadable = document.getElementById('humanReadable');
+        
+        // Update current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            currentTimeEl.textContent = now.toLocaleString();
+            currentTimestampEl.textContent = `Timestamp: ${Math.floor(now.getTime()/1000)} (seconds) | ${now.getTime()} (milliseconds)`;
+            
+            // Update additional time info
+            unixTimestamp.textContent = Math.floor(now.getTime()/1000);
+            isoFormat.textContent = now.toISOString();
+            rfc2822Format.textContent = now.toUTCString();
+            humanReadable.textContent = now.toLocaleString(undefined, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        // Initialize current time
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+        
+        // Refresh time button
+        refreshTimeBtn.addEventListener('click', updateCurrentTime);
+        
+        // Convert timestamp to date/time
+        document.getElementById('timestampToDateTime').addEventListener('click', function() {
+            const ts = timestampInput.value.trim();
+            if (!ts) {
+                alert('Please enter a timestamp');
+                return;
+            }
+            
+            let date;
+            try {
+                // Check if it's a 10-digit (seconds) or 13-digit (milliseconds) timestamp
+                const numTs = parseInt(ts);
+                if (ts.length === 10) {
+                    date = new Date(numTs * 1000);
+                } else if (ts.length === 13) {
+                    date = new Date(numTs);
+                } else {
+                    throw new Error('Invalid timestamp format (use 10 or 13 digit number)');
+                }
+                
+                dateTimeOutput.value = date.toISOString().slice(0, 19).replace('T', ' ');
+            } catch (e) {
+                alert('Invalid timestamp: ' + e.message);
+            }
+        });
+        
+        // Convert date/time to timestamp
+        document.getElementById('dateTimeToTimestamp').addEventListener('click', function() {
+            const dateStr = dateInput.value;
+            if (!dateStr) {
+                alert('Please select a date and time');
+                return;
+            }
+            
+            try {
+                const date = new Date(dateStr);
+                timestampOutput.value = date.getTime().toString();
+            } catch (e) {
+                alert('Invalid date/time: ' + e.message);
+            }
+        });
+        
+        // Convert both ways
+        convertBothBtn.addEventListener('click', function() {
+            // Convert timestamp to date if available
+            if (timestampInput.value.trim()) {
+                document.getElementById('timestampToDateTime').click();
+            }
+            
+            // Convert date to timestamp if available
+            if (dateInput.value) {
+                document.getElementById('dateTimeToTimestamp').click();
+            }
+        });
+        
+        // Clear button
+        clearBtn.addEventListener('click', function() {
+            timestampInput.value = '';
+            dateTimeOutput.value = '';
+            dateInput.value = '';
+            timestampOutput.value = '';
+            timeDifferenceResult.style.display = 'none';
+        });
+        
+        // Timezone conversion
+        convertTimezoneBtn.addEventListener('click', function() {
+            const sourceDateTime = sourceDate.value;
+            if (!sourceDateTime) {
+                alert('Please select a source date and time');
+                return;
+            }
+            
+            try {
+                // Create a date object from the input
+                const sourceDt = new Date(sourceDateTime);
+                
+                // Format the date according to the source timezone
+                const options = {
+                    timeZone: sourceTimezone.value,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                };
+                
+                // Format the date according to the target timezone
+                const converted = new Intl.DateTimeFormat('sv-SE', {
+                    timeZone: targetTimezone.value,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).format(sourceDt);
+                
+                convertedDate.value = converted;
+            } catch (e) {
+                alert('Error converting timezone: ' + e.message);
+            }
+        });
+        
+        // Swap timezones
+        swapTimezonesBtn.addEventListener('click', function() {
+            const temp = sourceTimezone.value;
+            sourceTimezone.value = targetTimezone.value;
+            targetTimezone.value = temp;
+            
+            // Swap the datetime values too
+            const tempDate = sourceDate.value;
+            sourceDate.value = document.getElementById('convertedDate').value;
+            document.getElementById('convertedDate').value = tempDate;
+        });
+        
+        // Calculate time difference
+        calculateDiffBtn.addEventListener('click', function() {
+            const start = startDate.value;
+            const end = endDate.value;
+            
+            if (!start || !end) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            try {
+                const startDateObj = new Date(start);
+                const endDateObj = new Date(end);
+                
+                const diffMs = Math.abs(endDateObj - startDateObj);
+                const diffDays = Math.floor(diffMs / 86400000);
+                const diffHours = Math.floor((diffMs % 86400000) / 3600000);
+                const diffMinutes = Math.floor((diffMs % 3600000) / 60000);
+                const diffSeconds = Math.floor((diffMs % 60000) / 1000);
+                
+                const totalHours = Math.floor(diffMs / 3600000);
+                const totalMinutes = Math.floor(diffMs / 60000);
+                const totalSeconds = Math.floor(diffMs / 1000);
+                
+                diffDetails.innerHTML = `
+                    <div><strong>Difference:</strong> ${diffDays} days, ${diffHours} hours, ${diffMinutes} minutes, ${diffSeconds} seconds</div>
+                    <div><strong>Total:</strong> ${totalHours} hours | ${totalMinutes} minutes | ${totalSeconds} seconds</div>
+                    <div><strong>As ISO Duration:</strong> ${moment.duration(diffMs).toISOString()}</div>
+                `;
+                
+                timeDifferenceResult.style.display = 'block';
+            } catch (e) {
+                alert('Error calculating difference: ' + e.message);
+            }
+        });
+        
+        // Helper function for moment.js duration formatting
+        const moment = {
+            duration: function(ms) {
+                const seconds = Math.floor(ms / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+                
+                return {
+                    toISOString: function() {
+                        return `P${days}DT${hours % 24}H${minutes % 60}M${seconds % 60}S`;
+                    }
+                };
+            }
+        };
+        
+        // Initialize with current date/time in inputs
+        window.addEventListener('load', function() {
+            const now = new Date();
+            const localDate = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + 'T' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+                
+            dateInput.value = localDate;
+            sourceDate.value = localDate;
+            startDate.value = localDate;
+            endDate.value = localDate;
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

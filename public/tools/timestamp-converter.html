@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间戳转换器 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#28a745">
+    <style>
+        .timestamp-display {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .timestamp-value {
+            font-size: 2.5rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .timestamp-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .format-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .format-time {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #28a745, #20c997); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-clock"></i> 时间戳转换器</h1>
+                <p class="tool-description">在线时间戳转换工具，支持时间戳与日期格式互转，计算时间差。</p>
+            </div>
+            
+            <div class="tool-content">
+                <!-- Current Timestamp Display -->
+                <div class="timestamp-display">
+                    <div class="timestamp-label">当前时间戳 (秒)</div>
+                    <div class="timestamp-value" id="currentTimestamp">--</div>
+                    <div class="timestamp-label" id="currentDateTime">--</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="timestampInput" class="form-label">时间戳 (秒/毫秒):</label>
+                            <input type="text" id="timestampInput" class="form-control" placeholder="输入时间戳，如: 1704067200">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateInput" class="form-label">或选择日期时间:</label>
+                            <input type="datetime-local" id="dateInput" class="form-control">
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button id="convertBtn" class="btn btn-success btn-lg" style="background: linear-gradient(135deg, #28a745, #20c997); border: none;">
+                                <i class="fas fa-sync-alt"></i> 转换
+                            </button>
+                            <button id="nowBtn" class="btn btn-outline-primary">
+                                <i class="fas fa-clock"></i> 当前时间
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> 清空
+                            </button>
+                            <button id="copyBtn" class="btn btn-outline-info">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">转换结果:</label>
+                        <div class="format-card">
+                            <small class="text-muted">ISO 格式</small>
+                            <div class="format-time" id="resultISO">--</div>
+                        </div>
+                        <div class="format-card">
+                            <small class="text-muted">YYYY-MM-DD HH:mm:ss</small>
+                            <div class="format-time" id="resultFormat">--</div>
+                        </div>
+                        <div class="format-card">
+                            <small class="text-muted">RFC 2822</small>
+                            <div class="format-time" id="resultRFC">--</div>
+                        </div>
+                        <div class="format-card">
+                            <small class="text-muted">UTC</small>
+                            <div class="format-time" id="resultUTC">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Time Difference Calculator -->
+                <hr style="margin: 30px 0;">
+                <h4><i class="fas fa-calculator"></i> 时间差计算器</h4>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">开始时间:</label>
+                            <input type="datetime-local" id="startTime" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">结束时间:</label>
+                            <input type="datetime-local" id="endTime" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">时间差:</label>
+                            <div class="form-control" id="timeDiff" style="background: #f8f9fa;">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        const timestampInput = document.getElementById('timestampInput');
+        const dateInput = document.getElementById('dateInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const nowBtn = document.getElementById('nowBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const startTime = document.getElementById('startTime');
+        const endTime = document.getElementById('endTime');
+        
+        // Update current timestamp every second
+        function updateCurrentTimestamp() {
+            const now = new Date();
+            const timestamp = Math.floor(now.getTime() / 1000);
+            document.getElementById('currentTimestamp').textContent = timestamp;
+            document.getElementById('currentDateTime').textContent = now.toLocaleString('zh-CN');
+        }
+        
+        // Format date helper
+        function formatDate(date) {
+            if (!date || isNaN(date.getTime())) return '--';
+            
+            return {
+                iso: date.toISOString(),
+                format: date.getFullYear() + '-' + 
+                        String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(date.getDate()).padStart(2, '0') + ' ' + 
+                        String(date.getHours()).padStart(2, '0') + ':' + 
+                        String(date.getMinutes()).padStart(2, '0') + ':' + 
+                        String(date.getSeconds()).padStart(2, '0'),
+                rfc: date.toUTCString(),
+                utc: date.toUTCString()
+            };
+        }
+        
+        // Convert timestamp to date
+        function timestampToDate(timestamp) {
+            if (!timestamp) return null;
+            
+            // Detect if it's seconds or milliseconds
+            let date;
+            if (timestamp.length <= 11) {
+                // Seconds
+                date = new Date(timestamp * 1000);
+            } else {
+                // Milliseconds
+                date = new Date(parseInt(timestamp));
+            }
+            
+            return isNaN(date.getTime()) ? null : date;
+        }
+        
+        // Convert date to timestamp
+        function dateToTimestamp(dateStr) {
+            const date = new Date(dateStr);
+            return Math.floor(date.getTime() / 1000);
+        }
+        
+        // Main conversion function
+        function convert() {
+            const timestamp = timestampInput.value.trim();
+            const dateVal = dateInput.value;
+            
+            let targetDate = null;
+            
+            if (timestamp) {
+                targetDate = timestampToDate(timestamp);
+                if (targetDate) {
+                    // Update datetime input
+                    const offset = targetDate.getTimezoneOffset() * 60000;
+                    const localDate = new Date(targetDate.getTime() - offset);
+                    dateInput.value = localDate.toISOString().slice(0, 16);
+                }
+            } else if (dateVal) {
+                targetDate = new Date(dateVal);
+                timestampInput.value = dateToTimestamp(dateVal);
+            }
+            
+            if (targetDate) {
+                const formats = formatDate(targetDate);
+                document.getElementById('resultISO').textContent = formats.iso;
+                document.getElementById('resultFormat').textContent = formats.format;
+                document.getElementById('resultRFC').textContent = formats.rfc;
+                document.getElementById('resultUTC').textContent = formats.utc;
+            }
+        }
+        
+        // Calculate time difference
+        function calculateTimeDiff() {
+            const start = startTime.value ? new Date(startTime.value) : null;
+            const end = endTime.value ? new Date(endTime.value) : null;
+            
+            if (start && end) {
+                const diff = end.getTime() - start.getTime();
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const ms = diff % 1000;
+                
+                let result = '';
+                if (days > 0) result += `${days}天 `;
+                if (hours > 0) result += `${hours}小时 `;
+                if (minutes > 0) result += `${minutes}分钟 `;
+                if (seconds > 0) result += `${seconds}秒 `;
+                result += `${ms}毫秒`;
+                
+                document.getElementById('timeDiff').textContent = result || '0毫秒';
+            }
+        }
+        
+        // Event listeners
+        convertBtn.addEventListener('click', convert);
+        
+        nowBtn.addEventListener('click', function() {
+            const now = new Date();
+            const timestamp = Math.floor(now.getTime() / 1000);
+            timestampInput.value = timestamp;
+            
+            const offset = now.getTimezoneOffset() * 60000;
+            const localDate = new Date(now.getTime() - offset);
+            dateInput.value = localDate.toISOString().slice(0, 16);
+            
+            convert();
+        });
+        
+        clearBtn.addEventListener('click', function() {
+            timestampInput.value = '';
+            dateInput.value = '';
+            document.getElementById('resultISO').textContent = '--';
+            document.getElementById('resultFormat').textContent = '--';
+            document.getElementById('resultRFC').textContent = '--';
+            document.getElementById('resultUTC').textContent = '--';
+        });
+        
+        copyBtn.addEventListener('click', function() {
+            const text = document.getElementById('resultFormat').textContent;
+            if (text && text !== '--') {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板!');
+            }
+        });
+        
+        // Auto conversion on input
+        timestampInput.addEventListener('input', convert);
+        dateInput.addEventListener('input', convert);
+        startTime.addEventListener('input', calculateTimeDiff);
+        endTime.addEventListener('input', calculateTimeDiff);
+        
+        // Initialize
+        updateCurrentTimestamp();
+        setInterval(updateCurrentTimestamp, 1000);
+        
+        // Set default datetime values
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localNow = new Date(now.getTime() - offset);
+        startTime.value = localNow.toISOString().slice(0, 16);
+        endTime.value = localNow.toISOString().slice(0, 16);
+        dateInput.value = localNow.toISOString().slice(0, 16);
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Generator - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#17a2b8">
+    <style>
+        .id-type-option {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .id-type-option:hover {
+            border-color: #17a2b8;
+        }
+        
+        .id-type-option.active {
+            background-color: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+        }
+        
+        .generated-id {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            letter-spacing: 2px;
+            background-color: #f8f9fa;
+        }
+        
+        .id-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .region-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #17a2b8;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #17a2b8, #138496); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-id-card"></i> ID Generator</h1>
+                <p class="tool-description">Generate valid identity document numbers including Chinese ID, Credit Card numbers, and other formats for testing purposes.</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="form-group">
+                    <label class="form-label">ID Type:</label>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <div class="id-type-option active" data-type="chinese-id">
+                            <i class="fas fa-passport"></i> Chinese ID
+                        </div>
+                        <div class="id-type-option" data-type="credit-card">
+                            <i class="fas fa-credit-card"></i> Credit Card
+                        </div>
+                        <div class="id-type-option" data-type="us-ssn">
+                            <i class="fas fa-id-card"></i> US SSN
+                        </div>
+                        <div class="id-type-option" data-type="imei">
+                            <i class="fas fa-mobile-alt"></i> IMEI
+                        </div>
+                        <div class="id-type-option" data-type="isbn">
+                            <i class="fas fa-book"></i> ISBN
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="chineseIdOptions" class="mt-3">
+                    <div class="form-group">
+                        <label for="idRegion" class="form-label">Region (Province/City):</label>
+                        <select id="idRegion" class="form-select">
+                            <option value="random">Random</option>
+                            <option value="110000">Beijing (110000)</option>
+                            <option value="120000">Tianjin (120000)</option>
+                            <option value="130100">Hebei - Shijiazhuang (130100)</option>
+                            <option value="140100">Shanxi - Taiyuan (140100)</option>
+                            <option value="150100">Inner Mongolia - Hohhot (150100)</option>
+                            <option value="210100">Liaoning - Shenyang (210100)</option>
+                            <option value="220100">Jilin - Changchun (220100)</option>
+                            <option value="230100">Heilongjiang - Harbin (230100)</option>
+                            <option value="310000">Shanghai (310000)</option>
+                            <option value="320100">Jiangsu - Nanjing (320100)</option>
+                            <option value="330100">Zhejiang - Hangzhou (330100)</option>
+                            <option value="340100">Anhui - Hefei (340100)</option>
+                            <option value="350100">Fujian - Fuzhou (350100)</option>
+                            <option value="360100">Jiangxi - Nanchang (360100)</option>
+                            <option value="370100">Shandong - Jinan (370100)</option>
+                            <option value="410100">Henan - Zhengzhou (410100)</option>
+                            <option value="420100">Hubei - Wuhan (420100)</option>
+                            <option value="430100">Hunan - Changsha (430100)</option>
+                            <option value="440100">Guangdong - Guangzhou (440100)</option>
+                            <option value="450100">Guangxi - Nanning (450100)</option>
+                            <option value="460100">Hainan - Haikou (460100)</option>
+                            <option value="500000">Chongqing (500000)</option>
+                            <option value="510100">Sichuan - Chengdu (510100)</option>
+                            <option value="520100">Guizhou - Guiyang (520100)</option>
+                            <option value="530100">Yunnan - Kunming (530100)</option>
+                            <option value="540100">Tibet - Lhasa (540100)</option>
+                            <option value="610100">Shaanxi - Xi'an (610100)</option>
+                            <option value="620100">Gansu - Lanzhou (620100)</option>
+                            <option value="630100">Qinghai - Xining (630100)</option>
+                            <option value="640100">Ningxia - Yinchuan (640100)</option>
+                            <option value="650100">Xinjiang - Urumqi (650100)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="creditCardOptions" class="mt-3" style="display: none;">
+                    <div class="form-group">
+                        <label for="cardType" class="form-label">Card Network:</label>
+                        <select id="cardType" class="form-select">
+                            <option value="random">Random</option>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                            <option value="amex">American Express</option>
+                            <option value="discover">Discover</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="action-buttons mt-4">
+                    <button id="generateBtn" class="btn btn-info btn-lg">
+                        <i class="fas fa-random"></i> Generate ID
+                    </button>
+                    <button id="copyBtn" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                
+                <div class="form-group mt-4">
+                    <label for="generatedId" class="form-label">Generated ID:</label>
+                    <input type="text" id="generatedId" class="form-control generated-id" readonly placeholder="Click 'Generate ID' to create...">
+                </div>
+                
+                <div class="result-container mt-3" id="idInfo" style="display: none;">
+                    <h5>ID Information:</h5>
+                    <p id="idDetails"></p>
+                    <div id="validationResult" class="mt-2"></div>
+                </div>
+                
+                <div class="region-stats" id="regionStats" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statGenerated">0</div>
+                        <div class="stat-label">Generated</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statValid">0</div>
+                        <div class="stat-label">Valid Format</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statChecksum">0</div>
+                        <div class="stat-label">Valid Checksum</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM elements
+        const idTypeOptions = document.querySelectorAll('.id-type-option');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const generatedId = document.getElementById('generatedId');
+        const idInfo = document.getElementById('idInfo');
+        const idDetails = document.getElementById('idDetails');
+        const validationResult = document.getElementById('validationResult');
+        const chineseIdOptions = document.getElementById('chineseIdOptions');
+        const creditCardOptions = document.getElementById('creditCardOptions');
+        const idRegion = document.getElementById('idRegion');
+        const cardType = document.getElementById('cardType');
+        const regionStats = document.getElementById('regionStats');
+        
+        // State
+        let selectedType = 'chinese-id';
+        
+        // Chinese ID region codes
+        const chineseRegions = {
+            '110000': 'Beijing', '120000': 'Tianjin', '130000': 'Hebei', '140000': 'Shanxi',
+            '150000': 'Inner Mongolia', '210000': 'Liaoning', '220000': 'Jilin', '230000': 'Heilongjiang',
+            '310000': 'Shanghai', '320000': 'Jiangsu', '330000': 'Zhejiang', '340000': 'Anhui',
+            '350000': 'Fujian', '360000': 'Jiangxi', '370000': 'Shandong', '410000': 'Henan',
+            '420000': 'Hubei', '430000': 'Hunan', '440000': 'Guangdong', '450000': 'Guangxi',
+            '460000': 'Hainan', '500000': 'Chongqing', '510000': 'Sichuan', '520000': 'Guizhou',
+            '530000': 'Yunnan', '540000': 'Tibet', '610000': 'Shaanxi', '620000': 'Gansu',
+            '630000': 'Qinghai', '640000': 'Ningxia', '650000': 'Xinjiang'
+        };
+        
+        // Card prefixes
+        const cardPrefixes = {
+            visa: ['4'],
+            mastercard: ['51', '52', '53', '54', '55', '2221', '2222', '2720'],
+            amex: ['34', '37'],
+            discover: ['6011', '644', '65', '622126-622925']
+        };
+        
+        // ID type selection
+        idTypeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                idTypeOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedType = this.getAttribute('data-type');
+                
+                // Show/hide type-specific options
+                chineseIdOptions.style.display = selectedType === 'chinese-id' ? 'block' : 'none';
+                creditCardOptions.style.display = selectedType === 'credit-card' ? 'block' : 'none';
+            });
+        });
+        
+        // Generate Chinese ID
+        function generateChineseId() {
+            const region = idRegion.value;
+            let regionCode = region;
+            
+            if (region === 'random') {
+                const regionKeys = Object.keys(chineseRegions);
+                regionCode = regionKeys[Math.floor(Math.random() * regionKeys.length)];
+            }
+            
+            // Generate birthdate (between 1950 and 2005)
+            const year = Math.floor(Math.random() * (2005 - 1950 + 1)) + 1950;
+            const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+            const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
+            const birthdate = String(year).substring(2) + month + day;
+            
+            // Generate sequence number
+            const sequence = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+            
+            // Calculate checksum
+            const idWithoutChecksum = regionCode + birthdate + sequence;
+            const checksum = calculateChineseIdChecksum(idWithoutChecksum);
+            
+            return {
+                fullId: idWithoutChecksum + checksum,
+                info: {
+                    region: chineseRegions[regionCode] || regionCode,
+                    birthdate: `${year}-${month}-${day}`,
+                    gender: parseInt(sequence) % 2 === 1 ? 'Male' : 'Female'
+                }
+            };
+        }
+        
+        function calculateChineseIdChecksum(id) {
+            const weight = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+            const checksumMap = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+            
+            let sum = 0;
+            for (let i = 0; i < 17; i++) {
+                sum += parseInt(id.charAt(i)) * weight[i];
+            }
+            
+            return checksumMap[sum % 11];
+        }
+        
+        // Generate Credit Card
+        function generateCreditCard() {
+            const type = cardType.value;
+            let prefix;
+            
+            if (type === 'random') {
+                const types = Object.keys(cardPrefixes);
+                const randomType = types[Math.floor(Math.random() * types.length)];
+                prefix = getRandomPrefix(cardPrefixes[randomType]);
+            } else {
+                prefix = getRandomPrefix(cardPrefixes[type]);
+            }
+            
+            // Generate remaining digits
+            let number = prefix;
+            while (number.length < 15) {
+                number += Math.floor(Math.random() * 10);
+            }
+            
+            // Calculate Luhn checksum
+            const checksum = calculateLuhnChecksum(number);
+            const fullNumber = number + checksum;
+            
+            return {
+                fullId: formatCreditCard(fullNumber),
+                info: {
+                    network: type === 'random' ? 'Unknown' : type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' '),
+                    valid: true
+                }
+            };
+        }
+        
+        function getRandomPrefix(prefixes) {
+            const flatPrefixes = [];
+            prefixes.forEach(p => {
+                if (p.includes('-')) {
+                    const range = p.split('-');
+                    const start = parseInt(range[0]);
+                    const end = parseInt(range[1]);
+                    for (let i = start; i <= end; i++) {
+                        flatPrefixes.push(String(i));
+                    }
+                } else {
+                    flatPrefixes.push(p);
+                }
+            });
+            return flatPrefixes[Math.floor(Math.random() * flatPrefixes.length)];
+        }
+        
+        function calculateLuhnChecksum(number) {
+            let sum = 0;
+            let isEven = false;
+            
+            for (let i = number.length - 1; i >= 0; i--) {
+                let digit = parseInt(number.charAt(i));
+                
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                
+                sum += digit;
+                isEven = !isEven;
+            }
+            
+            return (10 - (sum % 10)) % 10;
+        }
+        
+        function formatCreditCard(number) {
+            return number.replace(/(.{4})/g, '$1 ').trim();
+        }
+        
+        // Generate US SSN
+        function generateUSSSN() {
+            const area = String(Math.floor(Math.random() * 899) + 100);
+            const group = String(Math.floor(Math.random() * 99)).padStart(2, '0');
+            const serial = String(Math.floor(Math.random() * 9999)).padStart(4, '0');
+            
+            return {
+                fullId: `${area}-${group}-${serial}`,
+                info: {
+                    format: 'SSN',
+                    valid: true
+                }
+            };
+        }
+        
+        // Generate IMEI
+        function generateIMEI() {
+            let imei = '35';
+            while (imei.length < 14) {
+                imei += Math.floor(Math.random() * 10);
+            }
+            
+            // Calculate checksum
+            let sum = 0;
+            let isEven = false;
+            
+            for (let i = imei.length - 1; i >= 0; i--) {
+                let digit = parseInt(imei.charAt(i));
+                
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                
+                sum += digit;
+                isEven = !isEven;
+            }
+            
+            const checksum = (10 - (sum % 10)) % 10;
+            
+            return {
+                fullId: imei + checksum,
+                info: {
+                    format: 'IMEI',
+                    valid: true
+                }
+            };
+        }
+        
+        // Generate ISBN
+        function generateISBN() {
+            const prefix = '978';
+            const publisher = String(Math.floor(Math.random() * 99999)).padStart(5, '0');
+            const title = String(Math.floor(Math.random() * 9999)).padStart(4, '0');
+            
+            const base = prefix + publisher + title;
+            let sum = 0;
+            
+            for (let i = 0; i < base.length; i++) {
+                sum += parseInt(base.charAt(i)) * (10 - i);
+            }
+            
+            const remainder = sum % 11;
+            const checksum = remainder === 0 ? '0' : String(11 - remainder);
+            const checksumChar = checksum === '10' ? 'X' : checksum;
+            
+            return {
+                fullId: `${prefix}-${publisher}-${title}-${checksumChar}`,
+                info: {
+                    format: 'ISBN-13',
+                    valid: true
+                }
+            };
+        }
+        
+        // Generate ID based on type
+        function generateId() {
+            let result;
+            
+            switch (selectedType) {
+                case 'chinese-id':
+                    result = generateChineseId();
+                    break;
+                case 'credit-card':
+                    result = generateCreditCard();
+                    break;
+                case 'us-ssn':
+                    result = generateUSSSN();
+                    break;
+                case 'imei':
+                    result = generateIMEI();
+                    break;
+                case 'isbn':
+                    result = generateISBN();
+                    break;
+                default:
+                    result = { fullId: 'Unknown type', info: {} };
+            }
+            
+            return result;
+        }
+        
+        // Validate ID
+        function validateId(id, type) {
+            switch (type) {
+                case 'chinese-id':
+                    return validateChineseId(id);
+                case 'credit-card':
+                    return validateLuhn(id.replace(/\s/g, ''));
+                default:
+                    return { valid: true, message: 'Format validation passed' };
+            }
+        }
+        
+        function validateChineseId(id) {
+            if (!/^\d{17}[\dXx]$/.test(id)) {
+                return { valid: false, message: 'Invalid format (must be 18 digits)' };
+            }
+
+            const expectedChecksum = calculateChineseIdChecksum(id.substring(0, 17));
+            const actualChecksum = id.charAt(17).toUpperCase();
+
+            if (expectedChecksum !== actualChecksum) {
+                return { valid: false, message: 'Invalid checksum' };
+            }
+
+            return { valid: true, message: 'Valid Chinese ID' };
+        }
+
+        function validateLuhn(number) {
+            if (!/^\d{15,16}$/.test(number)) {
+                return { valid: false, message: 'Invalid format' };
+            }
+            
+            let sum = 0;
+            let isEven = false;
+            
+            for (let i = number.length - 1; i >= 0; i--) {
+                let digit = parseInt(number.charAt(i));
+                
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                
+                sum += digit;
+                isEven = !isEven;
+            }
+            
+            const valid = sum % 10 === 0;
+            return { valid, message: valid ? 'Valid Luhn checksum' : 'Invalid checksum' };
+        }
+        
+        // Generate button click
+        generateBtn.addEventListener('click', function() {
+            const resetButton = ToolsHub.showLoading(generateBtn);
+            
+            const result = generateId();
+            generatedId.value = result.fullId;
+            
+            // Display info
+            let details = '';
+            if (result.info.region) {
+                details += `<strong>Region:</strong> ${result.info.region}<br>`;
+            }
+            if (result.info.birthdate) {
+                details += `<strong>Birthdate:</strong> ${result.info.birthdate}<br>`;
+            }
+            if (result.info.gender) {
+                details += `<strong>Gender:</strong> ${result.info.gender}<br>`;
+            }
+            if (result.info.network) {
+                details += `<strong>Network:</strong> ${result.info.network}<br>`;
+            }
+            if (result.info.format) {
+                details += `<strong>Format:</strong> ${result.info.format}<br>`;
+            }
+            
+            idDetails.innerHTML = details || 'No additional information';
+            
+            // Validate
+            const validation = validateId(result.fullId, selectedType);
+            validationResult.innerHTML = validation.valid 
+                ? '<span class="text-success"><i class="fas fa-check-circle"></i> ' + validation.message + '</span>'
+                : '<span class="text-danger"><i class="fas fa-times-circle"></i> ' + validation.message + '</span>';
+            
+            idInfo.style.display = 'block';
+            regionStats.style.display = 'grid';
+            
+            // Update stats
+            document.getElementById('statGenerated').textContent = parseInt(document.getElementById('statGenerated').textContent) + 1;
+            document.getElementById('statValid').textContent = validation.valid 
+                ? parseInt(document.getElementById('statValid').textContent) + 1 
+                : parseInt(document.getElementById('statValid').textContent);
+            document.getElementById('statChecksum').textContent = validation.valid 
+                ? parseInt(document.getElementById('statChecksum').textContent) + 1 
+                : parseInt(document.getElementById('statChecksum').textContent);
+            
+            resetButton();
+        });
+        
+        // Copy button click
+        copyBtn.addEventListener('click', function() {
+            if (generatedId.value) {
+                ToolsHub.copyToClipboard(generatedId.value);
+                ToolsHub.showToast('ID copied to clipboard!');
+            } else {
+                alert('No ID to copy');
+            }
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

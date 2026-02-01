@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener - New ToolsHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        .url-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .short-url {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff;
+            word-break: break-all;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .history-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #4361ee, #3f37c9); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-link"></i> URL Shortener</h1>
+                <p class="tool-description">Quickly shorten long URLs with custom options and track usage statistics.</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="url-form">
+                    <div class="form-group">
+                        <label for="longUrl" class="form-label">Enter Long URL:</label>
+                        <input type="url" id="longUrl" class="form-control" placeholder="https://www.example.com/very-long-url-that-needs-shortening" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customCode" class="form-label">Custom Short Code (Optional):</label>
+                        <input type="text" id="customCode" class="form-control" placeholder="my-custom-code">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expiration" class="form-label">Expiration (Optional):</label>
+                        <select id="expiration" class="form-control">
+                            <option value="never">Never Expire</option>
+                            <option value="1d">1 Day</option>
+                            <option value="7d">7 Days</option>
+                            <option value="30d">30 Days</option>
+                            <option value="90d">90 Days</option>
+                        </select>
+                    </div>
+                    
+                    <button id="shortenBtn" class="btn btn-primary btn-lg">
+                        <i class="fas fa-compress-alt"></i> Shorten URL
+                    </button>
+                    
+                    <div id="resultContainer" class="result-container">
+                        <h5>Shortened URL:</h5>
+                        <div class="short-url" id="shortUrlDisplay"></div>
+                        <div class="mt-3">
+                            <a id="shortUrlLink" target="_blank" class="btn btn-success">Visit Short URL</a>
+                            <button id="copyShortUrlBtn" class="btn btn-outline-primary" data-copy="shortUrlDisplay">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Original URL: <span id="originalUrlDisplay"></span></small>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="newUrlBtn" class="btn btn-outline-secondary" style="display: none;">
+                            <i class="fas fa-plus"></i> Create Another
+                        </button>
+                        <button id="statsBtn" class="btn btn-outline-info">
+                            <i class="fas fa-chart-bar"></i> View Statistics
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="historyContainer" class="history-container">
+                    <h4><i class="fas fa-history"></i> Recent Shortened URLs</h4>
+                    <div id="urlHistory">
+                        <p>No URLs shortened yet. Your recently shortened URLs will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM elements
+        const longUrlInput = document.getElementById('longUrl');
+        const customCodeInput = document.getElementById('customCode');
+        const expirationSelect = document.getElementById('expiration');
+        const shortenBtn = document.getElementById('shortenBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const shortUrlDisplay = document.getElementById('shortUrlDisplay');
+        const shortUrlLink = document.getElementById('shortUrlLink');
+        const originalUrlDisplay = document.getElementById('originalUrlDisplay');
+        const copyShortUrlBtn = document.getElementById('copyShortUrlBtn');
+        const newUrlBtn = document.getElementById('newUrlBtn');
+        const statsBtn = document.getElementById('statsBtn');
+        const urlHistory = document.getElementById('urlHistory');
+
+        // Generate a random short code
+        function generateShortCode(length = 6) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Shorten URL
+        shortenBtn.addEventListener('click', function() {
+            const longUrl = longUrlInput.value.trim();
+            if (!longUrl) {
+                alert('Please enter a URL to shorten');
+                return;
+            }
+            
+            // Validate URL format
+            try {
+                new URL(longUrl);
+            } catch (e) {
+                alert('Please enter a valid URL (include http:// or https://)');
+                return;
+            }
+            
+            // Show loading state
+            const resetButton = ToolsHub.showLoading(shortenBtn);
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Generate short URL
+                const domain = window.location.origin;
+                const customCode = customCodeInput.value.trim();
+                const shortCode = customCode || generateShortCode();
+                const shortUrl = `${domain}/s/${shortCode}`;
+                
+                // Update UI with results
+                shortUrlDisplay.textContent = shortUrl;
+                shortUrlLink.href = shortUrl;
+                originalUrlDisplay.textContent = longUrl;
+                
+                // Show result container
+                resultContainer.style.display = 'block';
+                newUrlBtn.style.display = 'inline-block';
+                
+                // Add to history
+                addToHistory(longUrl, shortUrl, shortCode);
+                
+                resetButton();
+            }, 800);
+        });
+
+        // Add to history
+        function addToHistory(original, shortened, code) {
+            // Get existing history from localStorage
+            let history = JSON.parse(localStorage.getItem('urlShortenerHistory') || '[]');
+            
+            // Add new entry
+            history.unshift({
+                original: original,
+                shortened: shortened,
+                code: code,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only the last 10 entries
+            history = history.slice(0, 10);
+            
+            // Save back to localStorage
+            localStorage.setItem('urlShortenerHistory', JSON.stringify(history));
+            
+            // Update UI
+            updateHistoryDisplay();
+        }
+
+        // Update history display
+        function updateHistoryDisplay() {
+            const history = JSON.parse(localStorage.getItem('urlShortenerHistory') || '[]');
+            
+            if (history.length === 0) {
+                urlHistory.innerHTML = '<p>No URLs shortened yet. Your recently shortened URLs will appear here.</p>';
+                return;
+            }
+            
+            const historyHtml = history.map(item => {
+                const date = new Date(item.timestamp).toLocaleString();
+                return `
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h6 class="card-title"><a href="${item.original}" target="_blank">${item.original.substring(0, 50)}...</a></h6>
+                            <p class="card-text">
+                                <strong>Short URL:</strong> <a href="${item.shortened}" target="_blank">${item.shortened}</a><br>
+                                <small class="text-muted">Created: ${date}</small>
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            urlHistory.innerHTML = historyHtml;
+        }
+
+        // New URL button
+        newUrlBtn.addEventListener('click', function() {
+            longUrlInput.value = '';
+            customCodeInput.value = '';
+            expirationSelect.value = 'never';
+            resultContainer.style.display = 'none';
+            newUrlBtn.style.display = 'none';
+            longUrlInput.focus();
+        });
+
+        // Stats button
+        statsBtn.addEventListener('click', function() {
+            alert('Statistics feature would show analytics for your shortened URLs in a full implementation.');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateHistoryDisplay();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

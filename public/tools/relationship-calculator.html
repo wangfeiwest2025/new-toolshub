@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亲戚关系计算器 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fd7e14">
+    <style>
+        .relation-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .relation-btn {
+            padding: 10px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .relation-btn:hover {
+            border-color: #fd7e14;
+        }
+        
+        .relation-btn.active {
+            background-color: #fd7e14;
+            color: white;
+            border-color: #fd7e14;
+        }
+        
+        .generation-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .generation-label {
+            min-width: 80px;
+            font-weight: bold;
+        }
+        
+        .tree-container {
+            background: linear-gradient(to bottom, #f8f9fa 1px, transparent 1px);
+            background-size: 100% 40px;
+            padding: 20px 0;
+        }
+        
+        .person-node {
+            display: inline-block;
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #fd7e14;
+            border-radius: 20px;
+            margin: 5px;
+            position: relative;
+        }
+        
+        .person-node.self {
+            background: #fd7e14;
+            color: white;
+        }
+        
+        .person-node.spouse {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .relation-result {
+            font-size: 18px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff3e6, #ffe0b2);
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .relation-result .result-title {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .relation-result .result-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fd7e14;
+        }
+        
+        .common-relations {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .common-relation-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .common-relation-item:hover {
+            background: #fff3e6;
+            transform: scale(1.02);
+        }
+        
+        .common-relation-item .call {
+            font-weight: bold;
+            color: #fd7e14;
+        }
+        
+        .common-relation-item .desc {
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-users"></i> 亲戚关系计算器</h1>
+                <p class="tool-description">计算中国亲戚称呼的正确表达。输入双方关系，获得正确的称呼方式。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">我的称呼:</label>
+                            <select id="myGender" class="form-select mb-2">
+                                <option value="male">我是男性</option>
+                                <option value="female">我是女性</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">对方性别:</label>
+                            <select id="targetGender" class="form-select mb-2">
+                                <option value="male">男性</option>
+                                <option value="female">女性</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">关系类型:</label>
+                            <div class="relation-selector" id="relationType">
+                                <div class="relation-btn active" data-relation="长辈">长辈</div>
+                                <div class="relation-btn" data-relation="平辈">平辈</div>
+                                <div class="relation-btn" data-relation="晚辈">晚辈</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">具体关系:</label>
+                            <select id="specificRelation" class="form-select">
+                                <option value="father">父亲</option>
+                                <option value="mother">母亲</option>
+                                <option value="grandfather">祖父</option>
+                                <option value="grandmother">祖母</option>
+                                <option value="uncle">叔叔/伯伯</option>
+                                <option value="aunt">姑姑/阿姨</option>
+                            </select>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="calculateBtn" class="btn btn-orange btn-lg" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); color: white; border: none;">
+                                <i class="fas fa-calculator"></i> 计算称呼
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> 重置
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="relation-result" id="resultArea">
+                            <div class="result-title">计算结果</div>
+                            <div class="result-text" id="resultText">请选择关系后点击计算</div>
+                        </div>
+                        
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <i class="fas fa-history"></i> 常用亲戚称呼
+                            </div>
+                            <div class="card-body">
+                                <div class="common-relations">
+                                    <div class="common-relation-item" data-call="爸爸" data-relation="father">
+                                        <div class="call">爸爸</div>
+                                        <div class="desc">父亲</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="妈妈" data-relation="mother">
+                                        <div class="call">妈妈</div>
+                                        <div class="desc">母亲</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="爷爷" data-relation="grandfather">
+                                        <div class="call">爷爷</div>
+                                        <div class="desc">祖父</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="奶奶" data-relation="grandmother">
+                                        <div class="call">奶奶</div>
+                                        <div class="desc">祖母</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="叔叔" data-relation="uncle">
+                                        <div class="call">叔叔</div>
+                                        <div class="desc">父亲的弟弟</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="姑姑" data-relation="aunt">
+                                        <div class="call">姑姑</div>
+                                        <div class="desc">父亲的姐妹</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="舅舅" data-relation="uncle_maternal">
+                                        <div class="call">舅舅</div>
+                                        <div class="desc">母亲的兄弟</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="姨妈" data-relation="aunt_maternal">
+                                        <div class="call">姨妈</div>
+                                        <div class="desc">母亲的姐妹</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="哥哥" data-relation="brother_older">
+                                        <div class="call">哥哥</div>
+                                        <div class="desc">兄长</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="姐姐" data-relation="sister_older">
+                                        <div class="call">姐姐</div>
+                                        <div class="desc">表/堂姐</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="弟弟" data-relation="brother_younger">
+                                        <div class="call">弟弟</div>
+                                        <div class="desc">表/堂弟</div>
+                                    </div>
+                                    <div class="common-relation-item" data-call="妹妹" data-relation="sister_younger">
+                                        <div class="call">妹妹</div>
+                                        <div class="desc">表/堂妹</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle"></i> 关系说明
+                    </div>
+                    <div class="card-body">
+                        <p><strong>爸爸的爸爸</strong> → 爷爷 / 阿爷</p>
+                        <p><strong>妈妈的哥哥</strong> → 舅舅 / 舅父</p>
+                        <p><strong>姑姑的女儿</strong> → 表姐/表妹 / 堂姐/堂妹</p>
+                        <p><strong>姨妈的儿子</strong> → 表哥/表弟</p>
+                        <p><strong>老婆的哥哥</strong> → 大舅子 / 内兄</p>
+                        <p><strong>老公的弟弟</strong> → 小叔子</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const myGender = document.getElementById('myGender');
+        const targetGender = document.getElementById('targetGender');
+        const relationType = document.getElementById('relationType');
+        const relationBtns = relationType.querySelectorAll('.relation-btn');
+        const specificRelation = document.getElementById('specificRelation');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultText = document.getElementById('resultText');
+        const commonRelations = document.querySelectorAll('.common-relation-item');
+        
+        // Relation mappings
+        const relations = {
+            长辈: {
+                father: { male: '爸爸', female: '妈妈' },
+                mother: { male: '爸爸', female: '妈妈' },
+                grandfather: { male: '爷爷', female: '奶奶' },
+                grandmother: { male: '爷爷', female: '奶奶' },
+                uncle: { male: '叔叔/伯伯', female: '姑姑/阿姨' },
+                aunt: { male: '叔叔/伯伯', female: '姑姑/阿姨' },
+                great_uncle: { male: '姑爷爷/舅爷爷', female: '姑奶奶/舅奶奶' },
+                great_aunt: { male: '姑爷爷/舅爷爷', female: '姑奶奶/舅奶奶' }
+            },
+            平辈: {
+                brother_older: { male: '哥哥', female: '姐姐' },
+                brother_younger: { male: '弟弟', female: '妹妹' },
+                sister_older: { male: '哥哥', female: '姐姐' },
+                sister_younger: { male: '弟弟', female: '妹妹' },
+                cousin_male: { male: '堂哥/表哥', female: '堂姐/表姐' },
+                cousin_female: { male: '堂哥/表哥', female: '堂姐/表姐' },
+                uncle_maternal: { male: '舅舅', female: '舅妈' },
+                aunt_maternal: { male: '姨父', female: '姨妈' },
+                uncle_paternal: { male: '叔叔/伯伯', female: '婶婶/伯母' },
+                aunt_paternal: { male: '叔叔/伯伯', female: '姑姑' },
+                spouse_brother: { male: '大舅子/小舅子', female: '大姨子/小姨子' },
+                spouse_sister: { male: '大姨子/小姨子', female: '大舅子/小舅子' },
+                inlaws_brother: { male: '大伯哥/小叔子', female: '大姑子/小姑子' }
+            },
+            晚辈: {
+                son: { male: '儿子', female: '女儿' },
+                daughter: { male: '儿子', female: '女儿' },
+                nephew: { male: '侄子/外甥', female: '侄女/外甥女' },
+                niece: { male: '侄子/外甥', female: '侄女/外甥女' },
+                grandson: { male: '孙子/外孙', female: '孙女/外孙女' },
+                granddaughter: { male: '孙子/外孙', female: '孙女/外孙女' },
+                cousin_son: { male: '表侄/堂侄', female: '表侄女/堂侄女' },
+                cousin_daughter: { male: '表侄/堂侄', female: '表侄女/堂侄女' }
+            }
+        };
+        
+        // Update specific relation options based on type
+        const relationOptions = {
+            长辈: [
+                { value: 'father', text: '父亲' },
+                { value: 'mother', text: '母亲' },
+                { value: 'grandfather', text: '祖父/外祖父' },
+                { value: 'grandmother', text: '祖母/外祖母' },
+                { value: 'uncle', text: '父亲的兄弟' },
+                { value: 'aunt', text: '父亲的姐妹' },
+                { value: 'uncle_maternal', text: '母亲的兄弟' },
+                { value: 'aunt_maternal', text: '母亲的姐妹' }
+            ],
+            平辈: [
+                { value: 'brother_older', text: '兄弟（年长）' },
+                { value: 'brother_younger', text: '兄弟（年幼）' },
+                { value: 'sister_older', text: '姐妹（年长）' },
+                { value: 'sister_younger', text: '姐妹（年幼）' },
+                { value: 'cousin_male', text: '堂/表兄弟' },
+                { value: 'cousin_female', text: '堂/表姐妹' },
+                { value: 'spouse_brother', text: '配偶的兄弟' },
+                { value: 'spouse_sister', text: '配偶的姐妹' }
+            ],
+            晚辈: [
+                { value: 'son', text: '儿子' },
+                { value: 'daughter', text: '女儿' },
+                { value: 'nephew', text: '侄子/外甥' },
+                { value: 'niece', text: '侄女/外甥女' },
+                { value: 'grandson', text: '孙子/外孙' },
+                { value: 'granddaughter', text: '孙女/外孙女' }
+            ]
+        };
+        
+        let currentRelationType = '长辈';
+        
+        // Relation type selection
+        relationBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                relationBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentRelationType = this.getAttribute('data-relation');
+                
+                // Update specific relation options
+                specificRelation.innerHTML = '';
+                relationOptions[currentRelationType].forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    specificRelation.appendChild(option);
+                });
+            });
+        });
+        
+        // Calculate relation
+        function calculate() {
+            const myGen = myGender.value;
+            const targetGen = targetGender.value;
+            const relation = specificRelation.value;
+            
+            let result = '';
+            
+            // Get the appropriate relation
+            if (relations[currentRelationType] && relations[currentRelationType][relation]) {
+                const relData = relations[currentRelationType][relation];
+                
+                // Determine the correct call based on genders
+                if (relData[targetGen]) {
+                    result = relData[targetGen];
+                } else {
+                    result = relData[myGen === 'male' ? 'male' : 'female'];
+                }
+            }
+            
+            // Add explanation
+            let explanation = '';
+            switch (relation) {
+                case 'father':
+                    explanation = '生我养我的父亲';
+                    break;
+                case 'mother':
+                    explanation = '生我养我的母亲';
+                    break;
+                case 'grandfather':
+                    explanation = '父亲的父亲';
+                    break;
+                case 'grandmother':
+                    explanation = '父亲的母亲';
+                    break;
+                case 'uncle':
+                    explanation = '父亲的兄弟';
+                    break;
+                case 'aunt':
+                    explanation = '父亲的姐妹';
+                    break;
+                case 'uncle_maternal':
+                    explanation = '母亲的兄弟';
+                    break;
+                case 'aunt_maternal':
+                    explanation = '母亲的姐妹';
+                    break;
+                case 'brother_older':
+                    explanation = '比我年长的兄弟';
+                    break;
+                case 'brother_younger':
+                    explanation = '比我年幼的兄弟';
+                    break;
+                case 'sister_older':
+                    explanation = '比我年长的姐妹';
+                    break;
+                case 'sister_younger':
+                    explanation = '比我年幼的姐妹';
+                    break;
+                case 'cousin_male':
+                    explanation = '叔叔/舅舅家的儿子';
+                    break;
+                case 'cousin_female':
+                    explanation = '叔叔/舅舅家的女儿';
+                    break;
+                case 'son':
+                    explanation = '我的儿子';
+                    break;
+                case 'daughter':
+                    explanation = '我的女儿';
+                    break;
+                case 'nephew':
+                    explanation = '兄弟姐妹的儿子';
+                    break;
+                case 'niece':
+                    explanation = '兄弟姐妹的女儿';
+                    break;
+                case 'grandson':
+                    explanation = '儿子的儿子';
+                    break;
+                case 'granddaughter':
+                    explanation = '儿子的女儿';
+                    break;
+                default:
+                    explanation = currentRelationType + '的亲戚';
+            }
+            
+            resultText.innerHTML = `
+                <div style="font-size: 32px; margin-bottom: 10px;">${result}</div>
+                <div style="font-size: 14px; color: #6c757d;">${explanation}</div>
+            `;
+        }
+        
+        // Event listeners
+        calculateBtn.addEventListener('click', calculate);
+        
+        clearBtn.addEventListener('click', function() {
+            myGender.value = 'male';
+            targetGender.value = 'male';
+            relationBtns[0].click();
+            resultText.textContent = '请选择关系后点击计算';
+        });
+        
+        // Common relations click
+        commonRelations.forEach(item => {
+            item.addEventListener('click', function() {
+                const call = this.getAttribute('data-call');
+                resultText.innerHTML = `
+                    <div style="font-size: 32px; margin-bottom: 10px;">${call}</div>
+                    <div style="font-size: 14px; color: #6c757d;">常用称呼</div>
+                `;
+            });
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

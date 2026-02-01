@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金额大写转换器 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#dc3545">
+    <style>
+        .money-display {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .money-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+        
+        .money-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .unit-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .unit-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+        }
+        
+        .unit-btn:hover {
+            border-color: #dc3545;
+        }
+        
+        .unit-btn.active {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .copy-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .copy-card:hover {
+            border-color: #dc3545;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #dc3545, #c82333); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-coins"></i> 金额大写转换器</h1>
+                <p class="tool-description">人民币金额数字转中文大写，支持财务票据、合同等场景。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="numberInput" class="form-label">输入金额:</label>
+                            <input type="text" id="numberInput" class="form-control" placeholder="输入数字金额，如: 1234.56" style="font-size: 1.2rem;">
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label class="form-label">转换模式:</label>
+                            <div class="unit-selector">
+                                <div class="unit-btn active" data-mode="rmb">
+                                    <i class="fas fa-yuan-sign"></i>
+                                    <strong>人民币</strong>
+                                </div>
+                                <div class="unit-btn" data-mode="simple">
+                                    <i class="fas fa-font"></i>
+                                    <strong>简单大写</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button id="convertBtn" class="btn btn-danger btn-lg" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; border: none;">
+                                <i class="fas fa-sync-alt"></i> 转换
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> 清空
+                            </button>
+                            <button id="copyBtn" class="btn btn-outline-info">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        </div>
+                        
+                        <!-- Quick amount buttons -->
+                        <div class="mt-3">
+                            <label class="form-label">快捷金额:</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-sm btn-outline-secondary quick-amount" data-amount="100">100</button>
+                                <button class="btn btn-sm btn-outline-secondary quick-amount" data-amount="1000">1000</button>
+                                <button class="btn btn-sm btn-outline-secondary quick-amount" data-amount="10000">1万</button>
+                                <button class="btn btn-sm btn-outline-secondary quick-amount" data-amount="100000">10万</button>
+                                <button class="btn btn-sm btn-outline-secondary quick-amount" data-amount="1234.56">1234.56</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="money-display">
+                            <div class="money-label">大写金额</div>
+                            <div class="money-value" id="chineseResult">零元整</div>
+                        </div>
+                        
+                        <div class="copy-card" id="copyCard">
+                            <div class="text-center">
+                                <i class="fas fa-copy"></i> 点击复制大写金额
+                            </div>
+                        </div>
+                        
+                        <div class="base64-info mt-3">
+                            <h6><i class="fas fa-info-circle"></i> 使用场景</h6>
+                            <ul style="margin-bottom: 0; padding-left: 20px;">
+                                <li>财务票据填写</li>
+                                <li>合同金额大写</li>
+                                <li>银行转账金额确认</li>
+                                <li>发票金额规范</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        const numberInput = document.getElementById('numberInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyCard = document.getElementById('copyCard');
+        const chineseResult = document.getElementById('chineseResult');
+        const unitBtns = document.querySelectorAll('.unit-btn');
+        const quickAmounts = document.querySelectorAll('.quick-amount');
+        
+        let currentMode = 'rmb';
+        
+        // RMB conversion
+        function toRMBChinese(num) {
+            if (!num || isNaN(num)) return '零元整';
+            
+            const numStr = String(parseFloat(num));
+            const parts = numStr.split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts[1] || '';
+            
+            // Limit decimal to 2 digits
+            if (decimalPart.length > 2) {
+                decimalPart = decimalPart.substring(0, 2);
+            }
+            
+            const bigDigits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+            const units = ['', '拾', '佰', '仟'];
+            const tenThousands = ['', '万', '亿', '万亿'];
+            
+            // Convert integer part
+            let result = '';
+            let len = integerPart.length;
+            let unitIndex = 0;
+            
+            for (let i = len - 1; i >= 0; i--) {
+                const digit = parseInt(integerPart[i]);
+                const unit = units[unitIndex % 4];
+                const tenThousand = tenThousands[Math.floor(unitIndex / 4)];
+                
+                if (digit === 0) {
+                    if (result.indexOf('零') === -1 || result.endsWith('万') || result.endsWith('亿')) {
+                        if (unitIndex % 4 === 0) {
+                            result = tenThousand + result;
+                        }
+                    } else {
+                        if (tenThousand && !result.startsWith(tenThousand)) {
+                            result = tenThousand + result;
+                        }
+                    }
+                } else {
+                    result = bigDigits[digit] + unit + result;
+                }
+                
+                unitIndex++;
+            }
+            
+            // Remove leading zeros
+            result = result.replace(/^零+/, '');
+            
+            // Handle decimal part
+            let decimalResult = '';
+            if (decimalPart.length >= 1 && parseInt(decimalPart[0]) > 0) {
+                decimalResult += bigDigits[parseInt(decimalPart[0])] + '角';
+            }
+            if (decimalPart.length >= 2 && parseInt(decimalPart[1]) > 0) {
+                decimalResult += bigDigits[parseInt(decimalPart[1])] + '分';
+            }
+            
+            if (decimalResult === '') {
+                return (result || '零') + '元整';
+            }
+            
+            return (result || '零') + '元' + decimalResult;
+        }
+        
+        // Simple number to Chinese uppercase
+        function toSimpleChinese(num) {
+            if (!num || isNaN(num)) return '';
+            
+            const numStr = String(parseFloat(num));
+            const bigDigits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+            const units = ['', '十', '百', '千'];
+            const tenThousands = ['', '万', '亿', '万亿'];
+            
+            const parts = numStr.split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts[1] || '';
+            
+            if (integerPart === '0' && !decimalPart) return '零';
+            
+            let result = '';
+            let len = integerPart.length;
+            let unitIndex = 0;
+            
+            for (let i = len - 1; i >= 0; i--) {
+                const digit = parseInt(integerPart[i]);
+                const unit = units[unitIndex % 4];
+                const tenThousand = tenThousands[Math.floor(unitIndex / 4)];
+                
+                if (digit === 0) {
+                    if (result && !result.startsWith('零') && unitIndex % 4 === 0) {
+                        result = tenThousand + result;
+                    }
+                } else {
+                    result = bigDigits[digit] + unit + result;
+                }
+                
+                unitIndex++;
+            }
+            
+            result = result.replace(/^一十/, '十'); // 10 -> 十 instead of 一十
+            
+            if (decimalPart) {
+                result += '点';
+                for (let i = 0; i < decimalPart.length; i++) {
+                    result += bigDigits[parseInt(decimalPart[i])];
+                }
+            }
+            
+            return result;
+        }
+        
+        // Main conversion function
+        function convert() {
+            const num = numberInput.value.trim();
+            if (!num) {
+                chineseResult.textContent = '零元整';
+                return;
+            }
+            
+            if (currentMode === 'rmb') {
+                chineseResult.textContent = toRMBChinese(num);
+            } else {
+                chineseResult.textContent = toSimpleChinese(num);
+            }
+        }
+        
+        // Mode selection
+        unitBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                unitBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMode = this.getAttribute('data-mode');
+                convert();
+            });
+        });
+        
+        // Quick amount buttons
+        quickAmounts.forEach(btn => {
+            btn.addEventListener('click', function() {
+                numberInput.value = this.getAttribute('data-amount');
+                convert();
+            });
+        });
+        
+        // Event listeners
+        convertBtn.addEventListener('click', convert);
+        
+        clearBtn.addEventListener('click', function() {
+            numberInput.value = '';
+            chineseResult.textContent = '零元整';
+        });
+        
+        copyBtn.addEventListener('click', function() {
+            const text = chineseResult.textContent;
+            if (text && text !== '零元整') {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板!');
+            }
+        });
+        
+        copyCard.addEventListener('click', function() {
+            const text = chineseResult.textContent;
+            if (text && text !== '零元整') {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板!');
+            }
+        });
+        
+        // Auto convert on input
+        numberInput.addEventListener('input', convert);
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

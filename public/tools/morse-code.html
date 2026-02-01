@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Converter - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6f42c1">
+    <style>
+        .morse-display {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            letter-spacing: 3px;
+            background-color: #f8f9fa;
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .speed-value {
+            font-weight: bold;
+            min-width: 60px;
+        }
+        
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .morse-chart {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .morse-char {
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .morse-code {
+            font-size: 16px;
+            font-weight: bold;
+            color: #6f42c1;
+            margin-top: 5px;
+        }
+        
+        .visualizer {
+            height: 60px;
+            background-color: #1a1a2e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .visualizer-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #fff;
+            margin: 0 5px;
+            transition: background-color 0.1s;
+        }
+        
+        .visualizer-dot.active {
+            background-color: #6f42c1;
+            box-shadow: 0 0 10px #6f42c1;
+        }
+        
+        .visualizer-dot.inactive {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #6f42c1, #5a32a3); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-wave-square"></i> Morse Code Converter</h1>
+                <p class="tool-description">Convert text to Morse code and vice versa. Play audio and visualize Morse code signals.</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputText" class="form-label">Input Text or Morse Code:</label>
+                            <textarea id="inputText" class="form-control" rows="4" placeholder="Enter text (e.g., HELLO) or Morse code (e.g., .... . .-.. .-.. ---)"></textarea>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label for="outputText" class="form-label">Output:</label>
+                            <textarea id="outputText" class="form-control morse-display" rows="4" readonly placeholder="Conversion result will appear here..."></textarea>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="encodeBtn" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Text to Morse
+                            </button>
+                            <button id="decodeBtn" class="btn btn-success">
+                                <i class="fas fa-arrow-left"></i> Morse to Text
+                            </button>
+                            <button id="swapBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-exchange-alt"></i> Swap
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-sliders-h"></i> Playback Settings
+                            </div>
+                            <div class="card-body">
+                                <div class="speed-control">
+                                    <label for="wpm">Speed (WPM):</label>
+                                    <input type="range" id="wpm" class="form-range" min="5" max="40" value="20">
+                                    <span id="wpmValue" class="speed-value badge bg-primary">20</span>
+                                </div>
+                                
+                                <div class="speed-control mt-3">
+                                    <label for="volume">Volume:</label>
+                                    <input type="range" id="volume" class="form-range" min="0" max="100" value="50">
+                                    <span id="volumeValue" class="speed-value badge bg-primary">50%</span>
+                                </div>
+                                
+                                <div class="playback-controls mt-3">
+                                    <button id="playBtn" class="btn btn-success">
+                                        <i class="fas fa-play"></i> Play
+                                    </button>
+                                    <button id="stopBtn" class="btn btn-danger" disabled>
+                                        <i class="fas fa-stop"></i> Stop
+                                    </button>
+                                    <button id="copyAudioBtn" class="btn btn-outline-primary">
+                                        <i class="fas fa-copy"></i> Copy Morse
+                                    </button>
+                                </div>
+                                
+                                <div class="visualizer" id="visualizer">
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                    <div class="visualizer-dot inactive"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-book"></i> Morse Code Reference Chart
+                    </div>
+                    <div class="card-body">
+                        <div class="morse-chart">
+                            <div class="morse-char">A<span class="morse-code">.-</span></div>
+                            <div class="morse-char">B<span class="morse-code">-...</span></div>
+                            <div class="morse-char">C<span class="morse-code">-.-.</span></div>
+                            <div class="morse-char">D<span class="morse-code">-..</span></div>
+                            <div class="morse-char">E<span class="morse-code">.</span></div>
+                            <div class="morse-char">F<span class="morse-code">..-.</span></div>
+                            <div class="morse-char">G<span class="morse-code">--.</span></div>
+                            <div class="morse-char">H<span class="morse-code">....</span></div>
+                            <div class="morse-char">I<span class="morse-code">..</span></div>
+                            <div class="morse-char">J<span class="morse-code">.---</span></div>
+                            <div class="morse-char">K<span class="morse-code">-.-</span></div>
+                            <div class="morse-char">L<span class="morse-code">.-..</span></div>
+                            <div class="morse-char">M<span class="morse-code">--</span></div>
+                            <div class="morse-char">N<span class="morse-code">-.</span></div>
+                            <div class="morse-char">O<span class="morse-code">---</span></div>
+                            <div class="morse-char">P<span class="morse-code">.--.</span></div>
+                            <div class="morse-char">Q<span class="morse-code">--.-</span></div>
+                            <div class="morse-char">R<span class="morse-code">.-.</span></div>
+                            <div class="morse-char">S<span class="morse-code">...</span></div>
+                            <div class="morse-char">T<span class="morse-code">-</span></div>
+                            <div class="morse-char">U<span class="morse-code">..-</span></div>
+                            <div class="morse-char">V<span class="morse-code">...-</span></div>
+                            <div class="morse-char">W<span class="morse-code">.--</span></div>
+                            <div class="morse-char">X<span class="morse-code">-..-</span></div>
+                            <div class="morse-char">Y<span class="morse-code">-.--</span></div>
+                            <div class="morse-char">Z<span class="morse-code">--..</span></div>
+                            <div class="morse-char">0<span class="morse-code">-----</span></div>
+                            <div class="morse-char">1<span class="morse-code">.----</span></div>
+                            <div class="morse-char">2<span class="morse-code">..---</span></div>
+                            <div class="morse-char">3<span class="morse-code">...--</span></div>
+                            <div class="morse-char">4<span class="morse-code">....-</span></div>
+                            <div class="morse-char">5<span class="morse-code">.....</span></div>
+                            <div class="morse-char">6<span class="morse-code">-....</span></div>
+                            <div class="morse-char">7<span class="morse-code">--...</span></div>
+                            <div class="morse-char">8<span class="morse-code">---..</span></div>
+                            <div class="morse-char">9<span class="morse-code">----.</span></div>
+                            <div class="morse-char">.<span class="morse-code">.-.-.-</span></div>
+                            <div class="morse-char">,<span class="morse-code">--..--</span></div>
+                            <div class="morse-char">?<span class="morse-code">..--..</span></div>
+                            <div class="morse-char">/<span class="morse-code">-..-.</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // Morse code dictionary
+        const morseCode = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
+            '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+            '8': '---..', '9': '----.', '.': '.-.-.-', ',': '--..--', '?': '..--..',
+            '/': '-..-.', '-': '-....-', '(': '-.--.', ')': '-.--.-', ' ': '/'
+        };
+        
+        // Reverse dictionary
+        const textFromMorse = {};
+        for (let char in morseCode) {
+            textFromMorse[morseCode[char]] = char;
+        }
+        
+        // DOM elements
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const encodeBtn = document.getElementById('encodeBtn');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const wpm = document.getElementById('wpm');
+        const wpmValue = document.getElementById('wpmValue');
+        const volume = document.getElementById('volume');
+        const volumeValue = document.getElementById('volumeValue');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const copyAudioBtn = document.getElementById('copyAudioBtn');
+        const visualizer = document.getElementById('visualizer');
+        
+        // Audio context
+        let audioContext = null;
+        let isPlaying = false;
+        let currentTimeout = null;
+        
+        // Speed controls
+        wpm.addEventListener('input', function() {
+            wpmValue.textContent = this.value;
+        });
+        
+        volume.addEventListener('input', function() {
+            volumeValue.textContent = this.value + '%';
+        });
+        
+        // Text to Morse conversion
+        function textToMorse(text) {
+            return text.toUpperCase().split('').map(char => {
+                if (morseCode[char]) {
+                    return morseCode[char];
+                } else if (char === '\n') {
+                    return '/';
+                }
+                return '';
+            }).join(' ');
+        }
+        
+        // Morse to Text conversion
+        function morseToText(morse) {
+            return morse.split(' ').map(code => {
+                const char = textFromMorse[code];
+                return char || '';
+            }).join('');
+        }
+        
+        // Encode button
+        encodeBtn.addEventListener('click', function() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('Please enter some text');
+                return;
+            }
+            outputText.value = textToMorse(text);
+        });
+        
+        // Decode button
+        decodeBtn.addEventListener('click', function() {
+            const morse = inputText.value.trim();
+            if (!morse) {
+                alert('Please enter Morse code');
+                return;
+            }
+            outputText.value = morseToText(morse);
+        });
+        
+        // Swap button
+        swapBtn.addEventListener('click', function() {
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+        });
+        
+        // Clear button
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            outputText.value = '';
+        });
+        
+        // Copy Morse button
+        copyAudioBtn.addEventListener('click', function() {
+            if (outputText.value) {
+                ToolsHub.copyToClipboard(outputText.value);
+                ToolsHub.showToast('Morse code copied!');
+            } else {
+                alert('No Morse code to copy');
+            }
+        });
+        
+        // Audio playback
+        function playTone(frequency, duration) {
+            return new Promise(resolve => {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.value = volume.value / 100;
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + duration);
+                
+                oscillator.onended = resolve;
+            });
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => {
+                currentTimeout = setTimeout(resolve, ms);
+            });
+        }
+        
+        function updateVisualizer(active) {
+            const dots = visualizer.querySelectorAll('.visualizer-dot');
+            dots.forEach(dot => {
+                dot.className = 'visualizer-dot ' + (active ? 'active' : 'inactive');
+            });
+        }
+        
+        async function playMorse(morse) {
+            const unit = 1.2 / wpm.value; // Duration of a unit in seconds
+            const elements = morse.split(' ');
+            
+            isPlaying = true;
+            playBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            for (let element of elements) {
+                if (!isPlaying) break;
+                
+                for (let char of element) {
+                    if (!isPlaying) break;
+                    
+                    if (char === '.') {
+                        updateVisualizer(true);
+                        await playTone(600, unit);
+                        updateVisualizer(false);
+                        await sleep(unit); // Gap between elements
+                    } else if (char === '-') {
+                        updateVisualizer(true);
+                        await playTone(600, unit * 3);
+                        updateVisualizer(false);
+                        await sleep(unit); // Gap between elements
+                    }
+                }
+                
+                // Gap between letters (3 units)
+                if (isPlaying && element !== '/') {
+                    await sleep(unit * 2);
+                }
+                
+                // Gap between words (7 units)
+                if (element === '/') {
+                    await sleep(unit * 6);
+                }
+            }
+            
+            isPlaying = false;
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            updateVisualizer(false);
+        }
+        
+        // Play button
+        playBtn.addEventListener('click', function() {
+            const morse = outputText.value.trim();
+            if (!morse) {
+                // If no output, try to play input
+                if (inputText.value.trim()) {
+                    const morseFromText = textToMorse(inputText.value.trim());
+                    outputText.value = morseFromText;
+                    playMorse(morseFromText);
+                } else {
+                    alert('Please enter text or Morse code first');
+                }
+            } else {
+                playMorse(morse);
+            }
+        });
+        
+        // Stop button
+        stopBtn.addEventListener('click', function() {
+            isPlaying = false;
+            if (currentTimeout) {
+                clearTimeout(currentTimeout);
+            }
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            updateVisualizer(false);
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据格式转换 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6f42c1">
+    <style>
+        .format-option {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 3px;
+            display: inline-block;
+        }
+        
+        .format-option:hover {
+            border-color: #6f42c1;
+        }
+        
+        .format-option.active {
+            background-color: #6f42c1;
+            color: white;
+            border-color: #6f42c1;
+        }
+        
+        .format-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .format-arrow {
+            font-size: 24px;
+            color: #6f42c1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        
+        .code-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .status-valid { background: #d4edda; color: #155724; }
+        .status-invalid { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #6f42c1, #5a32a3); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-exchange-alt"></i> 数据格式转换</h1>
+                <p class="tool-description">支持 JSON、YAML、Properties、CSV、TOML 等数据格式之间的相互转换和验证。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="format-selector" id="formatSelector">
+                    <div class="format-option" data-format="json">JSON</div>
+                    <div class="format-option active" data-format="yaml">YAML</div>
+                    <div class="format-option" data-format="properties">Properties</div>
+                    <div class="format-option" data-format="csv">CSV</div>
+                    <div class="format-option" data-format="xml">XML</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label class="form-label">源格式: <span id="sourceFormat" class="badge bg-primary">YAML</span></label>
+                            <textarea id="inputText" class="form-control code-output" style="background: #1a1a2e; color: #e0e0e0;" placeholder="在此输入数据..."></textarea>
+                            <div id="inputStatus" class="mt-1"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-2 format-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                        <div class="mt-2">
+                            <button id="convertBtn" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i> 转换
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            <button id="swapBtn" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-exchange-alt"></i> 交换
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label class="form-label">目标格式: <span id="targetFormat" class="badge bg-success">JSON</span></label>
+                            <select id="targetFormatSelect" class="form-select mb-2">
+                                <option value="json">JSON</option>
+                                <option value="yaml" selected>YAML</option>
+                                <option value="properties">Properties</option>
+                                <option value="csv">CSV</option>
+                                <option value="xml">XML</option>
+                            </select>
+                            <textarea id="outputText" class="form-control code-output" style="background: #1a1a2e; color: #e0e0e0;" readonly placeholder="转换结果..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons mt-3">
+                    <button id="formatBtn" class="btn btn-outline-primary">
+                        <i class="fas fa-indent"></i> 格式化/美化
+                    </button>
+                    <button id="minifyBtn" class="btn btn-outline-secondary">
+                        <i class="fas fa-compress-alt"></i> 压缩/最小化
+                    </button>
+                    <button id="clearBtn" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt"></i> 清空
+                    </button>
+                    <button id="copyBtn" class="btn btn-outline-success">
+                        <i class="fas fa-copy"></i> 复制结果
+                    </button>
+                    <button id="sampleBtn" class="btn btn-outline-info">
+                        <i class="fas fa-file-code"></i> 示例数据
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const formatOptions = document.querySelectorAll('.format-option');
+        const targetFormatSelect = document.getElementById('targetFormatSelect');
+        const sourceFormat = document.getElementById('sourceFormat');
+        const targetFormat = document.getElementById('targetFormat');
+        const convertBtn = document.getElementById('convertBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const formatBtn = document.getElementById('formatBtn');
+        const minifyBtn = document.getElementById('minifyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const sampleBtn = document.getElementById('sampleBtn');
+        const inputStatus = document.getElementById('inputStatus');
+        
+        // State
+        let sourceFmt = 'yaml';
+        let targetFmt = 'json';
+        
+        // Sample data
+        const samples = {
+            json: `{
+  "name": "New ToolsHub",
+  "version": "1.0.0",
+  "description": "A comprehensive collection of developer tools",
+  "tools": ["JSON Formatter", "Regex Tester", "Color Converter"],
+  "settings": {
+    "theme": "dark",
+    "language": "zh-CN"
+  }
+}`,
+            yaml: `name: New ToolsHub
+version: 1.0.0
+description: A comprehensive collection of developer tools
+tools:
+  - JSON Formatter
+  - Regex Tester
+  - Color Converter
+settings:
+  theme: dark
+  language: zh-CN`,
+            properties: `name=New ToolsHub\nversion=1.0.0\ndescription=A comprehensive collection of developer tools\ntools=JSON Formatter,Regex Tester,Color Converter\nsettings.theme=dark\nsettings.language=zh-CN`,
+            csv: `name,version,description\nNew ToolsHub,1.0.0,A comprehensive collection of developer tools\nToolsHub Pro,2.0.0,Advanced developer utilities`,
+            xml: `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <name>New ToolsHub</name>\n  <version>1.0.0</version>\n  <description>A comprehensive collection of developer tools</description>\n</root>`
+        };
+        
+        // Format selection
+        formatOptions.forEach(opt => {
+            opt.addEventListener('click', function() {
+                formatOptions.forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                sourceFmt = this.getAttribute('data-format');
+                sourceFormat.textContent = sourceFmt.toUpperCase();
+            });
+        });
+        
+        targetFormatSelect.addEventListener('change', function() {
+            targetFmt = this.value;
+            targetFormat.textContent = targetFmt.toUpperCase();
+        });
+        
+        // Parse functions
+        function parseJSON(text) {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error('Invalid JSON: ' + e.message);
+            }
+        }
+        
+        function parseYAML(text) {
+            try {
+                // Simple YAML parser (for basic YAML)
+                const obj = {};
+                const lines = text.split('\n');
+                let stack = [obj];
+                let indentStack = [0];
+                
+                for (let line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed.startsWith('#')) continue;
+                    
+                    const indent = line.search(/\S/);
+                    const isArray = trimmed.startsWith('- ');
+                    
+                    while (indent <= indentStack[indentStack.length - 1] && stack.length > 1) {
+                        stack.pop();
+                        indentStack.pop();
+                    }
+                    
+                    let current = stack[stack.length - 1];
+                    
+                    if (isArray) {
+                        const value = trimmed.substring(2).trim();
+                        const key = 'items';
+                        if (!Array.isArray(current[key])) current[key] = [];
+                        current[key].push(parseValue(value));
+                    } else {
+                        const colonIdx = trimmed.indexOf(':');
+                        if (colonIdx > 0) {
+                            const key = trimmed.substring(0, colonIdx).trim();
+                            const value = trimmed.substring(colonIdx + 1).trim();
+                            
+                            if (value) {
+                                current[key] = parseValue(value);
+                            } else {
+                                const newObj = {};
+                                current[key] = newObj;
+                                stack.push(newObj);
+                                indentStack.push(indent);
+                            }
+                        }
+                    }
+                }
+                
+                return obj;
+            } catch (e) {
+                throw new Error('Invalid YAML: ' + e.message);
+            }
+        }
+        
+        function parseValue(value) {
+            if (value === 'true') return true;
+            if (value === 'false') return false;
+            if (value === 'null' || value === '~') return null;
+            if (/^-?\d+$/.test(value)) return parseInt(value);
+            if (/^-?\d+\.\d+$/.test(value)) return parseFloat(value);
+            if ((value.startsWith('"') && value.endsWith('"')) ||
+                (value.startsWith("'") && value.endsWith("'"))) {
+                return value.slice(1, -1);
+            }
+            return value;
+        }
+        
+        function parseProperties(text) {
+            try {
+                const obj = {};
+                const lines = text.split('\n');
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line || line.startsWith('#') || line.startsWith('!')) continue;
+                    
+                    const eqIdx = line.indexOf('=');
+                    const colonIdx = line.indexOf(':');
+                    const sepIdx = eqIdx >= 0 ? eqIdx : (colonIdx >= 0 ? colonIdx : -1);
+                    
+                    if (sepIdx > 0) {
+                        const key = line.substring(0, sepIdx).trim();
+                        let value = line.substring(sepIdx + 1).trim();
+                        
+                        // Handle continuation
+                        while (value.endsWith('\\')) {
+                            value = value.slice(0, -1) + '\n';
+                        }
+                        
+                        // Handle nested keys
+                        if (key.includes('.')) {
+                            const keys = key.split('.');
+                            let current = obj;
+                            for (let i = 0; i < keys.length - 1; i++) {
+                                if (!current[keys[i]]) current[keys[i]] = {};
+                                current = current[keys[i]];
+                            }
+                            current[keys[keys.length - 1]] = parseValue(value);
+                        } else {
+                            obj[key] = parseValue(value);
+                        }
+                    }
+                }
+                
+                return obj;
+            } catch (e) {
+                throw new Error('Invalid Properties: ' + e.message);
+            }
+        }
+        
+        function parseCSV(text) {
+            try {
+                const lines = text.trim().split('\n');
+                if (lines.length < 2) throw new Error('CSV must have at least header and one row');
+                
+                const headers = parseCSVLine(lines[0]);
+                const rows = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    const obj = {};
+                    headers.forEach((h, idx) => {
+                        obj[h] = values[idx] || '';
+                    });
+                    rows.push(obj);
+                }
+                
+                return { headers, rows };
+            } catch (e) {
+                throw new Error('Invalid CSV: ' + e.message);
+            }
+        }
+        
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuote = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    if (inQuote && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuote = !inQuote;
+                    }
+                } else if (char === ',' && !inQuote) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+        
+        function parseXML(text) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/xml');
+                
+                if (doc.querySelector('parsererror')) {
+                    throw new Error('Invalid XML');
+                }
+                
+                return xmlToJson(doc.documentElement);
+            } catch (e) {
+                throw new Error('Invalid XML: ' + e.message);
+            }
+        }
+        
+        function xmlToJson(node) {
+            const obj = {};
+            
+            if (node.attributes && node.attributes.length > 0) {
+                obj['@attributes'] = {};
+                for (let attr of node.attributes) {
+                    obj['@attributes'][attr.name] = attr.value;
+                }
+            }
+            
+            if (node.childNodes.length === 1 && node.childNodes[0].nodeType === 3) {
+                return node.textContent.trim();
+            }
+            
+            for (let child of node.childNodes) {
+                if (child.nodeType === 1) {
+                    const childName = child.nodeName;
+                    const childValue = xmlToJson(child);
+                    
+                    if (obj[childName]) {
+                        if (!Array.isArray(obj[childName])) {
+                            obj[childName] = [obj[childName]];
+                        }
+                        obj[childName].push(childValue);
+                    } else {
+                        obj[childName] = childValue;
+                    }
+                }
+            }
+            
+            return obj;
+        }
+        
+        // Output functions
+        function toJSON(obj) {
+            return JSON.stringify(obj, null, 2);
+        }
+        
+        function toYAML(obj, indent = 0) {
+            let result = '';
+            const spaces = '  '.repeat(indent);
+            
+            if (Array.isArray(obj)) {
+                for (let item of obj) {
+                    result += spaces + '- ' + toYAMLValue(item, indent) + '\n';
+                }
+            } else if (typeof obj === 'object' && obj !== null) {
+                for (let key in obj) {
+                    if (key === '@attributes') continue;
+                    result += spaces + key + ':';
+                    const value = obj[key];
+                    if (typeof value === 'object' && value !== null && !Array.isArray(value) && Object.keys(value).length > 0) {
+                        result += '\n' + toYAML(value, indent + 1);
+                    } else {
+                        result += ' ' + toYAMLValue(value, indent) + '\n';
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        function toYAMLValue(value, indent) {
+            if (value === null) return 'null';
+            if (value === true) return 'true';
+            if (value === false) return 'false';
+            if (typeof value === 'string' && (value.includes(':') || value.includes('#') || value.includes('\n'))) {
+                return '"' + value.replace(/"/g, '\\"') + '"';
+            }
+            return String(value);
+        }
+        
+        function toProperties(obj, prefix = '') {
+            let result = '';
+            
+            if (typeof obj === 'object' && obj !== null) {
+                for (let key in obj) {
+                    const newKey = prefix ? prefix + '.' + key : key;
+                    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+                        result += toProperties(obj[key], newKey);
+                    } else {
+                        let value = obj[key];
+                        if (typeof value === 'string') {
+                            value = value.replace(/\n/g, '\\n');
+                        }
+                        result += newKey + '=' + value + '\n';
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        function toCSV(data) {
+            if (data.rows && data.headers) {
+                let result = data.headers.join(',') + '\n';
+                for (let row of data.rows) {
+                    const values = data.headers.map(h => {
+                        let val = row[h] || '';
+                        if (typeof val === 'string' && (val.includes(',') || val.includes('"') || val.includes('\n'))) {
+                            val = '"' + val.replace(/"/g, '""') + '"';
+                        }
+                        return val;
+                    });
+                    result += values.join(',') + '\n';
+                }
+                return result;
+            }
+            throw new Error('Invalid CSV data structure');
+        }
+        
+        function toXML(obj) {
+            let result = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            result += toXMLElement('root', obj);
+            return result;
+        }
+        
+        function toXMLElement(name, obj) {
+            if (typeof obj !== 'object' || obj === null) {
+                return `<${name}>${obj}</${name}>`;
+            }
+            
+            let result = `<${name}`;
+            if (obj['@attributes']) {
+                for (let attr in obj['@attributes']) {
+                    result += ` ${attr}="${obj['@attributes'][attr]}"`;
+                }
+            }
+            result += '>';
+            
+            if (Array.isArray(obj)) {
+                for (let item of obj) {
+                    if (typeof item === 'object' && item !== null && !item['@attributes'] && Object.keys(item).length === 1) {
+                        const key = Object.keys(item)[0];
+                        result += toXMLElement(key, item[key]);
+                    } else {
+                        result += toXMLElement('item', item);
+                    }
+                }
+            } else {
+                for (let key in obj) {
+                    if (key === '@attributes') continue;
+                    result += toXMLElement(key, obj[key]);
+                }
+            }
+            
+            result += `</${name}>`;
+            return result;
+        }
+        
+        // Parse input
+        function parseInput(text, format) {
+            const parsers = {
+                json: parseJSON,
+                yaml: parseYAML,
+                properties: parseProperties,
+                csv: parseCSV,
+                xml: parseXML
+            };
+            
+            const parser = parsers[format];
+            if (!parser) throw new Error('Unsupported format: ' + format);
+            return parser(text);
+        }
+        
+        // Convert
+        function convert() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('请输入要转换的数据');
+                return;
+            }
+            
+            try {
+                const resetButton = ToolsHub.showLoading(convertBtn);
+                
+                // Parse input
+                const parsed = parseInput(text, sourceFmt);
+                
+                // Convert to output format
+                const outputFuncs = {
+                    json: toJSON,
+                    yaml: toYAML,
+                    properties: toProperties,
+                    csv: toCSV,
+                    xml: toXML
+                };
+                
+                const output = outputFuncs[targetFmt](parsed);
+                outputText.value = output;
+                
+                inputStatus.innerHTML = '<span class="status-badge status-valid">✓ 格式正确</span>';
+                
+                resetButton();
+            } catch (error) {
+                inputStatus.innerHTML = '<span class="status-badge status-invalid">✗ ' + error.message + '</span>';
+            }
+        }
+        
+        // Format/Minify
+        function formatJSON() {
+            try {
+                const parsed = parseInput(inputText.value, sourceFmt);
+                inputText.value = toJSON(parsed);
+            } catch (e) {
+                alert('格式化失败: ' + e.message);
+            }
+        }
+        
+        function minifyJSON() {
+            try {
+                const parsed = parseInput(inputText.value, sourceFmt);
+                inputText.value = JSON.stringify(parsed);
+            } catch (e) {
+                alert('压缩失败: ' + e.message);
+            }
+        }
+        
+        // Event listeners
+        convertBtn.addEventListener('click', convert);
+        
+        swapBtn.addEventListener('click', function() {
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+            
+            // Swap formats
+            const tempFormat = sourceFmt;
+            sourceFmt = targetFmt;
+            targetFmt = tempFormat;
+            
+            formatOptions.forEach(o => {
+                o.classList.toggle('active', o.getAttribute('data-format') === sourceFmt);
+            });
+            sourceFormat.textContent = sourceFmt.toUpperCase();
+            targetFormatSelect.value = targetFmt;
+            targetFormat.textContent = targetFmt.toUpperCase();
+        });
+        
+        formatBtn.addEventListener('click', formatJSON);
+        minifyBtn.addEventListener('click', minifyJSON);
+        
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            outputText.value = '';
+            inputStatus.innerHTML = '';
+        });
+        
+        copyBtn.addEventListener('click', function() {
+            const text = outputText.value;
+            if (text) {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板');
+            } else {
+                alert('没有内容可复制');
+            }
+        });
+        
+        sampleBtn.addEventListener('click', function() {
+            inputText.value = samples[sourceFmt] || samples.json;
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

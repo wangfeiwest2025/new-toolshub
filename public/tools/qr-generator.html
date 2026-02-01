@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real QR Code Generator - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <style>
+        .qr-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .qr-display {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .size-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .size-slider-container input[type="range"] {
+            flex: 1;
+        }
+        
+        .size-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .color-previews {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid #ccc;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .qr-placeholder {
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-qrcode"></i> Real QR Code Generator</h1>
+                <p class="tool-description">Generate scannable QR codes for URLs, text, contacts, WiFi networks and more.</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="qr-controls">
+                    <div class="form-group">
+                        <label for="qrText" class="form-label">Content to Encode:</label>
+                        <textarea id="qrText" class="form-control" rows="3" placeholder="Enter text, URL, contact information, or WiFi details...">https://newtoolshub.example.com</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="qrSize" class="form-label">Size: <span id="sizeValue" class="size-value">200px</span></label>
+                        <div class="size-slider-container">
+                            <input type="range" id="qrSize" class="form-range" min="100" max="500" value="200">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="fgColor" class="form-label">Foreground Color:</label>
+                                <input type="color" id="fgColor" class="form-control form-control-color" value="#000000">
+                                <div class="color-previews">
+                                    <div class="color-preview" id="fgPreview" style="background-color: #000000;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="bgColor" class="form-label">Background Color:</label>
+                                <input type="color" id="bgColor" class="form-control form-control-color" value="#ffffff">
+                                <div class="color-previews">
+                                    <div class="color-preview" id="bgPreview" style="background-color: #ffffff;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eccLevel" class="form-label">Error Correction Level:</label>
+                        <select id="eccLevel" class="form-control">
+                            <option value="L">Low (7%)</option>
+                            <option value="M" selected>Medium (15%)</option>
+                            <option value="Q">Quartile (25%)</option>
+                            <option value="H">High (30%)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    
+                    <div class="action-buttons">
+                        <button id="generateBtn" class="btn btn-primary">
+                            <i class="fas fa-qrcode"></i> Generate QR Code
+                        </button>
+                        <button id="downloadBtn" class="btn btn-outline-success" disabled>
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button id="resetBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="qr-display">
+                    <div id="qrcodeContainer">
+                        <div class="qr-placeholder">
+                            <p>Your QR code will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <!-- Include the QR code library -->
+    <script src="../js/qrcode.min.js"></script>
+    <script>
+        // DOM elements
+        const qrText = document.getElementById('qrText');
+        const qrSize = document.getElementById('qrSize');
+        const sizeValue = document.getElementById('sizeValue');
+        const fgColor = document.getElementById('fgColor');
+        const bgColor = document.getElementById('bgColor');
+        const eccLevel = document.getElementById('eccLevel');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const fgPreview = document.getElementById('fgPreview');
+        const bgPreview = document.getElementById('bgPreview');
+        const errorMessage = document.getElementById('errorMessage');
+        const qrcodeContainer = document.getElementById('qrcodeContainer');
+
+        // Update size value display
+        qrSize.addEventListener('input', function() {
+            sizeValue.textContent = this.value + 'px';
+        });
+
+        // Update color previews
+        fgColor.addEventListener('input', function() {
+            fgPreview.style.backgroundColor = this.value;
+        });
+
+        bgColor.addEventListener('input', function() {
+            bgPreview.style.backgroundColor = this.value;
+        });
+
+        // Generate QR code using the real QRCode library
+        function generateQRCode() {
+            const text = qrText.value.trim();
+            if (!text) {
+                showError('Please enter content to encode');
+                return;
+            }
+
+            // Clear any previous error messages
+            hideError();
+
+            try {
+                // Clear previous QR code
+                qrcodeContainer.innerHTML = '';
+
+                // Create div to hold QR code
+                const qrDiv = document.createElement('div');
+                qrDiv.id = 'qrcode';
+                qrDiv.style.display = 'inline-block';
+                qrcodeContainer.appendChild(qrDiv);
+
+                // Map ECC values to QRCode constants
+                const eccMap = {
+                    'L': QRCode.CorrectLevel.L,
+                    'M': QRCode.CorrectLevel.M,
+                    'Q': QRCode.CorrectLevel.Q,
+                    'H': QRCode.CorrectLevel.H
+                };
+
+                // Generate QR code with the real library
+                new QRCode(qrDiv, {
+                    text: text,
+                    width: parseInt(qrSize.value),
+                    height: parseInt(qrSize.value),
+                    colorDark: fgColor.value,
+                    colorLight: bgColor.value,
+                    correctLevel: eccMap[eccLevel.value]
+                });
+
+                // Enable download button
+                downloadBtn.disabled = false;
+            } catch (error) {
+                console.error('QR Code generation error:', error);
+                showError('Error generating QR code: ' + error.message);
+            }
+        }
+
+        // Download QR code as PNG
+        function downloadQRCode() {
+            const text = qrText.value.trim();
+            if (!text) return;
+
+            const qrDiv = document.getElementById('qrcode');
+            if (!qrDiv) return;
+
+            // Get the canvas from the QR code div
+            const canvas = qrDiv.querySelector('canvas');
+            if (!canvas) {
+                showError('No QR code to download');
+                return;
+            }
+
+            // Create a temporary link to download the image
+            const link = document.createElement('a');
+            link.download = `qrcode_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Reset form
+        function resetForm() {
+            qrText.value = 'https://newtoolshub.example.com';
+            qrSize.value = 200;
+            sizeValue.textContent = '200px';
+            fgColor.value = '#000000';
+            bgColor.value = '#ffffff';
+            eccLevel.value = 'M';
+            fgPreview.style.backgroundColor = '#000000';
+            bgPreview.style.backgroundColor = '#ffffff';
+
+            // Clear QR code
+            qrcodeContainer.innerHTML = '<div class="qr-placeholder"><p>Your QR code will appear here</p></div>';
+            downloadBtn.disabled = true;
+            hideError();
+        }
+
+        // Event listeners
+        generateBtn.addEventListener('click', generateQRCode);
+
+        downloadBtn.addEventListener('click', function() {
+            downloadQRCode();
+        });
+
+        resetBtn.addEventListener('click', function() {
+            resetForm();
+        });
+
+        // Size slider update
+        qrSize.addEventListener('input', function() {
+            sizeValue.textContent = this.value + 'px';
+        });
+
+        // Generate initial QR code
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                generateQRCode();
+            }, 500);
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

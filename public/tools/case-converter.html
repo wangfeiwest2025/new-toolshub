@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>驼峰下划线转换器 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6f42c1">
+    <style>
+        .case-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .case-option:hover {
+            border-color: #6f42c1;
+        }
+        
+        .case-option.active {
+            background-color: #6f42c1;
+            color: white;
+            border-color: #6f42c1;
+        }
+        
+        .case-option input {
+            display: none;
+        }
+        
+        .case-preview {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .case-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #6f42c1, #5a32a3); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-code"></i> 驼峰下划线转换器</h1>
+                <p class="tool-description">支持 camelCase、snake_case、kebab-case、PascalCase 等多种命名风格互转。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputText" class="form-label">输入文本:</label>
+                            <textarea id="inputText" class="form-control" rows="6" placeholder="输入变量名，如: userName 或 user_name"></textarea>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label class="form-label">转换类型:</label>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <label class="case-option active" data-case="camel">
+                                    <input type="radio" name="caseType" value="camel" checked>
+                                    <i class="fas fa-font"></i> camelCase
+                                </label>
+                                <label class="case-option" data-case="snake">
+                                    <input type="radio" name="caseType" value="snake">
+                                    <i class="fas fa-underline"></i> snake_case
+                                </label>
+                                <label class="case-option" data-case="kebab">
+                                    <input type="radio" name="caseType" value="kebab">
+                                    <i class="fas fa-minus"></i> kebab-case
+                                </label>
+                                <label class="case-option" data-case="pascal">
+                                    <input type="radio" name="caseType" value="pascal">
+                                    <i class="fas fa-bold"></i> PascalCase
+                                </label>
+                                <label class="case-option" data-case="constant">
+                                    <input type="radio" name="caseType" value="constant">
+                                    <i class="fas fa-lock"></i> CONSTANT_CASE
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="convertBtn" class="btn btn-purple btn-lg" style="background: linear-gradient(135deg, #6f42c1, #5a32a3); color: white; border: none;">
+                                <i class="fas fa-sync-alt"></i> 转换
+                            </button>
+                            <button id="swapBtn" class="btn btn-outline-primary">
+                                <i class="fas fa-exchange-alt"></i> 交换
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> 清空
+                            </button>
+                            <button id="copyBtn" class="btn btn-outline-info">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="outputText" class="form-label">输出结果:</label>
+                            <textarea id="outputText" class="form-control" rows="6" readonly placeholder="转换结果..."></textarea>
+                        </div>
+                        
+                        <div class="case-preview">
+                            <div class="case-label">camelCase</div>
+                            <div id="previewCamel" style="font-weight: bold;">--</div>
+                        </div>
+                        <div class="case-preview">
+                            <div class="case-label">snake_case</div>
+                            <div id="previewSnake" style="font-weight: bold;">--</div>
+                        </div>
+                        <div class="case-preview">
+                            <div class="case-label">kebab-case</div>
+                            <div id="previewKebab" style="font-weight: bold;">--</div>
+                        </div>
+                        <div class="case-preview">
+                            <div class="case-label">PascalCase</div>
+                            <div id="previewPascal" style="font-weight: bold;">--</div>
+                        </div>
+                        <div class="case-preview">
+                            <div class="case-label">CONSTANT_CASE</div>
+                            <div id="previewConstant" style="font-weight: bold;">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const convertBtn = document.getElementById('convertBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const caseOptions = document.querySelectorAll('.case-option');
+        const caseRadios = document.querySelectorAll('input[name="caseType"]');
+        
+        // Convert to different cases
+        function toCamelCase(str) {
+            const words = str.replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '')
+                            .replace(/^(.)/, (_, c) => c.toLowerCase());
+            return words;
+        }
+        
+        function toSnakeCase(str) {
+            return str.replace(/([a-z])([A-Z])/g, '$1_$2')
+                     .replace(/[-_\s]+/g, '_')
+                     .toLowerCase();
+        }
+        
+        function toKebabCase(str) {
+            return str.replace(/([a-z])([A-Z])/g, '$1-$2')
+                     .replace(/[-_\s]+/g, '-')
+                     .toLowerCase();
+        }
+        
+        function toPascalCase(str) {
+            const camel = toCamelCase(str);
+            return camel.charAt(0).toUpperCase() + camel.slice(1);
+        }
+        
+        function toConstantCase(str) {
+            return toSnakeCase(str).toUpperCase();
+        }
+        
+        // Detect input case
+        function detectCase(str) {
+            if (/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(str)) return 'snake';
+            if (/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(str)) return 'kebab';
+            if (/^[A-Z][a-z0-9]*([A-Z][a-z0-9]+)*$/.test(str)) return 'pascal';
+            if (/^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/.test(str)) return 'constant';
+            if (/^[a-z][a-zA-Z0-9]*$/.test(str)) return 'camel';
+            return 'unknown';
+        }
+        
+        // Convert function
+        function convert() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('请输入要转换的文本');
+                return;
+            }
+            
+            const selectedCase = document.querySelector('input[name="caseType"]:checked').value;
+            let result = '';
+            
+            // First normalize to words
+            const normalized = text.replace(/[-_\s]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+            const words = normalized.split(/[\s-_]+/).filter(w => w);
+            
+            switch (selectedCase) {
+                case 'camel':
+                    result = toCamelCase(text);
+                    break;
+                case 'snake':
+                    result = toSnakeCase(text);
+                    break;
+                case 'kebab':
+                    result = toKebabCase(text);
+                    break;
+                case 'pascal':
+                    result = toPascalCase(text);
+                    break;
+                case 'constant':
+                    result = toConstantCase(text);
+                    break;
+            }
+            
+            outputText.value = result;
+            
+            // Update previews
+            document.getElementById('previewCamel').textContent = toCamelCase(text);
+            document.getElementById('previewSnake').textContent = toSnakeCase(text);
+            document.getElementById('previewKebab').textContent = toKebabCase(text);
+            document.getElementById('previewPascal').textContent = toPascalCase(text);
+            document.getElementById('previewConstant').textContent = toConstantCase(text);
+        }
+        
+        // Case option selection
+        caseOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                caseOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                convert();
+            });
+        });
+        
+        // Event listeners
+        convertBtn.addEventListener('click', convert);
+        
+        swapBtn.addEventListener('click', function() {
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+            convert();
+        });
+        
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            outputText.value = '';
+            document.getElementById('previewCamel').textContent = '--';
+            document.getElementById('previewSnake').textContent = '--';
+            document.getElementById('previewKebab').textContent = '--';
+            document.getElementById('previewPascal').textContent = '--';
+            document.getElementById('previewConstant').textContent = '--';
+        });
+        
+        copyBtn.addEventListener('click', function() {
+            const text = outputText.value;
+            if (text) {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板!');
+            }
+        });
+        
+        // Auto convert on input
+        inputText.addEventListener('input', function() {
+            if (this.value.trim()) convert();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

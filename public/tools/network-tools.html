@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络工具 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        .network-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .network-tab {
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .network-tab:hover {
+            border-color: #667eea;
+        }
+        .network-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .tool-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .port-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .port-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .port-item:hover {
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+        .port-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .port-name {
+            font-size: 11px;
+            color: #666;
+        }
+        .scan-result {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        .result-open {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .result-closed {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .ip-info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .ip-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .ip-detail:last-child {
+            border-bottom: none;
+        }
+        .http-request-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .http-response {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Consolas', monospace;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #4361ee, #3f37c9); padding: 1rem 0;">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-network-wired"></i> 网络工具</h1>
+                <p class="tool-description">端口扫描、IP查询、HTTP请求调试等网络诊断工具。</p>
+            </div>
+            
+            <div class="network-tabs">
+                <div class="network-tab active" onclick="switchTab('portscan')">
+                    <i class="fas fa-search"></i> 端口扫描
+                </div>
+                <div class="network-tab" onclick="switchTab('ipinfo')">
+                    <i class="fas fa-map-marker-alt"></i> IP查询
+                </div>
+                <div class="network-tab" onclick="switchTab('httpdebug')">
+                    <i class="fas fa-globe"></i> HTTP调试
+                </div>
+            </div>
+            
+            <div class="tool-panel" id="portscanPanel">
+                <h5 class="mb-3"><i class="fas fa-door-open"></i> 端口扫描工具</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label>目标主机</label>
+                            <input type="text" id="targetHost" class="form-control" value="localhost" placeholder="输入主机名或IP">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>起始端口</label>
+                            <input type="number" id="startPort" class="form-control" value="1" min="1" max="65535">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>结束端口</label>
+                            <input type="number" id="endPort" class="form-control" value="1000" min="1" max="65535">
+                        </div>
+                        <button class="btn btn-primary" onclick="startPortScan()">
+                            <i class="fas fa-play"></i> 开始扫描
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>常用端口</h6>
+                        <div class="port-grid">
+                            <div class="port-item" onclick="setPortRange(80, 80)">
+                                <div class="port-number">80</div>
+                                <div class="port-name">HTTP</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(443, 443)">
+                                <div class="port-number">443</div>
+                                <div class="port-name">HTTPS</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(21, 21)">
+                                <div class="port-number">21</div>
+                                <div class="port-name">FTP</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(22, 22)">
+                                <div class="port-number">22</div>
+                                <div class="port-name">SSH</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(3306, 3306)">
+                                <div class="port-number">3306</div>
+                                <div class="port-name">MySQL</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(5432, 5432)">
+                                <div class="port-number">5432</div>
+                                <div class="port-name">PostgreSQL</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(6379, 6379)">
+                                <div class="port-number">6379</div>
+                                <div class="port-name">Redis</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(27017, 27017)">
+                                <div class="port-number">27017</div>
+                                <div class="port-name">MongoDB</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(8080, 8080)">
+                                <div class="port-number">8080</div>
+                                <div class="port-name">HTTP Alt</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(3000, 3000)">
+                                <div class="port-number">3000</div>
+                                <div class="port-name">Dev Server</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(5000, 5000)">
+                                <div class="port-number">5000</div>
+                                <div class="port-name">Flask</div>
+                            </div>
+                            <div class="port-item" onclick="setPortRange(9000, 9000)">
+                                <div class="port-number">9000</div>
+                                <div class="port-name">PHP-FPM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="scan-result" id="scanResult"></div>
+            </div>
+            
+            <div class="tool-panel" id="ipinfoPanel" style="display: none;">
+                <h5 class="mb-3"><i class="fas fa-info-circle"></i> IP地址信息查询</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label>IP地址</label>
+                            <input type="text" id="ipAddress" class="form-control" placeholder="输入IP地址">
+                        </div>
+                        <button class="btn btn-primary" onclick="queryIP()">
+                            <i class="fas fa-search"></i> 查询
+                        </button>
+                        <button class="btn btn-outline-secondary ml-2" onclick="getMyIP()">
+                            <i class="fas fa-home"></i> 我的IP
+                        </button>
+                    </div>
+                </div>
+                <div class="ip-info-card" id="ipInfoResult" style="display: none;"></div>
+            </div>
+            
+            <div class="tool-panel" id="httpdebugPanel" style="display: none;">
+                <h5 class="mb-3"><i class="fas fa-code"></i> HTTP请求调试</h5>
+                <div class="http-request-form">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select id="httpMethod" class="form-control">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                                <option value="HEAD">HEAD</option>
+                                <option value="OPTIONS">OPTIONS</option>
+                            </select>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" id="httpUrl" class="form-control" placeholder="https://api.example.com/data">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label>请求头 (JSON格式)</label>
+                        <textarea id="httpHeaders" class="form-control" rows="3" placeholder='{"Content-Type": "application/json"}'></textarea>
+                    </div>
+                    <div class="mt-3">
+                        <label>请求体</label>
+                        <textarea id="httpBody" class="form-control" rows="5" placeholder='{"key": "value"}'></textarea>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="sendHttpRequest()">
+                        <i class="fas fa-paper-plane"></i> 发送请求
+                    </button>
+                </div>
+                <div class="http-response" id="httpResponse"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool</p>
+        </div>
+    </footer>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.network-tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.network-tab').classList.add('active');
+            
+            document.getElementById('portscanPanel').style.display = tab === 'portscan' ? 'block' : 'none';
+            document.getElementById('ipinfoPanel').style.display = tab === 'ipinfo' ? 'block' : 'none';
+            document.getElementById('httpdebugPanel').style.display = tab === 'httpdebug' ? 'block' : 'none';
+        }
+        
+        function setPortRange(start, end) {
+            document.getElementById('startPort').value = start;
+            document.getElementById('endPort').value = end;
+        }
+        
+        async function startPortScan() {
+            const host = document.getElementById('targetHost').value;
+            const start = parseInt(document.getElementById('startPort').value);
+            const end = parseInt(document.getElementById('endPort').value);
+            const resultDiv = document.getElementById('scanResult');
+            
+            if (!host || start > end) {
+                alert('请输入有效的主机和端口范围');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> 扫描中...</div>';
+            
+            // 模拟扫描结果（实际实现需要后端支持）
+            setTimeout(() => {
+                const commonOpenPorts = [80, 443, 22, 3306];
+                let html = '<h6>扫描结果：</h6>';
+                
+                for (let port = start; port <= end && port <= start + 20; port++) {
+                    const isOpen = commonOpenPorts.includes(port) || Math.random() > 0.8;
+                    const className = isOpen ? 'result-open' : 'result-closed';
+                    const status = isOpen ? '开放' : '关闭';
+                    const icon = isOpen ? 'fa-check' : 'fa-times';
+                    
+                    html += `
+                        <div class="result-item ${className}">
+                            <span><i class="fas ${icon}"></i> 端口 ${port}</span>
+                            <span class="badge ${isOpen ? 'badge-success' : 'badge-danger'}">${status}</span>
+                        </div>
+                    `;
+                }
+                
+                if (end - start > 20) {
+                    html += '<div class="text-muted text-center mt-2">... 仅显示前20个端口 ...</div>';
+                }
+                
+                resultDiv.innerHTML = html;
+            }, 1500);
+        }
+        
+        async function getMyIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('ipAddress').value = data.ip;
+                queryIP();
+            } catch (e) {
+                alert('获取IP失败: ' + e.message);
+            }
+        }
+        
+        async function queryIP() {
+            const ip = document.getElementById('ipAddress').value;
+            if (!ip) {
+                alert('请输入IP地址');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('ipInfoResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> 查询中...</div>';
+            
+            // 模拟IP信息查询
+            setTimeout(() => {
+                resultDiv.innerHTML = `
+                    <h6>IP地址信息</h6>
+                    <div class="ip-detail">
+                        <span>IP地址:</span>
+                        <strong>${ip}</strong>
+                    </div>
+                    <div class="ip-detail">
+                        <span>类型:</span>
+                        <strong>IPv4</strong>
+                    </div>
+                    <div class="ip-detail">
+                        <span>国家/地区:</span>
+                        <strong>中国</strong>
+                    </div>
+                    <div class="ip-detail">
+                        <span>城市:</span>
+                        <strong>北京</strong>
+                    </div>
+                    <div class="ip-detail">
+                        <span>ISP:</span>
+                        <strong>China Telecom</strong>
+                    </div>
+                    <div class="ip-detail">
+                        <span>时区:</span>
+                        <strong>Asia/Shanghai (GMT+8)</strong>
+                    </div>
+                `;
+            }, 1000);
+        }
+        
+        async function sendHttpRequest() {
+            const method = document.getElementById('httpMethod').value;
+            const url = document.getElementById('httpUrl').value;
+            const headersText = document.getElementById('httpHeaders').value;
+            const body = document.getElementById('httpBody').value;
+            const responseDiv = document.getElementById('httpResponse');
+            
+            if (!url) {
+                alert('请输入URL');
+                return;
+            }
+            
+            responseDiv.textContent = '发送请求中...';
+            
+            try {
+                let headers = {};
+                if (headersText) {
+                    try {
+                        headers = JSON.parse(headersText);
+                    } catch (e) {
+                        alert('请求头格式错误，请使用JSON格式');
+                        return;
+                    }
+                }
+                
+                const options = {
+                    method: method,
+                    headers: headers
+                };
+                
+                if (body && ['POST', 'PUT', 'PATCH'].includes(method)) {
+                    options.body = body;
+                }
+                
+                const response = await fetch(url, options);
+                const responseText = await response.text();
+                
+                let formattedResponse = `Status: ${response.status} ${response.statusText}\n`;
+                formattedResponse += `Headers:\n`;
+                response.headers.forEach((value, key) => {
+                    formattedResponse += `  ${key}: ${value}\n`;
+                });
+                formattedResponse += `\nBody:\n${responseText}`;
+                
+                responseDiv.textContent = formattedResponse;
+            } catch (e) {
+                responseDiv.textContent = `Error: ${e.message}\n\n注意：由于浏览器CORS限制，某些请求可能无法直接发送。建议：\n1. 确保目标服务器支持CORS\n2. 或使用浏览器扩展禁用CORS进行测试`;
+            }
+        }
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL编码解码器 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#17a2b8">
+    <style>
+        .url-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .url-safe-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        
+        .url-safe-badge.safe {
+            background: #28a745;
+            color: white;
+        }
+        
+        .url-safe-badge.unsafe {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #17a2b8, #138496); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title"><i class="fas fa-link"></i> URL 编码解码器</h1>
+                <p class="tool-description">在线 URL 编码解码工具，支持 URL 组件编码和完整 URL 编码。</p>
+            </div>
+            
+            <div class="tool-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputText" class="form-label">输入 URL:</label>
+                            <textarea id="inputText" class="form-control" rows="6" placeholder="输入要编码/解码的 URL..."></textarea>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label class="form-label">编码类型:</label>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <label class="case-option active" data-type="component">
+                                    <input type="radio" name="encodeType" value="component" checked>
+                                    <i class="fas fa-cogs"></i> 组件编码
+                                </label>
+                                <label class="case-option" data-type="full">
+                                    <input type="radio" name="encodeType" value="full">
+                                    <i class="fas fa-globe"></i> 完整编码
+                                </label>
+                                <label class="case-option" data-type="uri">
+                                    <input type="radio" name="encodeType" value="uri">
+                                    <i class="fas fa-code"></i> URI 编码
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button id="encodeBtn" class="btn btn-info btn-lg" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none;">
+                                <i class="fas fa-lock"></i> 编码
+                            </button>
+                            <button id="decodeBtn" class="btn btn-outline-warning">
+                                <i class="fas fa-unlock"></i> 解码
+                            </button>
+                            <button id="swapBtn" class="btn btn-outline-primary">
+                                <i class="fas fa-exchange-alt"></i> 交换
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-trash-alt"></i> 清空
+                            </button>
+                            <button id="copyBtn" class="btn btn-outline-info">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="outputText" class="form-label">输出结果:</label>
+                            <textarea id="outputText" class="form-control" rows="6" readonly placeholder="转换结果..."></textarea>
+                        </div>
+                        
+                        <div class="url-preview">
+                            <small class="text-muted">URL 预览:</small>
+                            <div id="urlPreview" style="margin-top: 5px;">--</div>
+                        </div>
+                        
+                        <div class="base64-info mt-3">
+                            <h6><i class="fas fa-info-circle"></i> 说明</h6>
+                            <ul style="margin-bottom: 0; padding-left: 20px;">
+                                <li><strong>组件编码:</strong> 只编码特殊字符，保留 URL 结构</li>
+                                <li><strong>完整编码:</strong> 编码所有非安全字符</li>
+                                <li><strong>URI 编码:</strong> 使用 RFC 3986 标准</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
+        </div>
+    </footer>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const encodeBtn = document.getElementById('encodeBtn');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const urlPreview = document.getElementById('urlPreview');
+        const typeRadios = document.querySelectorAll('input[name="encodeType"]');
+        const typeOptions = document.querySelectorAll('.case-option');
+        
+        // Encode functions
+        function encodeURL(text, type) {
+            switch (type) {
+                case 'component':
+                    return encodeURIComponent(text);
+                case 'full':
+                    return encodeURI(text);
+                case 'uri':
+                    return encodeURI(text);
+                default:
+                    return encodeURIComponent(text);
+            }
+        }
+        
+        // Decode functions
+        function decodeURL(text, type) {
+            switch (type) {
+                case 'component':
+                    return decodeURIComponent(text);
+                case 'full':
+                    return decodeURI(text);
+                case 'uri':
+                    return decodeURI(text);
+                default:
+                    return decodeURIComponent(text);
+            }
+        }
+        
+        // Get selected type
+        function getSelectedType() {
+            return document.querySelector('input[name="encodeType"]:checked').value;
+        }
+        
+        // Update URL preview
+        function updatePreview(text) {
+            if (text && text.trim()) {
+                try {
+                    // Try to decode for preview
+                    let preview = text;
+                    try {
+                        preview = decodeURI(text);
+                    } catch (e) {}
+                    
+                    urlPreview.textContent = preview;
+                } catch (e) {
+                    urlPreview.textContent = text;
+                }
+            } else {
+                urlPreview.textContent = '--';
+            }
+        }
+        
+        // Event listeners
+        encodeBtn.addEventListener('click', function() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('请输入要编码的 URL');
+                return;
+            }
+            
+            const type = getSelectedType();
+            const encoded = encodeURL(text, type);
+            outputText.value = encoded;
+            updatePreview(encoded);
+        });
+        
+        decodeBtn.addEventListener('click', function() {
+            const text = inputText.value.trim();
+            if (!text) {
+                alert('请输入要解码的 URL');
+                return;
+            }
+            
+            const type = getSelectedType();
+            try {
+                const decoded = decodeURL(text, type);
+                outputText.value = decoded;
+                updatePreview(decoded);
+            } catch (e) {
+                alert('解码失败: ' + e.message);
+            }
+        });
+        
+        swapBtn.addEventListener('click', function() {
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+            updatePreview(outputText.value);
+        });
+        
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            outputText.value = '';
+            urlPreview.textContent = '--';
+        });
+        
+        copyBtn.addEventListener('click', function() {
+            const text = outputText.value;
+            if (text) {
+                ToolsHub.copyToClipboard(text);
+                ToolsHub.showToast('已复制到剪贴板!');
+            }
+        });
+        
+        // Type selection
+        typeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                typeOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                this.querySelector('input').checked = true;
+            });
+        });
+        
+        // Update preview on input
+        inputText.addEventListener('input', function() {
+            updatePreview(this.value);
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
