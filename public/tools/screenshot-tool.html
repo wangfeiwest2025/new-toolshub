@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页截屏 - New ToolsHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📸</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#28a745">
+    <style>
+        :root {
+            --primary-color: #28a745;
+            --primary-dark: #218838;
+            --accent-color: #ffc107;
+        }
+        
+        .capture-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .tool-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .tool-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .capture-mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 15px 30px;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .mode-btn.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #d4efdf 0%, #a9dfbf 100%);
+            color: var(--primary-dark);
+        }
+        
+        .mode-btn i {
+            font-size: 24px;
+        }
+        
+        .capture-settings {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .setting-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .capture-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .capture-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+        
+        .capture-btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-area {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+        
+        .result-area.show {
+            display: block;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .result-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-btn.download {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .action-btn.download:hover {
+            background: var(--primary-dark);
+        }
+        
+        .action-btn.copy {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .action-btn.copy:hover {
+            background: #138496;
+        }
+        
+        .action-btn.new {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .action-btn.new:hover {
+            background: #5a6268;
+        }
+        
+        .screenshot-preview {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .screenshot-preview img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .screenshot-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .info-card-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-card-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        /* 区域选择样式 */
+        .selection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+            cursor: crosshair;
+        }
+        
+        .selection-overlay.active {
+            display: block;
+        }
+        
+        .selection-box {
+            position: absolute;
+            border: 3px solid var(--primary-color);
+            background: rgba(40, 167, 69, 0.1);
+            pointer-events: none;
+        }
+        
+        .selection-info {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            z-index: 10001;
+            display: none;
+        }
+        
+        .selection-info.show {
+            display: block;
+        }
+        
+        .selection-dimensions {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .selection-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .selection-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .selection-btn.confirm {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .selection-btn.cancel {
+            background: #dc3545;
+            color: white;
+        }
+        
+        /* 加载状态 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 10002;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toast 提示 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10003;
+        }
+        
+        .toast {
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.success {
+            background: var(--primary-color);
+        }
+        
+        .toast.error {
+            background: #dc3545;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .capture-mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-tools"></i> New ToolsHub
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/tools/screenshot-tool">
+                            <i class="fas fa-camera"></i> 网页截屏
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="capture-container">
+        <div class="tool-header">
+            <h1><i class="fas fa-camera"></i> 网页截屏工具</h1>
+            <p class="text-muted">快速截取网页截图，支持全屏和区域选择</p>
+        </div>
+        
+        <!-- 截屏模式选择 -->
+        <div class="capture-mode-selector">
+            <button class="mode-btn active" data-mode="fullpage" onclick="selectMode('fullpage')">
+                <i class="fas fa-expand"></i>
+                <span>整页截图</span>
+            </button>
+            <button class="mode-btn" data-mode="viewport" onclick="selectMode('viewport')">
+                <i class="fas fa-desktop"></i>
+                <span>可视区域</span>
+            </button>
+            <button class="mode-btn" data-mode="selection" onclick="selectMode('selection')">
+                <i class="fas fa-vector-square"></i>
+                <span>区域选择</span>
+            </button>
+        </div>
+        
+        <!-- 截屏设置 -->
+        <div class="capture-settings">
+            <div class="setting-group">
+                <label class="setting-label">截图选项</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="ignoreElements" checked>
+                        <span>忽略隐藏元素</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="enableLogging" checked>
+                        <span>启用调试日志</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="allowTaint" checked>
+                        <span>允许跨域图片</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="scrollBehavior" checked>
+                        <span>滚动动画</span>
+                    </label>
+                </div>
+                <p class="setting-hint">启用"允许跨域图片"可能导致部分浏览器安全限制警告</p>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">图片格式</label>
+                <select class="form-control" id="imageFormat" style="max-width: 200px;">
+                    <option value="png">PNG (无损)</option>
+                    <option value="jpeg">JPEG (压缩)</option>
+                    <option value="webp">WebP (现代格式)</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">图片质量 (仅JPEG/WebP)</label>
+                <input type="range" class="form-control-range" id="imageQuality" min="0.1" max="1" step="0.1" value="0.92" style="max-width: 300px;">
+                <span id="qualityValue">92%</span>
+            </div>
+        </div>
+        
+        <!-- 截屏按钮 -->
+        <button class="capture-btn" onclick="startCapture()">
+            <i class="fas fa-camera"></i>
+            <span id="captureBtnText">开始截屏</span>
+        </button>
+        
+        <!-- 结果展示区域 -->
+        <div class="result-area" id="resultArea">
+            <div class="result-header">
+                <h3 class="result-title">
+                    <i class="fas fa-check-circle text-success"></i> 截图成功
+                </h3>
+                <div class="result-actions">
+                    <button class="action-btn download" onclick="downloadScreenshot()">
+                        <i class="fas fa-download"></i> 下载图片
+                    </button>
+                    <button class="action-btn copy" onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i> 复制图片
+                    </button>
+                    <button class="action-btn new" onclick="newCapture()">
+                        <i class="fas fa-redo"></i> 重新截图
+                    </button>
+                </div>
+            </div>
+            
+            <div class="screenshot-preview">
+                <img id="screenshotImage" src="" alt="截图预览">
+            </div>
+            
+            <div class="screenshot-info">
+                <div class="info-card">
+                    <div class="info-card-label">宽度</div>
+                    <div class="info-card-value" id="infoWidth">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-label">高度</div>
+                    <div class="info-card-value" id="infoHeight">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-label">文件大小</div>
+                    <div class="info-card-value" id="infoSize">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-label">格式</div>
+                    <div class="info-card-value" id="infoFormat">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 区域选择遮罩 -->
+    <div class="selection-overlay" id="selectionOverlay">
+        <div class="selection-box" id="selectionBox"></div>
+    </div>
+    
+    <!-- 区域选择信息 -->
+    <div class="selection-info" id="selectionInfo">
+        <div class="selection-dimensions" id="selectionDimensions">请拖动鼠标选择区域</div>
+        <div class="selection-buttons">
+            <button class="selection-btn confirm" onclick="confirmSelection()">确认</button>
+            <button class="selection-btn cancel" onclick="cancelSelection()">取消</button>
+        </div>
+    </div>
+    
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">正在截取屏幕...</div>
+    </div>
+    
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 引入 html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let currentMode = 'fullpage';
+        let isSelecting = false;
+        let startX, startY;
+        let selectionRect = null;
+        let screenshotDataUrl = null;
+        
+        // 选择截屏模式
+        function selectMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            if (mode === 'selection') {
+                showToast('提示：点击"开始截屏"后，使用鼠标拖动选择截图区域', 'info');
+            }
+        }
+        
+        // 更新质量显示
+        document.getElementById('imageQuality').addEventListener('input', function() {
+            document.getElementById('qualityValue').textContent = Math.round(this.value * 100) + '%';
+        });
+        
+        // 开始截屏
+        async function startCapture() {
+            if (currentMode === 'selection') {
+                startSelectionMode();
+            } else {
+                performCapture();
+            }
+        }
+        
+        // 区域选择模式
+        function startSelectionMode() {
+            showLoading('请使用鼠标拖动选择截图区域...');
+            document.getElementById('selectionOverlay').classList.add('active');
+            document.getElementById('selectionInfo').classList.add('show');
+            
+            // 隐藏导航栏以便截图
+            document.querySelector('.navbar').style.display = 'none';
+        }
+        
+        // 区域选择事件
+        document.getElementById('selectionOverlay').addEventListener('mousedown', function(e) {
+            if (!isSelecting) {
+                isSelecting = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const box = document.getElementById('selectionBox');
+                box.style.left = startX + 'px';
+                box.style.top = startY + 'px';
+                box.style.width = '0px';
+                box.style.height = '0px';
+            }
+        });
+        
+        document.getElementById('selectionOverlay').addEventListener('mousemove', function(e) {
+            if (isSelecting) {
+                const box = document.getElementById('selectionBox');
+                const currentX = e.clientX;
+                const currentY = e.clientY;
+                
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(currentX - startX);
+                const height = Math.abs(currentY - startY);
+                
+                box.style.left = left + 'px';
+                box.style.top = top + 'px';
+                box.style.width = width + 'px';
+                box.style.height = height + 'px';
+                
+                document.getElementById('selectionDimensions').textContent = 
+                    `宽度: ${width}px × 高度: ${height}px`;
+                
+                selectionRect = { left, top, width, height };
+            }
+        });
+        
+        document.getElementById('selectionOverlay').addEventListener('mouseup', function() {
+            isSelecting = false;
+        });
+        
+        // 确认选择
+        function confirmSelection() {
+            if (!selectionRect || selectionRect.width < 50 || selectionRect.height < 50) {
+                showToast('请选择至少 50×50 像素的区域', 'error');
+                return;
+            }
+            
+            document.getElementById('selectionOverlay').classList.remove('active');
+            document.getElementById('selectionInfo').classList.remove('show');
+            document.querySelector('.navbar').style.display = '';
+            
+            performCapture(selectionRect);
+        }
+        
+        // 取消选择
+        function cancelSelection() {
+            document.getElementById('selectionOverlay').classList.remove('active');
+            document.getElementById('selectionInfo').classList.remove('show');
+            document.querySelector('.navbar').style.display = '';
+            
+            const box = document.getElementById('selectionBox');
+            box.style.width = '0px';
+            box.style.height = '0px';
+            
+            selectionRect = null;
+            hideLoading();
+        }
+        
+        // 执行截屏
+        async function performCapture(rect = null) {
+            showLoading('正在截取屏幕...');
+            
+            try {
+                const options = {
+                    ignoreElements: document.getElementById('ignoreElements').checked,
+                    logging: document.getElementById('enableLogging').checked,
+                    allowTaint: document.getElementById('allowTaint').checked,
+                    scrollBehavior: document.getElementById('scrollBehavior').checked ? 'smooth' : 'auto',
+                    backgroundColor: null,
+                    scale: window.devicePixelRatio || 1
+                };
+                
+                // 如果是区域选择，添加裁剪选项
+                if (rect) {
+                    options.windowWidth = rect.width;
+                    options.windowHeight = rect.height;
+                    options.scrollX = rect.left + window.scrollX;
+                    options.scrollY = rect.top + window.scrollY;
+                }
+                
+                // 全屏截图
+                let canvas;
+                
+                if (currentMode === 'fullpage') {
+                    // 整页截图
+                    canvas = await html2canvas(document.body, {
+                        ...options,
+                        y: window.scrollY,
+                        height: document.documentElement.scrollHeight - window.scrollY
+                    });
+                } else if (currentMode === 'viewport') {
+                    // 可视区域截图
+                    canvas = await html2canvas(document.body, {
+                        ...options,
+                        y: window.scrollY,
+                        height: window.innerHeight
+                    });
+                } else if (rect) {
+                    // 区域截图 - 裁剪画布
+                    const fullCanvas = await html2canvas(document.documentElement, options);
+                    
+                    // 从完整画布中裁剪出选定区域
+                    canvas = document.createElement('canvas');
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(
+                        fullCanvas,
+                        rect.left, rect.top, rect.width, rect.height,  // 源区域
+                        0, 0, rect.width, rect.height                 // 目标区域
+                    );
+                }
+                
+                // 获取图片数据
+                const format = document.getElementById('imageFormat').value;
+                const quality = parseFloat(document.getElementById('imageQuality').value);
+                
+                screenshotDataUrl = canvas.toDataURL(`image/${format}`, quality);
+                
+                // 显示结果
+                displayResult(canvas, format);
+                
+            } catch (error) {
+                console.error('截屏失败:', error);
+                showToast('截屏失败: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 显示结果
+        function displayResult(canvas, format) {
+            const resultArea = document.getElementById('resultArea');
+            const img = document.getElementById('screenshotImage');
+            
+            img.src = screenshotDataUrl;
+            img.onload = function() {
+                // 更新信息
+                document.getElementById('infoWidth').textContent = canvas.width + ' px';
+                document.getElementById('infoHeight').textContent = canvas.height + ' px';
+                document.getElementById('infoFormat').textContent = format.toUpperCase();
+                
+                // 计算文件大小
+                const head = 'data:image/' + format + ';base64,';
+                const size = Math.round((screenshotDataUrl.length - head.length) * 3 / 4);
+                document.getElementById('infoSize').textContent = formatFileSize(size);
+                
+                // 显示结果区域
+                resultArea.classList.add('show');
+                
+                // 滚动到结果区域
+                resultArea.scrollIntoView({ behavior: 'smooth' });
+                
+                showToast('截图成功！', 'success');
+            };
+        }
+        
+        // 下载截图
+        function downloadScreenshot() {
+            if (!screenshotDataUrl) {
+                showToast('没有可下载的截图', 'error');
+                return;
+            }
+            
+            const format = document.getElementById('imageFormat').value;
+            const timestamp = new Date().getTime();
+            const filename = `screenshot-${timestamp}.${format}`;
+            
+            const link = document.createElement('a');
+            link.href = screenshotDataUrl;
+            link.download = filename;
+            link.click();
+            
+            showToast('已开始下载: ' + filename, 'success');
+        }
+        
+        // 复制到剪贴板
+        async function copyToClipboard() {
+            if (!screenshotDataUrl) {
+                showToast('没有可复制的截图', 'error');
+                return;
+            }
+            
+            try {
+                // 将 base64 转换为 Blob
+                const res = await fetch(screenshotDataUrl);
+                const blob = await res.blob();
+                
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        [blob.type]: blob
+                    })
+                ]);
+                
+                showToast('已复制到剪贴板', 'success');
+            } catch (error) {
+                showToast('复制失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 重新截图
+        function newCapture() {
+            document.getElementById('resultArea').classList.remove('show');
+            screenshotDataUrl = null;
+            selectionRect = null;
+            
+            const box = document.getElementById('selectionBox');
+            box.style.width = '0px';
+            box.style.height = '0px';
+            
+            window.scrollTo(0, 0);
+        }
+        
+        // 辅助函数
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        
+        function showLoading(text) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-times-circle' : 'fa-info-circle';
+            
+            toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('网页截屏工具已加载');
+        });
+    </script>
+</body>
+</html>
