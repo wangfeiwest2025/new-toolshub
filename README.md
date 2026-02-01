@@ -2,6 +2,8 @@
 
 A comprehensive collection of developer tools inspired by xJavaFxTool but implemented as a modern web application. This project provides a wide range of utilities accessible through a web interface, making them available across all devices and platforms.
 
+🌐 **GitHub**: https://github.com/wangfeiwest163/new-toolshub
+
 ## Features
 
 - **Multiple Tools**: Collection of essential developer tools including encryption/decryption, QR code generation, time conversion, character encoding, and more
@@ -11,7 +13,7 @@ A comprehensive collection of developer tools inspired by xJavaFxTool but implem
 - **Modern UI**: Clean, intuitive interface designed with user experience in mind
 - **Extensible**: Easy to add new tools to the collection
 
-## Available Tools
+Currently featuring **29+** essential developer tools for everyday tasks.
 
 ### Security & Encryption
 - **Encryption & Decryption**: Multiple algorithms including Base64, MD5, SHA, AES, Caesar cipher, and ROT13
@@ -19,8 +21,14 @@ A comprehensive collection of developer tools inspired by xJavaFxTool but implem
 
 ### Data Conversion
 - **Time Converter**: Convert between timestamps and readable dates, calculate time differences, timezone conversion
-- **Character Converter**: Convert between different character encodings, numeral systems, and text formats
-- **URL Shortener**: Quickly shorten long URLs with custom options
+- **Timestamp Converter**: Bidirectional timestamp and date-time conversion, time difference calculation
+- **Case Converter**: Convert between camelCase, snake_case, kebab-case, PascalCase, and CONSTANT_CASE
+- **Chinese Converter**: Convert between Simplified and Traditional Chinese, pinyin, and number to Chinese
+- **Number to Chinese**: Convert numbers to RMB uppercase (人民币大写)
+
+### Encoding Tools
+- **Base64 Encoder/Decoder**: Encode and decode text and images in Base64 format
+- **URL Encoder/Decoder**: Encode/decode URL components and full URLs
 
 ### Development Tools
 - **JSON Formatter**: Format, validate, and manipulate JSON data
@@ -51,7 +59,7 @@ npm install
 npm start
 ```
 
-4. Access the application at `http://localhost:3001`
+4. Access the application at `http://localhost:3002`
 
 ## Development
 
