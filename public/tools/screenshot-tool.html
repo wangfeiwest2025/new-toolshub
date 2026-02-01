@@ -638,9 +638,10 @@
         
         // 区域选择模式
         function startSelectionMode() {
-            showLoading('请使用鼠标拖动选择截图区域...');
+            // 不显示加载遮罩，只显示选择界面
             document.getElementById('selectionOverlay').classList.add('active');
             document.getElementById('selectionInfo').classList.add('show');
+            document.getElementById('selectionDimensions').textContent = '请拖动鼠标选择截图区域';
             
             // 隐藏导航栏以便截图
             document.querySelector('.navbar').style.display = 'none';
@@ -699,6 +700,7 @@
             document.getElementById('selectionInfo').classList.remove('show');
             document.querySelector('.navbar').style.display = '';
             
+            // 开始截屏
             performCapture(selectionRect);
         }
         
@@ -721,61 +723,68 @@
             showLoading('正在截取屏幕...');
             
             try {
-                const options = {
-                    ignoreElements: document.getElementById('ignoreElements').checked,
-                    logging: document.getElementById('enableLogging').checked,
-                    allowTaint: document.getElementById('allowTaint').checked,
-                    scrollBehavior: document.getElementById('scrollBehavior').checked ? 'smooth' : 'auto',
-                    backgroundColor: null,
-                    scale: window.devicePixelRatio || 1
-                };
+                const format = document.getElementById('imageFormat').value;
+                const quality = parseFloat(document.getElementById('imageQuality').value);
+                const allowTaint = document.getElementById('allowTaint').checked;
                 
-                // 如果是区域选择，添加裁剪选项
-                if (rect) {
-                    options.windowWidth = rect.width;
-                    options.windowHeight = rect.height;
-                    options.scrollX = rect.left + window.scrollX;
-                    options.scrollY = rect.top + window.scrollY;
-                }
-                
-                // 全屏截图
                 let canvas;
                 
                 if (currentMode === 'fullpage') {
-                    // 整页截图
-                    canvas = await html2canvas(document.body, {
-                        ...options,
-                        y: window.scrollY,
-                        height: document.documentElement.scrollHeight - window.scrollY
+                    // 整页截图 - 使用 documentElement
+                    canvas = await html2canvas(document.documentElement, {
+                        useCORS: true,
+                        allowTaint: allowTaint,
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        logging: false,
+                        windowWidth: document.documentElement.scrollWidth,
+                        windowHeight: document.documentElement.scrollHeight,
+                        x: 0,
+                        y: 0,
+                        width: document.documentElement.scrollWidth,
+                        height: document.documentElement.scrollHeight
                     });
                 } else if (currentMode === 'viewport') {
                     // 可视区域截图
-                    canvas = await html2canvas(document.body, {
-                        ...options,
+                    canvas = await html2canvas(document.documentElement, {
+                        useCORS: true,
+                        allowTaint: allowTaint,
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        logging: false,
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight,
+                        x: 0,
                         y: window.scrollY,
+                        width: window.innerWidth,
                         height: window.innerHeight
                     });
                 } else if (rect) {
-                    // 区域截图 - 裁剪画布
-                    const fullCanvas = await html2canvas(document.documentElement, options);
+                    // 区域截图
+                    canvas = await html2canvas(document.documentElement, {
+                        useCORS: true,
+                        allowTaint: allowTaint,
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        logging: false,
+                        windowWidth: document.documentElement.scrollWidth,
+                        windowHeight: document.documentElement.scrollHeight,
+                        x: 0,
+                        y: 0,
+                        width: document.documentElement.scrollWidth,
+                        height: document.documentElement.scrollHeight
+                    });
                     
-                    // 从完整画布中裁剪出选定区域
-                    canvas = document.createElement('canvas');
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(
-                        fullCanvas,
-                        rect.left, rect.top, rect.width, rect.height,  // 源区域
-                        0, 0, rect.width, rect.height                 // 目标区域
-                    );
+                    // 裁剪到选定区域
+                    const croppedCanvas = document.createElement('canvas');
+                    croppedCanvas.width = rect.width;
+                    croppedCanvas.height = rect.height;
+                    const ctx = croppedCanvas.getContext('2d');
+                    ctx.drawImage(canvas, rect.left, rect.top, rect.width, rect.height, 0, 0, rect.width, rect.height);
+                    canvas = croppedCanvas;
                 }
                 
                 // 获取图片数据
-                const format = document.getElementById('imageFormat').value;
-                const quality = parseFloat(document.getElementById('imageQuality').value);
-                
                 screenshotDataUrl = canvas.toDataURL(`image/${format}`, quality);
                 
                 // 显示结果
@@ -784,7 +793,6 @@
             } catch (error) {
                 console.error('截屏失败:', error);
                 showToast('截屏失败: ' + error.message, 'error');
-            } finally {
                 hideLoading();
             }
         }
