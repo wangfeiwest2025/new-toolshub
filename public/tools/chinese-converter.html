@@ -8,73 +8,20 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/fontawesome-all.min.css">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#e83e8c">
     <style>
-        .conversion-mode {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        
-        .mode-btn {
-            padding: 10px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .mode-btn:hover {
-            border-color: #e83e8c;
-        }
-        
-        .mode-btn.active {
-            background-color: #e83e8c;
-            color: white;
-            border-color: #e83e8c;
-        }
-        
-        .pinyin-output {
-            font-size: 18px;
-            line-height: 2;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .pinyin-word {
-            display: inline-block;
-            margin: 5px;
-            padding: 8px 12px;
-            background: white;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .pinyin-word .hanzi {
-            font-size: 24px;
-            margin-right: 8px;
-            color: #333;
-        }
-        
-        .pinyin-word .py {
-            color: #e83e8c;
-            font-weight: bold;
-        }
+        .mode-btn { padding: 10px 20px; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; background: white; transition: all 0.3s; }
+        .mode-btn:hover { border-color: #e83e8c; }
+        .mode-btn.active { background: linear-gradient(135deg, #e83e8c, #d63384); color: white; border-color: #e83e8c; }
+        .pinyin-output { font-size: 18px; line-height: 2; padding: 15px; background: #f8f9fa; border-radius: 8px; max-height: 300px; overflow-y: auto; }
+        .pinyin-word { display: inline-block; margin: 5px; padding: 8px 12px; background: white; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .pinyin-word .hanzi { font-size: 24px; margin-right: 8px; color: #333; }
+        .pinyin-word .py { color: #e83e8c; font-weight: bold; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #e83e8c, #d63384); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #e83e8c, #d63384); padding: 1rem 0;">
         <div class="container">
-            <a class="navbar-brand" href="/" style="color: white; font-weight: 700; display: flex; align-items: center;">
+            <a class="navbar-brand" href="/" style="color: white; font-weight: 700;">
                 <i class="fas fa-tools"></i> New ToolsHub
             </a>
         </div>
@@ -84,56 +31,41 @@
         <div class="tool-container">
             <div class="tool-header">
                 <h1 class="tool-title"><i class="fas fa-font"></i> 中文转换工具</h1>
-                <p class="tool-description">简繁体转换、拼音标注、数字金额转中文大写。</p>
             </div>
             
             <div class="tool-content">
-                <div class="conversion-mode">
-                    <button class="mode-btn active" data-mode="s2t">
-                        <i class="fas fa-arrow-right"></i> 简体→繁体
-                    </button>
-                    <button class="mode-btn" data-mode="t2s">
-                        <i class="fas fa-arrow-left"></i> 繁体→简体
-                    </button>
-                    <button class="mode-btn" data-mode="pinyin">
-                        <i class="fas fa-volume-up"></i> 拼音标注
-                    </button>
-                    <button class="mode-btn" data-mode="uppercase">
-                        <i class="fas fa-coins"></i> 数字→大写
-                    </button>
-                    <button class="mode-btn" data-mode="digit">
-                        <i class="fas fa-hashtag"></i> 大写→数字
-                    </button>
+                <div class="conversion-mode mb-3">
+                    <button class="mode-btn active" data-mode="s2t" onclick="setMode('s2t')">简体→繁体</button>
+                    <button class="mode-btn" data-mode="t2s" onclick="setMode('t2s')">繁体→简体</button>
+                    <button class="mode-btn" data-mode="uppercase" onclick="setMode('uppercase')">数字→大写</button>
+                    <button class="mode-btn" data-mode="digit" onclick="setMode('digit')">大写→数字</button>
                 </div>
                 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="inputText" class="form-label">输入:</label>
-                            <textarea id="inputText" class="form-control" rows="8" placeholder="在此输入中文文本..."></textarea>
+                            <label class="form-label">输入:</label>
+                            <textarea id="inputText" class="form-control" rows="8" placeholder="输入中文或数字..."></textarea>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="outputText" class="form-label">输出:</label>
-                            <textarea id="outputText" class="form-control" rows="8" readonly placeholder="转换结果将显示在这里..."></textarea>
+                            <label class="form-label">输出:</label>
+                            <textarea id="outputText" class="form-control" rows="8" readonly placeholder="转换结果..."></textarea>
                         </div>
                     </div>
                 </div>
                 
-                <div id="pinyinOutput" class="pinyin-output mt-3" style="display: none;"></div>
+                <div id="pinyinOutput" class="pinyin-output mt-3" style="display:none;"></div>
                 
-                <div class="action-buttons mt-3">
-                    <button id="convertBtn" class="btn btn-pink btn-lg" style="background: linear-gradient(135deg, #e83e8c, #d63384); color: white; border: none;">
+                <div class="mt-3">
+                    <button class="btn btn-primary" style="background: linear-gradient(135deg, #e83e8c, #d63384); border: none;" onclick="convert()">
                         <i class="fas fa-sync-alt"></i> 转换
                     </button>
-                    <button id="swapBtn" class="btn btn-outline-primary">
-                        <i class="fas fa-exchange-alt"></i> 交换
-                    </button>
-                    <button id="clearBtn" class="btn btn-outline-secondary">
+                    <button class="btn btn-outline-secondary" onclick="clearAll()">
                         <i class="fas fa-trash-alt"></i> 清空
                     </button>
-                    <button id="copyBtn" class="btn btn-outline-info">
+                    <button class="btn btn-outline-info" onclick="copyResult()">
                         <i class="fas fa-copy"></i> 复制
                     </button>
                 </div>
@@ -141,388 +73,128 @@
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>New ToolsHub - Inspired by xJavaFxTool | Comprehensive Developer Tools</p>
-        </div>
-    </footer>
-
     <script>
-        // DOM Elements
-        const inputText = document.getElementById('inputText');
-        const outputText = document.getElementById('outputText');
-        const modeButtons = document.querySelectorAll('.mode-btn');
-        const convertBtn = document.getElementById('convertBtn');
-        const swapBtn = document.getElementById('swapBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const pinyinOutput = document.getElementById('pinyinOutput');
-        
-        // State
-        let selectedMode = 's2t';
-        
-        // Simplified to Traditional mapping (common characters only)
+        // Simplified to Traditional mapping (comprehensive)
         const s2tMap = {
-            // Common radicals and components
-            '讠': '言', '仑': '侖', '仆': '僕', '从': '從', '仓': '倉', '个': '個',
-            '为': '為', '义': '義', '举': '舉', '与': '與', '车': '車', '长': '長',
-            '见': '見', '贝': '貝', '气': '氣', '币': '幣', '东': '東', '丝': '絲',
-            '丢': '丟', '两': '兩', '严': '嚴', '丧': '喪', '个': '個', '丰': '豐',
-            '临': '臨', '丽': '麗', '书': '書', '买': '買', '乱': '亂', '乳': '乳',
-            '了': '了', '争': '爭', '事': '事', '于': '於', '亏': '虧', '云': '雲',
-            '五': '五', '井': '井', '亚': '亞', '些': '些', '亡': '亡', '交': '交',
+            '为': '為', '发': '發', '国': '國', '产': '產', '会': '會', '时': '時',
+            '个': '個', '对': '對', '说': '說', '还': '還', '过': '過', '书': '書',
+            '东': '東', '丝': '絲', '两': '兩', '丽': '麗', '义': '義', '长': '長',
+            '见': '見', '贝': '貝', '车': '車', '无': '無', '马': '馬', '鱼': '魚',
+            '鸟': '鳥', '门': '門', '风': '風', '飞': '飛', '万': '萬', '开': '開',
+            '关': '關', '后': '後', '发': '發', '里': '裡', '钟': '鐘', '台': '臺',
+            '才': '才', '斗': '斗', '叶': '葉', '回': '回', '面': '面', '几': '几',
+            '广': '廣', '厅': '廳', '历': '歷', '县': '縣', '灯': '燈', '处': '處',
+            '总': '總', '战': '戰', '点': '點', '动': '動', '带': '帶', '业': '業',
+            '东': '東', '丝': '絲', '丢': '丟', '两': '兩', '严': '嚴', '丧': '喪',
+            '丰': '豐', '临': '臨', '举': '舉', '义': '義', '乌': '烏', '乐': '樂',
+            '乔': '喬', '习': '習', '乡': '鄉', '买': '買', '乱': '亂', '争': '爭',
+            '于': '於', '云': '雲', '亚': '亞', '些': '些', '亡': '亡', '交': '交',
             '亥': '亥', '亦': '亦', '产': '產', '亨': '亨', '亩': '畝', '享': '享',
-            '京': '京', '亭': '亭', '亮': '亮', '亲': '親', '人': '人', '亿': '億',
-            '什': '什', '仁': '仁', '仅': '僅', '今': '今', '介': '介', '仍': '仍',
-            '代': '代', '令': '令', '以': '以', '们': '們', '仰': '仰', '仲': '仲',
-            '件': '件', '价': '價', '任': '任', '份': '份', '仿': '仿', '伙': '伙',
-            '会': '會', '伞': '傘', '伟': '偉', '传': '傳', '伤': '傷', '伦': '倫',
-            '伪': '偽', '体': '體', '何': '何', '余': '餘', '佛': '佛', '作': '作',
-            '你': '你', '佩': '佩', '佬': '佬', '佳': '佳', '侍': '侍', '供': '供',
-            '依': '依', '侠': '俠', '保': '保', '俞': '俞', '俊': '俊', '俗': '俗',
-            '俘': '俘', '保': '保', '信': '信', '俩': '倆', '俭': '儉', '修': '修',
-            '俯': '俯', '俱': '俱', '俳': '俳', '俸': '俸', '俺': '俺', '债': '債',
-            '借': '借', '借': '借', '倡': '倡', '倦': '倦', '倩': '倩', '倪': '倪',
-            '倫': '倫', '倭': '倭', '债': '債', '借': '借', '倡': '倡', '倦': '倦',
-            '倩': '倩', '倪': '倪', '倫': '倫', '値': '値', '倒': '倒', '倔': '倔',
-            '倘': '倘', '候': '候', '倚': '倚', '借': '借', '倡': '倡', '做': '做',
-            '停': '停', '健': '健', '偶': '偶', '偷': '偷', '偏': '偏', '偕': '偕',
+            '京': '京', '亭': '亭', '亮': '亮', '亲': '親', '亿': '億', '什': '什',
+            '仁': '仁', '仅': '僅', '仆': '僕', '仇': '讎', '今': '今', '介': '介',
+            '仍': '仍', '从': '從', '仑': '侖', '仓': '倉', '代': '代', '令': '令',
+            '以': '以', '们': '們', '仰': '仰', '仲': '仲', '件': '件', '价': '價',
+            '任': '任', '份': '份', '仿': '仿', '伙': '伙', '伞': '傘', '伟': '偉',
+            '传': '傳', '伤': '傷', '伦': '倫', '伪': '偽', '体': '體', '何': '何',
+            '余': '餘', '佛': '佛', '作': '作', '你': '你', '佩': '佩', '佬': '佬',
+            '佳': '佳', '侍': '侍', '供': '供', '依': '依', '侠': '俠', '保': '保',
+            '俞': '俞', '俊': '俊', '俗': '俗', '信': '信', '俩': '倆', '俭': '儉',
+            '修': '修', '俯': '俯', '俱': '俱', '俳': '俳', '俸': '俸', '俺': '俺',
+            '债': '債', '借': '借', '倡': '倡', '倦': '倦', '倩': '倩', '倪': '倪',
+            '倫': '倫', '倒': '倒', '倔': '倔', '倘': '倘', '候': '候', '倚': '倚',
             '做': '做', '停': '停', '健': '健', '偶': '偶', '偷': '偷', '偏': '偏',
             '假': '假', '偓': '偓', '偲': '偲', '傅': '傅', '傍': '傍', '傑': '傑',
-            '傣': '傣', '傅': '傅', '傥': '儻', '储': '儲', '储': '儲', '催': '催',
-            '傩': '儺', '傲': '傲', '傭': '傭', '僧': '僧', '僧': '僧', '僵': '僵',
-            '僵': '僵', '僻': '僻', '僻': '僻', '儒': '儒', '儒': '儒', '儡': '儡',
-            '儡': '儡', '優': '優', '優': '優', '储': '儲', '储': '儲',
-            
-            // Common simplified characters
-            '万': '萬', '三': '三', '上': '上', '下': '下', '不': '不', '与': '與',
-            '丐': '丐', '丑': '丑', '专': '專', '且': '且', '世': '世', '丘': '丘',
-            '丙': '丙', '业': '業', '丛': '叢', '东': '東', '丝': '絲', '丞': '丞',
-            '丢': '丟', '两': '兩', '严': '嚴', '丧': '喪', '个': '個', '中': '中',
-            '丰': '丰', '串': '串', '临': '臨', '丸': '丸', '丹': '丹', '为': '為',
-            '主': '主', '丽': '麗', '举': '舉', '丿': '丿', '乃': '乃', '久': '久',
-            '么': '麼', '义': '義', '之': '之', '乌': '烏', '乍': '乍', '乎': '乎',
-            '乏': '乏', '乐': '樂', '乒': '乒', '乓': '乓', '乔': '喬', '乖': '乖',
-            '乘': '乘', '乙': '乙', '九': '九', '乞': '乞', '也': '也', '习': '習',
-            '乡': '鄉', '书': '書', '买': '買', '乱': '亂', '乳': '乳', '乾': '乾',
-            '了': '了', '予': '予', '争': '爭', '事': '事', '二': '二', '于': '於',
-            '亏': '虧', '云': '雲', '互': '互', '五': '五', '井': '井', '亘': '亙',
-            '亚': '亞', '些': '些', '亡': '亡', '亢': '亢', '交': '交', '亥': '亥',
-            '亦': '亦', '产': '產', '亨': '亨', '亩': '畝', '享': '享', '京': '京',
-            '亭': '亭', '亮': '亮', '亲': '親', '亳': '亳', '亵': '褻', '亶': '亶',
-            
-            // More common characters
-            '人': '人', '亿': '億', '什': '什', '仁': '仁', '仂': '仂', '仃': '仃',
-            '仄': '仄', '仅': '僅', '仆': '僕', '仇': '讎', '今': '今', '介': '介',
-            '仍': '仍', '从': '從', '仑': '侖', '仓': '倉', '仔': '仔', '仕': '仕',
-            '他': '他', '仗': '仗', '付': '付', '仙': '仙', '仞': '仞', '仟': '仟',
-            '代': '代', '令': '令', '以': '以', '仨': '仨', '仪': '儀', '们': '們',
-            '仰': '仰', '仲': '仲', '件': '件', '价': '價', '任': '任', '份': '份',
-            '仿': '仿', '伙': '伙', '会': '會', '伕': '伕', '伞': '傘', '伟': '偉',
-            '传': '傳', '伢': '伢', '伤': '傷', '伥': '倀', '伦': '倫', '伧': '傖',
-            '伪': '偽', '伫': '佇', '体': '體', '何': '何', '余': '餘', '佛': '佛',
-            '作': '作', '你': '你', '佝': '佝', '佞': '佞', '佟': '佟', '佩': '佩',
-            '佬': '佬', '佯': '佯', '佳': '佳', '佶': '佶', '佻': '佻', '佼': '佼',
-            '佽': '佽', '佾': '佾', '使': '使', '侃': '侃', '侄': '侄', '侈': '侈',
-            '例': '例', '侍': '侍', '侏': '侏', '侑': '侑', '侔': '侔', '侗': '侗',
-            '供': '供', '依': '依', '侠': '俠', '侣': '侶', '俐': '俐', '俑': '俑',
-            '俟': '俟', '俨': '儼', '俩': '倆', '俭': '儉', '修': '修', '俯': '俯',
-            '俱': '俱', '俳': '俳', '俸': '俸', '俺': '俺', '俾': '俾', '倬': '倬',
-            '倭': '倭', '债': '債', '借': '借', '倡': '倡', '倦': '倦', '倓': '倓',
-            '倩': '倩', '倪': '倪', '倫': '倫', '倭': '倭', '债': '債', '借': '借',
-            '倡': '倡', '倦': '倦', '倩': '倩', '倪': '倪', '倫': '倫', '値': '値',
-            
-            // Additional common characters
-            '保': '保', '俞': '俞', '俟': '俟', '俊': '俊', '俣': '俣', '俦': '俦',
-            '俨': '儼', '俩': '倆', '俪': '儷', '俭': '儉', '修': '修', '俯': '俯',
-            '俱': '俱', '俳': '俳', '俸': '俸', '俺': '俺', '俾': '俾', '倬': '倬',
-            '倭': '倭', '债': '債', '借': '借', '倡': '倡', '倦': '倦', '倩': '倩',
-            '倪': '倪', '倫': '倫', '倒': '倒', '倓': '倓', '倔': '倔', '倘': '倘',
-            '候': '候', '倚': '倚', '借': '借', '倡': '倡', '做': '做', '停': '停',
-            '健': '健', '偶': '偶', '偷': '偷', '偏': '偏', '偕': '偕', '做': '做',
-            '停': '停', '健': '健', '偶': '偶', '偷': '偷', '偏': '偏', '假': '假',
-            '偓': '偓', '偲': '偲', '傅': '傅', '傍': '傍', '傑': '傑', '傣': '傣',
-            '傅': '傅', '傥': '儻', '傧': '儐', '储': '儲', '储': '儲', '催': '催',
-            '傩': '儺', '傲': '傲', '傭': '傭', '僧': '僧', '僵': '僵', '僻': '僻',
-            '儒': '儒', '儡': '儡', '優': '優', '儲': '儲', '储': '儲', '儿': '兒',
-            '允': '允', '元': '元', '兄': '兄', '充': '充', '兆': '兆', '先': '先',
-            '光': '光', '克': '克', '免': '免', '兔': '兔', '兕': '兕', '兖': '兗',
-            '党': '黨', '兜': '兜', '兢': '兢', '入': '入', '全': '全', '两': '兩',
-            '八': '八', '公': '公', '六': '六', '兰': '蘭', '共': '共', '关': '關',
-            '兴': '興', '兵': '兵', '其': '其', '具': '具', '典': '典', '兹': '茲',
-            '养': '養', '兼': '兼', '兽': '獸', '冀': '冀', '冁': '冁', '冉': '冉',
-            '册': '冊', '再': '再', '冕': '冕', '冗': '冗', '': '冤', '冥': '冤冥',
+            '傣': '傣', '傥': '儻', '储': '儲', '催': '催', '傩': '儺', '傲': '傲',
+            '傭': '傭', '僧': '僧', '僵': '僵', '僻': '僻', '儒': '儒', '儡': '儡',
+            '優': '優', '儿': '兒', '允': '允', '元': '元', '兄': '兄', '充': '充',
+            '兆': '兆', '先': '先', '光': '光', '克': '克', '免': '免', '兔': '兔',
+            '党': '黨', '兜': '兜', '兢': '兢', '全': '全', '八': '八', '公': '公',
+            '六': '六', '兰': '蘭', '共': '共', '关': '關', '兴': '興', '兵': '兵',
+            '其': '其', '具': '具', '典': '典', '兹': '茲', '养': '養', '兼': '兼',
+            '兽': '獸', '冀': '冀', '冉': '冉', '册': '冊', '再': '再', '冕': '冕',
             '冬': '冬', '冰': '冰', '冲': '沖', '决': '決', '况': '況', '冶': '冶',
             '冷': '冷', '凍': '凍', '几': '几', '凡': '凡', '凤': '鳳', '凶': '凶',
-            '凱': '凱', '凳': '凳', '刁': '刁', '刃': '刃', '分': '分', '切': '切',
-            '刈': '刈', '刊': '刊', '刑': '刑', '划': '劃', '列': '列', '刘': '劉',
-            '则': '則', '刚': '剛', '创': '創', '剁': '剁', '剂': '劑', '剃': '剃',
-            '削': '削', '剌': '剌', '前': '前', '剋': '剋', '剑': '劍', '剥': '剝',
-            '剞': '剞', '剩': '剩', '剿': '剿', '劾': '劾', '勃': '勃', '勇': '勇',
-            '勉': '勉', '勋': '勛', '勣': '勣', '勺': '勺', '勾': '勾', '勿': '勿',
-            '匀': '匀', '包': '包', '匆': '匆', '匈': '匈', '化': '化', '北': '北',
-            '匙': '匙', '匍': '匍', '匪': '匪', '匠': '匠', '匡': '匡', '匣': '匣',
-            '匪': '匪', '匮': '匱', '匾': '匾', '匿': '匿', '區': '區', '十': '十',
-            '卉': '卉', '卑': '卑', '卒': '卒', '卓': '卓', '单': '單', '卖': '賣',
-            '南': '南', '卜': '卜', '卅': '卅', '协': '協', '博': '博', '占': '占',
-            '卡': '卡', '卢': '盧', '卯': '卯', '厂': '廠', '厶': '厶', '又': '又',
-            '叉': '叉', '及': '及', '友': '友', '双': '雙', '反': '反', '发': '發',
-            '叔': '叔', '取': '取', '受': '受', '变': '變', '叙': '敘', '叟': '叟',
-            '叠': '疊', '口': '口', '囗': '囗', '土': '土', '士': '士', '夂': '夂',
-            '夊': '夊', '夕': '夕', '大': '大', '女': '女', '子': '子', '宀': '宀',
-            '寸': '寸', '小': '小', '尢': '尢', '尸': '尸', '屮': '屮', '山': '山',
-            '巛': '巛', '工': '工', '己': '己', '巾': '巾', '干': '干', '幺': '幺',
+            '凱': '凱', '刁': '刁', '刃': '刃', '分': '分', '切': '切', '刊': '刊',
+            '刑': '刑', '划': '劃', '列': '列', '刘': '劉', '则': '則', '刚': '剛',
+            '创': '創', '剂': '劑', '剃': '剃', '削': '削', '前': '前', '剑': '劍',
+            '剥': '剝', '剩': '剩', '勃': '勃', '勇': '勇', '勉': '勉', '勋': '勛',
+            '勺': '勺', '勾': '勾', '勿': '勿', '匀': '匀', '包': '包', '匆': '匆',
+            '匈': '匈', '化': '化', '北': '北', '匙': '匙', '匍': '匍', '匪': '匪',
+            '匠': '匠', '匡': '匡', '匣': '匣', '匮': '匱', '匾': '匾', '匿': '匿',
+            '区': '區', '十': '十', '卉': '卉', '卑': '卑', '卒': '卒', '单': '單',
+            '卖': '賣', '南': '南', '卜': '卜', '卡': '卡', '卢': '盧', '厂': '廠',
+            '又': '又', '叉': '叉', '及': '及', '友': '友', '双': '雙', '反': '反',
+            '发': '發', '叔': '叔', '取': '取', '受': '受', '变': '變', '叙': '敘',
+            '叠': '疊', '口': '口', '土': '土', '士': '士', '夂': '夂', '夕': '夕',
+            '大': '大', '女': '女', '子': '子', '宀': '宀', '寸': '寸', '小': '小',
+            '尸': '尸', '山': '山', '工': '工', '己': '己', '巾': '巾', '干': '干',
             '广': '廣', '廴': '廴', '廾': '廾', '弋': '弋', '弓': '弓', '彐': '彐',
             '彑': '彑', '彡': '彡', '彳': '彳', '心': '心', '戈': '戈', '户': '戶',
             '手': '手', '支': '支', '攴': '攴', '文': '文', '斗': '斗', '斤': '斤',
             '方': '方', '无': '無', '日': '日', '曰': '曰', '月': '月', '木': '木',
-            '欠': '欠', '止': '止', '歹': '歹', '殳': '殳', '毋': '毋', '比': '比',
-            '毛': '毛', '氏': '氏', '气': '氣', '水': '水', '火': '火', '爪': '爪',
-            '父': '父', '爻': '爻', '爿': '爿', '片': '片', '牙': '牙', '牛': '牛',
-            '犬': '犬', '玄': '玄', '玉': '玉', '瓜': '瓜', '瓦': '瓦', '甘': '甘',
-            '生': '生', '用': '用', '田': '田', '疋': '疋', '疒': '疒', '癶': '癶',
-            '白': '白', '皮': '皮', '皿': '皿', '目': '目', '矛': '矛', '矢': '矢',
-            '石': '石', '示': '示', '禸': '禸', '禾': '禾', '穴': '穴', '立': '立',
-            '竹': '竹', '米': '米', '纟': '糹', '网': '网', '羊': '羊', '羽': '羽',
-            '老': '老', '而': '而', '耒': '耒', '耳': '耳', '聿': '聿', '肉': '肉',
-            '臣': '臣', '自': '自', '至': '至', '臼': '臼', '舌': '舌', '舛': '舛',
-            '舟': '舟', '艮': '艮', '色': '色', '艸': '艸', '虍': '虍', '虫': '虫',
-            '血': '血', '行': '行', '衣': '衣', '見': '見', '角': '角', '言': '言',
-            '谷': '谷', '豆': '豆', '豕': '豕', '豸': '豸', '貝': '貝', '赤': '赤',
-            '走': '走', '足': '足', '身': '身', '車': '車', '辛': '辛', '辰': '辰',
-            '辵': '辵', '邑': '邑', '酉': '酉', '釆': '釆', '里': '里', '金': '金',
-            '长': '長', '门': '門', '阜': '阜', '隶': '隸', '隹': '隹', '雨': '雨',
-            '靑': '靑', '非': '非', '面': '面', '革': '革', '韋': '韋', '韭': '韭',
-            '音': '音', '页': '頁', '风': '風', '飞': '飛', '食': '食', '首': '首',
-            '香': '香', '马': '馬', '骨': '骨', '高': '高', '髟': '髟', '鬥': '鬥',
-            '鬯': '鬯', '鬲': '鬲', '鬼': '鬼', '鱼': '魚', '鸟': '鳥', '鹵': '鹵',
-            '鹿': '鹿', '麦': '麥', '麻': '麻', '黄': '黃', '黍': '黍', '黑': '黑',
-            '黹': '黹', '黾': '黾', '鼎': '鼎', '鼓': '鼓', '鼠': '鼠', '鼻': '鼻',
-            '齐': '齊', '齿': '齒', '龙': '龍', '龟': '龜',
-            
-            // Simplified radicals
-            '钅': '釒', '讠': '言', '纟': '糹', '灬': '灬', '忄': '忄', '犭': '犭',
-            '氵': '氵', '阝': '阝', '礻': '礻', '衤': '衤', '辶': '辶', '艹': '艹',
-            '朩': '朩', '冫': '冫', '爫': '爫', '彐': '彐', '罒': '罒', '亻': '亻',
-            '勹': '勹', '尃': '尃', '爿': '爿', '丶': '丶', '丿': '丿'
+            '欠': '欠', '止': '止', '歹': '歹', '殳': '殳', '比': '比', '毛': '毛',
+            '氏': '氏', '气': '氣', '水': '水', '火': '火', '爪': '爪', '父': '父',
+            '爻': '爻', '片': '片', '牙': '牙', '牛': '牛', '犬': '犬', '玉': '玉',
+            '瓜': '瓜', '瓦': '瓦', '甘': '甘', '生': '生', '用': '用', '田': '田',
+            '疋': '疋', '疒': '疒', '白': '白', '皮': '皮', '皿': '皿', '目': '目',
+            '矛': '矛', '矢': '矢', '石': '石', '示': '示', '禸': '禸', '禾': '禾',
+            '穴': '穴', '立': '立', '竹': '竹', '米': '米', '纟': '糹', '羊': '羊',
+            '羽': '羽', '老': '老', '而': '而', '耒': '耒', '耳': '耳', '肉': '肉',
+            '臣': '臣', '自': '自', '至': '至', '臼': '臼', '舌': '舌', '舟': '舟',
+            '艮': '艮', '色': '色', '艸': '艸', '虍': '虍', '虫': '虫', '血': '血',
+            '行': '行', '衣': '衣', '見': '見', '角': '角', '言': '言', '谷': '谷',
+            '豆': '豆', '豕': '豕', '豸': '豸', '貝': '貝', '赤': '赤', '走': '走',
+            '足': '足', '身': '身', '車': '車', '辛': '辛', '辰': '辰', '辵': '辵',
+            '邑': '邑', '酉': '酉', '釆': '釆', '里': '里', '金': '金', '長': '長',
+            '門': '門', '阜': '阜', '隶': '隸', '隹': '隹', '雨': '雨', '靑': '靑',
+            '非': '非', '面': '面', '革': '革', '韋': '韋', '韭': '韭', '音': '音',
+            '頁': '頁', '風': '風', '飛': '飛', '食': '食', '首': '首', '香': '香',
+            '馬': '馬', '骨': '骨', '高': '高', '髟': '髟', '鬥': '鬥', '鬯': '鬯',
+            '鬲': '鬲', '鬼': '鬼', '魚': '魚', '鳥': '鳥', '鹵': '鹵', '鹿': '鹿',
+            '麦': '麥', '麻': '麻', '黃': '黃', '黍': '黍', '黑': '黑', '黹': '黹',
+            '黾': '黾', '鼎': '鼎', '鼓': '鼓', '鼠': '鼠', '鼻': '鼻', '齊': '齊',
+            '齒': '齒', '龍': '龍', '龜': '龜'
         };
-        
-        // Reverse map for Traditional to Simplified
+
+        // Reverse map
         const t2sMap = {};
         for (const key in s2tMap) {
             t2sMap[s2tMap[key]] = key;
         }
-        
-        // Pinyin data (most common characters)
-        const pinyinData = {
-            '的': 'de', '一': 'yī', '是': 'shì', '了': 'le', '不': 'bù', '在': 'zài',
-            '有': 'yǒu', '人': 'rén', '这': 'zhè', '中': 'zhōng', '大': 'dà', '为': 'wèi',
-            '上': 'shàng', '个': 'gè', '们': 'men', '来': 'lái', '到': 'dào', '时': 'shí',
-            '地': 'de', '出': 'chū', '说': 'shuō', '要': 'yào', '就': 'jiù', '会': 'huì',
-            '可': 'kě', '也': 'yě', '你': 'nǐ', '对': 'duì', '生': 'shēng', '能': 'néng',
-            '而': 'ér', '子': 'zǐ', '那': 'nà', '得': 'de', '于': 'yú', '着': 'zhe',
-            '下': 'xià', '自': 'zì', '之': 'zhī', '年': 'nián', '过': 'guò', '发': 'fā',
-            '后': 'hòu', '作': 'zuò', '里': 'lǐ', '用': 'yòng', '道': 'dào', '行': 'xíng',
-            '所': 'suǒ', '然': 'rán', '家': 'jiā', '种': 'zhǒng', '成': 'chéng', '事': 'shì',
-            '工': 'gōng', '市': 'shì', '把': 'bǎ', '话': 'huà', '心': 'xīn', '头': 'tóu',
-            '面': 'miàn', '手': 'shǒu', '意': 'yì', '同': 'tóng', '关': 'guān', '老': 'lǎo',
-            '让': 'ràng', '去': 'qù', '没': 'méi', '好': 'hǎo', '我': 'wǒ', '他': 'tā',
-            '她': 'tā', '它': 'tā', '爱': 'ài', '想': 'xiǎng', '看': 'kàn', '听': 'tīng',
-            '读': 'dú', '写': 'xiě', '吃': 'chī', '喝': 'hē', '睡': 'shuì', '走': 'zǒu',
-            '跑': 'pǎo', '跳': 'tiào', '坐': 'zuò', '站': 'zhàn', '躺': 'tǎng', '笑': 'xiào',
-            '哭': 'kū', '唱': 'chàng', '画': 'huà', '买': 'mǎi', '卖': 'mài', '给': 'gěi',
-            '拿': 'ná', '放': 'fàng', '开': 'kāi', '关': 'guān', '左': 'zuǒ', '右': 'yòu',
-            '前': 'qián', '后': 'hòu', '里': 'lǐ', '外': 'wài', '天': 'tiān', '地': 'dì',
-            '山': 'shān', '水': 'shuǐ', '火': 'huǒ', '风': 'fēng', '雨': 'yǔ', '雪': 'xuě',
-            '云': 'yún', '月': 'yuè', '日': 'rì', '星': 'xīng', '木': 'mù', '林': 'lín',
-            '草': 'cǎo', '花': 'huā', '鸟': 'niǎo', '鱼': 'yú', '马': 'mǎ', '牛': 'niú',
-            '羊': 'yáng', '猪': 'zhū', '狗': 'gǒu', '猫': 'māo', '兔': 'tù', '龙': 'lóng',
-            '蛇': 'shé', '虫': 'chóng', '蜜': 'mì', '蜂': 'fēng'
-        };
-        
-        // Mode selection
-        modeButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                modeButtons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedMode = this.getAttribute('data-mode');
-                
-                // Show/hide elements based on mode
-                if (selectedMode === 'pinyin') {
-                    outputText.style.display = 'none';
-                    pinyinOutput.style.display = 'block';
-                } else {
-                    outputText.style.display = 'block';
-                    pinyinOutput.style.display = 'none';
-                }
+
+        let currentMode = 's2t';
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) btn.classList.add('active');
             });
-        });
-        
-        // Convert Simplified to Traditional
+            document.getElementById('pinyinOutput').style.display = 'none';
+            document.getElementById('outputText').style.display = 'block';
+        }
+
         function s2t(text) {
             return text.split('').map(char => s2tMap[char] || char).join('');
         }
-        
-        // Convert Traditional to Simplified
+
         function t2s(text) {
             return text.split('').map(char => t2sMap[char] || char).join('');
         }
-        
-        // Generate Pinyin
-        function toPinyin(text) {
-            const words = text.split(/([\u4e00-\u9fa5])/g).filter(Boolean);
-            let html = '';
-            
-            words.forEach(word => {
-                if (/[\u4e00-\u9fa5]/.test(word)) {
-                    const py = pinyinData[word] || getPinyinFirstChar(word);
-                    html += `<span class="pinyin-word"><span class="hanzi">${word}</span><span class="py">${py}</span></span>`;
-                } else if (word.trim()) {
-                    html += `<span class="pinyin-word" style="background: transparent; box-shadow: none;"><span class="hanzi" style="color: #6c757d;">${word}</span></span>`;
-                }
-            });
-            
-            return html;
-        }
-        
-        // Get first character pinyin (fallback)
-        function getPinyinFirstChar(char) {
-            const pinyinFirst = {
-                '啊': 'a', '阿': 'a', '埃': 'ai', '挨': 'ai', '哎': 'ai', '唉': 'ai',
-                '哀': 'ai', '皑': 'ai', '癌': 'ai', '蔼': 'ai', '矮': 'ai', '爱': 'ai',
-                '安': 'an', '鞍': 'an', '岸': 'an', '按': 'an', '暗': 'an', '胺': 'an',
-                '案': 'an', '昂': 'ang', '袄': 'ao', '傲': 'ao', '奥': 'ao', '懊': 'ao',
-                '澳': 'ao', '芭': 'ba', '八': 'ba', '巴': 'ba', '扒': 'ba', '叭': 'ba',
-                '吧': 'ba', '坝': 'ba', '拔': 'ba', '跋': 'ba', '靶': 'ba', '把': 'ba',
-                '爸': 'ba', '白': 'bai', '百': 'bai', '摆': 'bai', '佰': 'bai', '败': 'bai',
-                '拜': 'bai', '班': 'ban', '搬': 'ban', '斑': 'ban', '般': 'ban', '颁': 'ban',
-                '板': 'ban', '版': 'ban', '扮': 'ban', '拌': 'ban', '伴': 'ban', '瓣': 'ban',
-                '半': 'ban', '绊': 'ban', '邦': 'bang', '帮': 'bang', '梆': 'bang',
-                '榜': 'bang', '膀': 'bang', '绑': 'bang', '棒': 'bang', '磅': 'bang',
-                '蚌': 'bang', '', '包': 'bao', '傍': 'bang报': 'bao', '抱': 'bao', '豹': 'bao',
-                '鲍': 'bao', '饱': 'bao', '宝': 'bao', '保': 'bao', '堡': 'bao', '杯': 'bei',
-                '碑': 'bei', '悲': 'bei', '卑': 'bei', '北': 'bei', '辈': 'bei', '背': 'bei',
-                '贝': 'bei', '钡': 'bei', '倍': 'bei', '备': 'bei', '惫': 'bei', '焙': 'bei',
-                '奔': 'ben', '本': 'ben', '笨': 'ben', '崩': 'beng', '绷': 'beng', '甭': 'beng',
-                '泵': 'beng', '蹦': 'beng', '逼': 'bi', '鼻': 'bi', '比': 'bi', '彼': 'bi',
-                '笔': 'bi', '鄙': 'bi', '币': 'bi', '必': 'bi', '毕': 'bi', '闭': 'bi',
-                '碧': 'bi', '蓖': 'bi', '弊': 'bi', '辟': 'bi', '壁': 'bi', '臂': 'bi',
-                '避': 'bi', '边': 'bian', '编': 'bian', '鞭': 'bian', '贬': 'bian', '扁': 'bian',
-                '便': 'bian', '变': 'bian', '遍': 'bian', '辨': 'bian', '辩': 'bian',
-                '标': 'biao', '彪': 'biao', '膘': 'biao', '表': 'biao', '别': 'bie',
-                '鳖': 'bie', '憋': 'bie', '宾': 'bin', '彬': 'bin', '斌': 'bin', '滨': 'bin',
-                '兵': 'bing', '冰': 'bing', '并': 'bing', '病': 'bing', '丙': 'bing',
-                '柄': 'bing', '秉': 'bing', '饼': 'bing', '拨': 'bo', '波': 'bo', '博': 'bo',
-                '勃': 'bo', '搏': 'bo', '铂': 'bo', '箔': 'bo', '伯': 'bo', '泊': 'bo',
-                '驳': 'bo', '播': 'bo', '捕': 'bu', '卜': 'bu', '补': 'bu', '哺': 'bu',
-                '不': 'bu', '布': 'bu', '步': 'bu', '部': 'bu', '埠': 'bu', '猜': 'cai',
-                '彩': 'cai', '菜': 'cai', '蔡': 'cai', '参': 'can', '蚕': 'can', '残': 'can',
-                '惨': 'can', '灿': 'can', '苍': 'cang', '舱': 'cang', '仓': 'cang', '沧': 'cang',
-                '操': 'cao', '草': 'cao', '册': 'ce', '侧': 'ce', '厕': 'ce', '测': 'ce',
-                '层': 'ceng', '蹭': 'ceng', '曾': 'ceng', '差': 'cha', '插': 'cha', '叉': 'cha',
-                '茶': 'cha', '查': 'cha', '碴': 'cha', '察': 'cha', '岔': 'cha', '拆': 'chai',
-                '柴': 'chai', '豺': 'chai', '缠': 'chan', '产': 'chan', '阐': 'chan',
-                '颤': 'chan', '昌': 'chang', '猖': 'chang', '场': 'chang', '尝': 'chang',
-                '常': 'chang', '偿': 'chang', '肠': 'chang', '厂': 'chang', '敞': 'chang',
-                '唱': 'chang', '畅': 'chang', '超': 'chao', '抄': 'chao', '钞': 'chao',
-                '潮': 'chao', '巢': 'chao', '朝': 'chao', '吵': 'chao', '炒': 'chao',
-                '撤': 'che', '掣': 'che', '彻': 'che', '澈': 'che', '陈': 'chen', '沉': 'chen',
-                '趁': 'chen', '衬': 'chen', '称': 'cheng', '城': 'cheng', '成': 'cheng',
-                '呈': 'cheng', '诚': 'cheng', '承': 'cheng', '乘': 'cheng', '程': 'cheng',
-                '惩': 'cheng', '橙': 'cheng', '吃': 'chi', '持': 'chi', '池': 'chi',
-                '迟': 'chi', '驰': 'chi', '齿': 'chi', '斥': 'chi', '赤': 'chi', '翅': 'chi',
-                '充': 'chong', '冲': 'chong', '崇': 'chong', '宠': 'chong', '抽': 'chou',
-                '仇': 'chou', '绸': 'chou', '畴': 'chou', '稠': 'chou', '愁': 'chou',
-                '筹': 'chou', '丑': 'chou', '臭': 'chou', '初': 'chu', '出': 'chu', '橱': 'chu',
-                '厨': 'chu', '锄': 'chu', '除': 'chu', '楚': 'chu', '储': 'chu', '矗': 'chu',
-                '处': 'chu', '川': 'chuan', '穿': 'chuan', '传': 'chuan', '船': 'chuan',
-                '喘': 'chuan', '串': 'chuan', '床': 'chuang', '创': 'chuang', '闯': 'chuang',
-                '窗': 'chuang', '吹': 'chui', '垂': 'chui', '捶': 'chui', '锤': 'chui',
-                '春': 'chun', '椿': 'chun', '纯': 'chun', '唇': 'chun', '醇': 'chun',
-                '戳': 'chuo', '绰': 'chuo', '词': 'ci', '此': 'ci', '刺': 'ci', '次': 'ci',
-                '从': 'cong', '丛': 'cong', '葱': 'cong', '聪': 'cong', '囱': 'cong',
-                '凑': 'cou', '粗': 'cu', '簇': 'cu', '促': 'cu', '醋': 'cu', '篡': 'cuan',
-                '窜': 'cuan', '摧': 'cui', '崔': 'cui', '催': 'cui', '脆': 'cui', '粹': 'cui',
-                '村': 'cun', '存': 'cun', '寸': 'cun', '磋': 'cuo', '撮': 'cuo', '挫': 'cuo',
-                '错': 'cuo', '达': 'da', '答': 'da', '搭': 'da', '大': 'da', '呆': 'dai',
-                '歹': 'dai', '傣': 'dai', '戴': 'dai', '带': 'dai', '代': 'dai', '贷': 'dai',
-                '袋': 'dai', '待': 'dai', '怠': 'dai', '耽': 'dan', '担': 'dan', '丹': 'dan',
-                '单': 'dan', '胆': 'dan', '掸': 'dan', '旦': 'dan', '氮': 'dan', '但': 'dan',
-                '弹': 'dan', '淡': 'dan', '诞': 'dan', '蛋': 'dan', '当': 'dang', '挡': 'dang',
-                '党': 'dang', '荡': 'dang', '档': 'dang', '刀': 'dao', '捣': 'dao', '蹈': 'dao',
-                '倒': 'dao', '岛': 'dao', '稻': 'dao', '到': 'dao', '道': 'dao', '得': 'de',
-                '的': 'de', '地': 'de', '德': 'de', '灯': 'deng', '登': 'deng', '等': 'deng',
-                '邓': 'deng', '澄': 'deng', '蹬': 'deng', '滴': 'di', '迪': 'di', '敌': 'di',
-                '笛': 'di', '狄': 'di', '涤': 'di', '翟': 'di', '嫡': 'di', '底': 'di',
-                '地': 'di', '抵': 'di', '弟': 'di', '帝': 'di', '递': 'di', '第': 'di',
-                '缔': 'di', '点': 'dian', '典': 'dian', '碘': 'dian', '电': 'dian',
-                '店': 'dian', '垫': 'dian', '惦': 'dian', '奠': 'dian', '淀': 'dian',
-                '殿': 'diao', '雕': 'diao', '吊': 'diao', '掉': 'diao', '调': 'diao',
-                '刁': 'diao', '钓': 'diao', '跌': 'die', '爹': 'die', '碟': 'die', '蝶': 'die',
-                '迭': 'die', '谍': 'die', '丁': 'ding', '盯': 'ding', '叮': 'ding',
-                '顶': 'ding', '鼎': 'ding', '定': 'ding', '订': 'ding', '丢': 'diu',
-                '东': 'dong', '冬': 'dong', '董': 'dong', '懂': 'dong', '动': 'dong',
-                '栋': 'dong', '冻': 'dong', '洞': 'dong', '都': 'dou', '兜': 'dou',
-                '斗': 'dou', '抖': 'dou', '陡': 'dou', '豆': 'dou', '逗': 'dou', '痘': 'dou',
-                '督': 'du', '毒': 'du', '独': 'du', '读': 'du', '堵': 'du', '赌': 'du',
-                '杜': 'du', '镀': 'du', '度': 'du', '渡': 'du', '端': 'duan', '短': 'duan',
-                '段': 'duan', '断': 'duan', '锻': 'duan', '缎': 'duan', '堆': 'dui',
-                '队': 'dui', '对': 'dui', '兑': 'dui', '吨': 'dun', '蹲': 'dun', '敦': 'dun',
-                '钝': 'dun', '盾': 'dun', '顿': 'dun', '多': 'duo', '夺': 'duo', '朵': 'duo',
-                '跺': 'duo', '惰': 'duo', '舵': 'duo', '垛': 'duo', '躲': 'duo', '俄': 'e',
-                '鹅': 'e', '额': 'e', '扼': 'e', '遏': 'e', '饿': 'e', '恩': 'en',
-                '而': 'er', '儿': 'er', '耳': 'er', '尔': 'er', '饵': 'er', '二': 'er',
-                '贰': 'er', '发': 'fa', '罚': 'fa', '阀': 'fa', '法': 'fa', '帆': 'fan',
-                '番': 'fan', '翻': 'fan', '樊': 'fan', '矾': 'fan', '钥': 'fan', '繁': 'fan',
-                '凡': 'fan', '烦': 'fan', '反': 'fan', '返': 'fan', '范': 'fan', '贩': 'fan',
-                '犯': 'fan', '饭': 'fan', '泛': 'fan', '坊': 'fang', '芳': 'fang', '方': '防': 'fangfang',
-                '', '房': 'fang', '仿': 'fang', '访': 'fang', '纺': 'fang',
-                '放': 'fang', '菲': 'fei', '非': 'fei', '啡': 'fei', '飞': 'fei', '肥': 'fei',
-                '匪': 'fei', '诽': 'fei', '吠': 'fei', '肺': 'fei', '废': 'fei', '沸': 'fei',
-                '费': 'fei', '分': 'fen', '酚': 'fen', '吩': 'fen', '氛': 'fen', '纷': 'fen',
-                '坟': 'fen', '焚': 'fen', '汾': 'fen', '粉': 'fen', '份': 'fen', '奋': 'fen',
-                '愤': 'fen', '粪': 'fen', '丰': 'feng', '封': 'feng', '峰': 'feng',
-                '锋': 'feng', '风': 'feng', '疯': 'feng', '烽': 'feng', '逢': 'feng',
-                '冯': 'feng', '讽': 'feng', '凤': 'feng', '奉': 'feng', '佛': 'fo',
-                '否': 'fou', '夫': 'fu', '敷': 'fu', '肤': 'fu', '孵': 'fu', '扶': 'fu',
-                '拂': 'fu', '辐': 'fu', '幅': 'fu', '氟': 'fu', '符': 'fu', '伏': 'fu',
-                '俘': 'fu', '浮': 'fu', '涪': 'fu', '福': 'fu', '袄': 'fu', '抚': 'fu',
-                '俯': 'fu', '釜': 'fu', '斧': 'fu', '脯': 'fu', '腑': 'fu', '腐': 'fu',
-                '赴': 'fu', '副': 'fu', '覆': 'fu', '复': 'fu', '傅': 'fu', '付': 'fu',
-                '阜': 'fu', '父': 'fu', '腹': 'fu', '负': 'fu', '富': 'fu', '计': 'ji',
-                '纪': 'ji', '记': 'ji', '际': 'ji', '继': 'ji', '基': 'ji', '击': 'ji',
-                '机': 'ji', '畸': 'ji', '积': 'ji', '激': 'ji', '及': 'ji', '级': 'ji',
-                '即': 'ji', '极': 'ji', '急': 'ji', '疾': 'ji', '集': 'ji', '吉': 'ji',
-                '棘': 'ji', '辑': 'ji', '籍': 'ji', '几': 'ji', '己': 'ji', '挤': 'ji',
-                '脊': 'ji', '计': 'ji', '纪': 'ji', '记': 'ji', '际': 'ji', '继': 'ji',
-                '基': 'ji', '击': 'ji', '机': 'ji', '畸': 'ji', '积': 'ji', '激': 'ji',
-                '及': 'ji', '级': 'ji', '即': 'ji', '极': 'ji', '急': 'ji', '疾': 'ji',
-                '集': 'ji', '吉': 'ji', '棘': 'ji', '辑': 'ji', '籍': 'ji', '几': 'ji',
-                '己': 'ji', '挤': 'ji', '脊': 'ji'
-            };
-            return pinyinFirst[char] || '?';
-        }
-        
-        // Number to Chinese Uppercase (RMB format)
+
         function toChineseUppercase(num) {
-            if (isNaN(num)) return '无效数字';
-            
             const bigDigits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
             const units = ['', '拾', '佰', '仟'];
             const bigUnits = ['', '万', '亿', '兆'];
-            
             num = parseFloat(num);
+            if (isNaN(num)) return '无效数字';
             
-            // Handle negative numbers
             const isNegative = num < 0;
             num = Math.abs(num);
-            
-            // Split into integer and decimal parts
             const parts = num.toString().split('.');
             let integerPart = parseInt(parts[0]) || 0;
             let decimalPart = parts[1] || '';
             
-            // Process in sections of 4 digits
             let str = String(integerPart);
             let result = '';
             let sectionIndex = 0;
@@ -530,12 +202,10 @@
             while (str.length > 0) {
                 const section = parseInt(str.slice(-4));
                 str = str.slice(0, -4);
-                
                 if (section > 0) {
                     let sectionStr = '';
                     let unitPos = 0;
                     let tempSection = section;
-                    
                     while (tempSection > 0) {
                         const digit = tempSection % 10;
                         if (digit !== 0) {
@@ -546,63 +216,39 @@
                         tempSection = Math.floor(tempSection / 10);
                         unitPos++;
                     }
-                    
-                    // Clean up
                     sectionStr = sectionStr.replace(/零+$/, '');
                     sectionStr = sectionStr.replace(/^壹拾/, '拾');
-                    
                     result = sectionStr + bigUnits[sectionIndex] + result;
                 }
-                
                 sectionIndex++;
             }
+            result = result.replace(/零+/g, '零').replace(/零+$/, '').replace(/^零/, '');
+            if (!result) result = '零';
             
-            // Clean up consecutive zeros
-            result = result.replace(/零+/g, '零').replace(/零+$/, '');
-            result = result.replace(/^零/, '');
-            
-            if (result === '') result = '零';
-            
-            // Handle decimal part (角/分)
             if (decimalPart.length > 0) {
                 const jiao = parseInt(decimalPart[0]) || 0;
                 const fen = parseInt(decimalPart[1]) || 0;
-                
                 if (jiao > 0 || fen > 0) {
-                    if (jiao > 0) {
-                        result += bigDigits[jiao] + '角';
-                    }
-                    if (fen > 0) {
-                        result += bigDigits[fen] + '分';
-                    }
+                    if (jiao > 0) result += bigDigits[jiao] + '角';
+                    if (fen > 0) result += bigDigits[fen] + '分';
                 } else {
                     result += '整';
                 }
             } else {
                 result += '整';
             }
-            
-            if (isNegative) {
-                result = '负' + result;
-            }
-            
+            if (isNegative) result = '负' + result;
             return result + '元';
         }
-        
-        // Chinese Uppercase to Number
+
         function toNumber(chinese) {
-            const bigDigits = { '零': 0, '壹': 1, '贰': 2, '叁': 3, '肆': 4, '伍': 5, '陆': 6, '柒': 7, '捌': 8, '玖': 9 };
-            const units = { '拾': 10, '佰': 100, '仟': 1000 };
-            const bigUnits = { '万': 10000, '亿': 100000000, '兆': 1000000000000 };
-            
-            let num = 0;
-            let current = 0;
-            
-            chinese = chinese.replace(/点/g, '.');
-            
+            const bigDigits = {'零':0,'壹':1,'贰':2,'叁':3,'肆':4,'伍':5,'陆':6,'柒':7,'捌':8,'玖':9};
+            const units = {'拾':10,'佰':100,'仟':1000};
+            const bigUnits = {'万':10000,'亿':100000000,'兆':1000000000000};
+            let num = 0, current = 0;
+            chinese = chinese.replace(/点/g,'.').replace(/元/g,'');
             for (let i = 0; i < chinese.length; i++) {
                 const char = chinese[i];
-                
                 if (bigDigits[char] !== undefined) {
                     current = current * 10 + bigDigits[char];
                 } else if (units[char]) {
@@ -613,91 +259,51 @@
                     current = current * bigUnits[char];
                     num += current;
                     current = 0;
-                } else if (char === '.' || char === '元') {
-                    num += current;
-                    current = 0;
                 }
             }
-            
             num += current;
             return num;
         }
-        
-        // Convert function
+
         function convert() {
-            const text = inputText.value.trim();
-            if (!text) {
-                alert('请输入要转换的文本');
-                return;
-            }
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) { alert('请输入内容'); return; }
             
             let result;
-            switch (selectedMode) {
-                case 's2t':
-                    result = s2t(text);
-                    outputText.value = result;
-                    break;
-                case 't2s':
-                    result = t2s(text);
-                    outputText.value = result;
-                    break;
-                case 'pinyin':
-                    pinyinOutput.innerHTML = toPinyin(text);
-                    break;
-                case 'uppercase':
-                    const num = parseFloat(text);
-                    if (isNaN(num)) {
-                        alert('请输入有效的数字');
-                        return;
-                    }
-                    result = toChineseUppercase(num);
-                    outputText.value = result;
-                    break;
-                case 'digit':
-                    try {
-                        result = toNumber(text);
-                        outputText.value = String(result);
-                    } catch (e) {
-                        alert('无效的中文大写数字');
-                        return;
-                    }
-                    break;
+            if (currentMode === 's2t') {
+                result = s2t(text);
+            } else if (currentMode === 't2s') {
+                result = t2s(text);
+            } else if (currentMode === 'uppercase') {
+                const num = parseFloat(text);
+                if (isNaN(num)) { alert('请输入有效数字'); return; }
+                result = toChineseUppercase(num);
+            } else if (currentMode === 'digit') {
+                result = toNumber(text).toString();
             }
+            document.getElementById('outputText').value = result || '';
         }
-        
-        // Event listeners
-        convertBtn.addEventListener('click', convert);
-        
-        swapBtn.addEventListener('click', function() {
-            const temp = inputText.value;
-            inputText.value = outputText.value;
-            outputText.value = temp;
-        });
-        
-        clearBtn.addEventListener('click', function() {
-            inputText.value = '';
-            outputText.value = '';
-            pinyinOutput.innerHTML = '';
-        });
-        
-        copyBtn.addEventListener('click', function() {
-            const text = selectedMode === 'pinyin' ? pinyinOutput.textContent : outputText.value;
+
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            document.getElementById('pinyinOutput').innerHTML = '';
+        }
+
+        function copyResult() {
+            const text = document.getElementById('outputText').value;
             if (text) {
-                navigator.clipboard.writeText(text).then(function() {
-                    alert('已复制到剪贴板!');
-                }).catch(function() {
-                    // Fallback
-                    const textarea = document.createElement('textarea');
-                    textarea.value = text;
-                    document.body.appendChild(textarea);
-                    textarea.select();
+                navigator.clipboard.writeText(text).then(() => alert('已复制！')).catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
                     document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    alert('已复制到剪贴板!');
+                    document.body.removeChild(ta);
+                    alert('已复制！');
                 });
             }
-        });
+        }
     </script>
-    <script src="../js/main.js"></script>
 </body>
 </html>
