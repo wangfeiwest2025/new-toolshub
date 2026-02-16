@@ -192,84 +192,133 @@ function numberToChinese(num) {
   if (num === 0) return '零';
   
   const chnNumChar = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-  const chnUnitChar = ['', '十', '百', '千', '万', '亿', '兆'];
+  const chnUnitChar = ['', '十', '百', '千'];
+  const chnUnitSection = ['', '万', '亿', '兆'];
   
-  let str = '';
-  let unitPos = 0;
+  let str = String(num);
+  let result = '';
+  let sectionIndex = 0;
   
-  while (num > 0) {
-    const digit = num % 10;
-    if (digit !== 0) {
-      str = chnNumChar[digit] + chnUnitChar[unitPos] + str;
-    } else if (str.length > 0 && str[0] !== '零') {
-      str = '零' + str;
+  // Process in sections of 4 digits (万, 亿)
+  while (str.length > 0) {
+    const section = parseInt(str.slice(-4));
+    str = str.slice(0, -4);
+    
+    if (section > 0) {
+      let sectionStr = '';
+      let unitPos = 0;
+      let tempSection = section;
+      
+      while (tempSection > 0) {
+        const digit = tempSection % 10;
+        if (digit !== 0) {
+          sectionStr = chnNumChar[digit] + chnUnitChar[unitPos] + sectionStr;
+        } else if (sectionStr.length > 0 && sectionStr[0] !== '零') {
+          sectionStr = '零' + sectionStr;
+        }
+        tempSection = Math.floor(tempSection / 10);
+        unitPos++;
+      }
+      
+      // Clean up
+      sectionStr = sectionStr.replace(/零+$/, '');
+      sectionStr = sectionStr.replace(/^一十/, '十');
+      
+      result = sectionStr + chnUnitSection[sectionIndex] + result;
     }
-    num = Math.floor(num / 10);
-    unitPos++;
+    
+    sectionIndex++;
   }
   
   // Clean up consecutive zeros
-  str = str.replace(/零+/g, '零').replace(/零+$/, '').replace(/^零/, '');
+  result = result.replace(/零+/g, '零').replace(/零+$/, '');
+  result = result.replace(/^零/, '');
   
-  // Fix "一十" to "十"
-  str = str.replace(/^一十/, '十');
-  
-  return str;
+  return result || '零';
 }
 
 function numberToRMBChinese(num) {
   const chnNumChar = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
   const chnUnitChar = ['', '拾', '佰', '仟'];
-  const chnUnitSection = ['', '万', '亿'];
+  const chnUnitSection = ['', '万', '亿', '兆'];
   
-  let str = '';
-  let unitPos = 0;
-  let needZero = false;
-  let isNeg = false;
+  // Handle negative numbers
+  const isNegative = num < 0;
+  num = Math.abs(num);
   
-  if (num < 0) {
-    isNeg = true;
-    num = Math.abs(num);
-  }
+  // Split into integer and decimal parts
+  const parts = num.toString().split('.');
+  let integerPart = parseInt(parts[0]) || 0;
+  let decimalPart = parts[1] || '';
   
-  const sectionToChinese = (section) => {
-    let str = '';
-    let unitPos = 0;
-    let needZero = false;
+  let str = String(integerPart);
+  let result = '';
+  let sectionIndex = 0;
+  
+  // Process in sections of 4 digits (万, 亿)
+  while (str.length > 0) {
+    const section = parseInt(str.slice(-4));
+    str = str.slice(0, -4);
     
-    while (section > 0) {
-      const sectionNum = section % 10;
-      if (sectionNum === 0) {
-        if (needZero) {
-          needZero = false;
-          str = chnNumChar[0] + str;
+    if (section > 0) {
+      let sectionStr = '';
+      let unitPos = 0;
+      let tempSection = section;
+      
+      while (tempSection > 0) {
+        const digit = tempSection % 10;
+        if (digit !== 0) {
+          sectionStr = chnNumChar[digit] + chnUnitChar[unitPos] + sectionStr;
+        } else if (sectionStr.length > 0 && sectionStr[0] !== '零') {
+          sectionStr = '零' + sectionStr;
         }
-      } else {
-        str = chnNumChar[sectionNum] + chnUnitChar[unitPos] + str;
-        needZero = true;
+        tempSection = Math.floor(tempSection / 10);
+        unitPos++;
       }
-      unitPos++;
-      section = Math.floor(section / 10);
+      
+      // Clean up
+      sectionStr = sectionStr.replace(/零+$/, '');
+      sectionStr = sectionStr.replace(/^壹拾/, '拾');
+      
+      result = sectionStr + chnUnitSection[sectionIndex] + result;
     }
-    return str;
-  };
-  
-  let section = Math.floor(num / 10000);
-  let remainder = num % 10000;
-  
-  while (section > 0) {
-    str = sectionToChinese(section) + chnUnitSection[unitPos] + str;
-    needZero = true;
-    section = Math.floor(section / 10000);
-    unitPos++;
+    
+    sectionIndex++;
   }
   
-  str = sectionToChinese(remainder) + str;
-  str = str.replace(/零+/g, '零').replace(/零+$/, '').replace(/^零/, '');
-  str += '元整';
-  if (isNeg) str = '负' + str;
+  // Clean up consecutive zeros
+  result = result.replace(/零+/g, '零').replace(/零+$/, '');
+  result = result.replace(/^零/, '');
   
-  return str;
+  // Handle decimal part (角/分)
+  if (decimalPart.length > 0) {
+    const jiao = parseInt(decimalPart[0]) || 0;
+    const fen = parseInt(decimalPart[1]) || 0;
+    
+    // Only add "元" if there's an integer part (and it's not zero)
+    if (result && result !== '零') {
+      result += '元';
+    }
+    
+    if (jiao > 0) {
+      result += chnNumChar[jiao] + '角';
+    }
+    if (fen > 0) {
+      result += chnNumChar[fen] + '分';
+    }
+  } else {
+    if (result && result !== '零') {
+      result += '元整';
+    } else {
+      result = '零元整';
+    }
+  }
+  
+  if (isNegative) {
+    result = '负' + result;
+  }
+  
+  return result;
 }
 
 router.get('/number-chinese', (req, res) => {

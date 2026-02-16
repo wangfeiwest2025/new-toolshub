@@ -503,57 +503,76 @@
             return pinyinFirst[char] || '?';
         }
         
-        // Number to Chinese Uppercase
+        // Number to Chinese Uppercase (RMB format)
         function toChineseUppercase(num) {
             if (isNaN(num)) return '无效数字';
             
             const bigDigits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
             const units = ['', '拾', '佰', '仟'];
-            const bigUnits = ['', '万', '亿', '兆'];
+            const bigUnits = ['', '万', '亿'];
             
-            let str = String(num);
+            num = parseFloat(num);
+            
+            // Handle negative numbers
+            const isNegative = num < 0;
+            num = Math.abs(num);
+            
+            // Split into integer and decimal parts
+            const parts = num.toString().split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts[1] || '';
+            
             let result = '';
-            let len = str.length;
             
-            // Handle decimal
-            let integerPart = str.split('.')[0];
-            let decimalPart = str.split('.')[1] || '';
-            
-            let n = parseInt(integerPart);
-            if (n === 0) {
+            if (parseInt(integerPart) === 0) {
                 result = '零';
             } else {
-                let unitIndex = 0;
-                let zeroCount = 0;
+                result = '';
+                let len = integerPart.length;
                 
-                for (let i = integerPart.length - 1; i >= 0; i--) {
-                    let digit = parseInt(integerPart[i]);
-                    let unit = units[unitIndex % 4];
-                    let bigUnit = bigUnits[Math.floor(unitIndex / 4)];
+                for (let i = 0; i < len; i++) {
+                    const digit = parseInt(integerPart[i]);
+                    const position = len - i - 1;
+                    const unit = units[position % 4];
+                    const bigUnit = bigUnits[Math.floor(position / 4)];
                     
                     if (digit === 0) {
-                        zeroCount++;
-                    } else {
-                        if (zeroCount > 0 && result.indexOf('零') === -1) {
-                            result = '零' + result;
+                        if (result.length > 0 && result[result.length - 1] !== '零') {
+                            result += '零';
                         }
-                        zeroCount = 0;
-                        result = bigDigits[digit] + unit + result;
+                    } else {
+                        result += bigDigits[digit] + unit;
                     }
-                    
-                    unitIndex++;
                 }
+                
+                // Clean up consecutive zeros
+                result = result.replace(/零+/g, '零').replace(/零+$/, '');
             }
             
-            // Handle decimal part
-            if (decimalPart) {
-                result += '点';
-                for (let i = 0; i < decimalPart.length; i++) {
-                    result += bigDigits[parseInt(decimalPart[i])];
+            // Handle decimal part (角/分)
+            if (decimalPart.length > 0) {
+                const jiao = parseInt(decimalPart[0]) || 0;
+                const fen = parseInt(decimalPart[1]) || 0;
+                
+                if (jiao > 0 || fen > 0) {
+                    if (jiao > 0) {
+                        result += bigDigits[jiao] + '角';
+                    } else {
+                        result += '零';
+                    }
+                    if (fen > 0) {
+                        result += bigDigits[fen] + '分';
+                    }
                 }
+            } else {
+                result += '整';
             }
             
-            return result;
+            if (isNegative) {
+                result = '负' + result;
+            }
+            
+            return result + '元';
         }
         
         // Chinese Uppercase to Number
