@@ -631,8 +631,6 @@
                 return;
             }
             
-            const resetButton = ToolsHub.showLoading(convertBtn);
-            
             let result;
             switch (selectedMode) {
                 case 's2t':
@@ -665,8 +663,6 @@
                     }
                     break;
             }
-            
-            resetButton();
         }
         
         // Event listeners
@@ -687,8 +683,18 @@
         copyBtn.addEventListener('click', function() {
             const text = selectedMode === 'pinyin' ? pinyinOutput.textContent : outputText.value;
             if (text) {
-                ToolsHub.copyToClipboard(text);
-                ToolsHub.showToast('已复制到剪贴板!');
+                navigator.clipboard.writeText(text).then(function() {
+                    alert('已复制到剪贴板!');
+                }).catch(function() {
+                    // Fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('已复制到剪贴板!');
+                });
             }
         });
     </script>
