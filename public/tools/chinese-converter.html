@@ -509,7 +509,7 @@
             
             const bigDigits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
             const units = ['', '拾', '佰', '仟'];
-            const bigUnits = ['', '万', '亿'];
+            const bigUnits = ['', '万', '亿', '兆'];
             
             num = parseFloat(num);
             
@@ -519,35 +519,49 @@
             
             // Split into integer and decimal parts
             const parts = num.toString().split('.');
-            let integerPart = parts[0];
+            let integerPart = parseInt(parts[0]) || 0;
             let decimalPart = parts[1] || '';
             
+            // Process in sections of 4 digits
+            let str = String(integerPart);
             let result = '';
+            let sectionIndex = 0;
             
-            if (parseInt(integerPart) === 0) {
-                result = '零';
-            } else {
-                result = '';
-                let len = integerPart.length;
+            while (str.length > 0) {
+                const section = parseInt(str.slice(-4));
+                str = str.slice(0, -4);
                 
-                for (let i = 0; i < len; i++) {
-                    const digit = parseInt(integerPart[i]);
-                    const position = len - i - 1;
-                    const unit = units[position % 4];
-                    const bigUnit = bigUnits[Math.floor(position / 4)];
+                if (section > 0) {
+                    let sectionStr = '';
+                    let unitPos = 0;
+                    let tempSection = section;
                     
-                    if (digit === 0) {
-                        if (result.length > 0 && result[result.length - 1] !== '零') {
-                            result += '零';
+                    while (tempSection > 0) {
+                        const digit = tempSection % 10;
+                        if (digit !== 0) {
+                            sectionStr = bigDigits[digit] + units[unitPos] + sectionStr;
+                        } else if (sectionStr.length > 0 && sectionStr[0] !== '零') {
+                            sectionStr = '零' + sectionStr;
                         }
-                    } else {
-                        result += bigDigits[digit] + unit;
+                        tempSection = Math.floor(tempSection / 10);
+                        unitPos++;
                     }
+                    
+                    // Clean up
+                    sectionStr = sectionStr.replace(/零+$/, '');
+                    sectionStr = sectionStr.replace(/^壹拾/, '拾');
+                    
+                    result = sectionStr + bigUnits[sectionIndex] + result;
                 }
                 
-                // Clean up consecutive zeros
-                result = result.replace(/零+/g, '零').replace(/零+$/, '');
+                sectionIndex++;
             }
+            
+            // Clean up consecutive zeros
+            result = result.replace(/零+/g, '零').replace(/零+$/, '');
+            result = result.replace(/^零/, '');
+            
+            if (result === '') result = '零';
             
             // Handle decimal part (角/分)
             if (decimalPart.length > 0) {
@@ -557,12 +571,12 @@
                 if (jiao > 0 || fen > 0) {
                     if (jiao > 0) {
                         result += bigDigits[jiao] + '角';
-                    } else {
-                        result += '零';
                     }
                     if (fen > 0) {
                         result += bigDigits[fen] + '分';
                     }
+                } else {
+                    result += '整';
                 }
             } else {
                 result += '整';
